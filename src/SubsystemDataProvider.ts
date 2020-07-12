@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { pathToFileURL } from 'url';
 import { join } from 'path';
-import { systemDefaultPlatform } from 'vscode-test/out/util';
+import { CodeElement,Method,Constant,Enum,EnumItem } from './codeElements';
 
 export class SubsystemDataProvider implements vscode.TreeDataProvider<vscode.TreeItem>{
     constructor() {
@@ -17,8 +16,10 @@ export class SubsystemDataProvider implements vscode.TreeDataProvider<vscode.Tre
         console.log("Get children" + element);
         if(element instanceof Subsystem){
             console.log(element);
-            console.log(element.funs);
-            return element.funs;
+            console.log(element.elements);
+            return element.elements;
+        } else if (element instanceof CodeElement){
+            return element.children;
         } else {
             console.log("Showing drivetrain subsystem");
             return [new Subsystem("Drivetrain", "src/robot/subsystems/Drivetrain.java", "The subsystem representing the drivetrain<br/>This controls the 6 {@link neos}", vscode.TreeItemCollapsibleState.Collapsed)];
@@ -29,7 +30,7 @@ export class SubsystemDataProvider implements vscode.TreeDataProvider<vscode.Tre
 
 class Subsystem extends vscode.TreeItem {
     
-    funs: Function[];
+    elements: CodeElement[];
 
     constructor(
         public readonly label: string,
@@ -38,7 +39,9 @@ class Subsystem extends vscode.TreeItem {
         public readonly collapsibleState: vscode.TreeItemCollapsibleState   
     )  {
         super(label, collapsibleState);
-        this.funs = [new Function("drive(double l, double r)", "Set the drivetrain speeds\n@param l Left speed\n@param r Right speed", vscode.TreeItemCollapsibleState.None)];
+        this.elements = [new Method("drive(double l, double r)", "Set the drivetrain speeds\n@param l Left speed\n@param r Right speed"),
+                        new Constant("MAX_SPEED", "The max speed the drivetrain can achieve"),
+                        new Enum("Sides", "Drivetrain sides", ["LEFT", "RIGHT"])];
     }
 
     get tooltip(): string {
@@ -52,29 +55,5 @@ class Subsystem extends vscode.TreeItem {
     iconPath = {
         dark: join(__filename, "..", "..", "resources", "dark", "subsystem.svg"),
         light: join(__filename, "..", "..", "resources", "light", "subsystem.svg")
-    };
-}
-
-class Function extends vscode.TreeItem{
-
-    constructor(
-        public readonly label: string,
-        public readonly javadoc: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState   
-    )  {
-        super(label, collapsibleState);
-    }
-
-    get tooltip(): string {
-        return this.javadoc.replace("<br/>", "\n");
-    }
-
-    get description(): string {
-        return this.javadoc;
-    }
-
-    iconPath = {
-        dark: join(__filename, "..", "..", "resources", "dark", "vscode", "method.svg"),
-        light: join(__filename, "..", "..", "resources", "light", "vscode", "method.svg")
     };
 }
