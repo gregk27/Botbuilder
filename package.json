@@ -19,7 +19,32 @@
 				"command": "ler-botbuilder.helloWorld",
 				"title": "Hello World"
 			}
-		]
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "ler-botbuilder",
+					"title": "LER BotBuilder",
+					"icon": "resources/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"ler-botbuilder":[
+				{
+					"id": "subsystems",
+					"name": "Subsystems",
+					"contextualTitle": "BotBuilder",
+					"icon": "resources/subsystem.svg"
+				},
+				{
+					"id": "commands",
+					"name": "commands",
+					"contextualTitle": "BotBuilder",
+					"icon": "resources/command.svg"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
