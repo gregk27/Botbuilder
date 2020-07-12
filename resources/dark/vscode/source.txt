@@ -1,0 +1,1 @@
+vscode icons taken from https://github.com/microsoft/vscode/tree/6511d05ec8f680d2fde87b4b5a1d909f78120697/src/vs/editor/contrib/suggest/media

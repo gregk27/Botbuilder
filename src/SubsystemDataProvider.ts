@@ -50,8 +50,8 @@ class Subsystem extends vscode.TreeItem {
     }
 
     iconPath = {
-        dark: join(__filename, "..", "..", "resources", "subsystem.svg"),
-        light: join(__filename, "..", "..", "resources", "subsystem.svg")
+        dark: join(__filename, "..", "..", "resources", "dark", "subsystem.svg"),
+        light: join(__filename, "..", "..", "resources", "light", "subsystem.svg")
     };
 }
 
@@ -74,7 +74,7 @@ class Function extends vscode.TreeItem{
     }
 
     iconPath = {
-        dark: join(__filename, "..", "..", "resources", "vscode", "method.svg"),
-        light: join(__filename, "..", "..", "resources", "vscode", "method.svg")
+        dark: join(__filename, "..", "..", "resources", "dark", "vscode", "method.svg"),
+        light: join(__filename, "..", "..", "resources", "light", "vscode", "method.svg")
     };
 }
