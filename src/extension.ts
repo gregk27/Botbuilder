@@ -54,6 +54,8 @@ function getCommands(): Command[]{
 		"A command to drive the robot with joystick input (passed in as {@link DoubleSupplier}s). Written\nexplicitly for pedagogical purposes - actual code should inline a command this simple with {@link\nedu.wpi.first.wpilibj2.command.RunCommand}.",
 		[]
 		),
+		new Command("Auto", "", "", [], Command.AUTO),
+		new Command("Instant", "", "", [], Command.INSTANT),
 		new Command("IntakeExtendCommand", "src/main/java/ler/robot/commands/instant/IntakeExtendCommand.java", 
 		"Extend the intake",
 		[],
