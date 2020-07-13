@@ -29,36 +29,23 @@ export class CodeElement extends vscode.TreeItem{
 }
 
 export class Field extends CodeElement{
-    constructor(
-        public readonly label: string,
-        public readonly javadoc: string,
-    )  {
+    constructor(label: string, javadoc: string)  {
         super(label, javadoc, "field", vscode.TreeItemCollapsibleState.None);
     }
 }
 export class Constant extends CodeElement{
-    constructor(
-        public readonly label: string,
-        public readonly javadoc: string,
-    )  {
+    constructor(label: string, javadoc: string)  {
         super(label, javadoc, "constant", vscode.TreeItemCollapsibleState.None);
     }
 }
 export class Method extends CodeElement{
-    constructor(
-        public readonly label: string,
-        public readonly javadoc: string,
-    )  {
+    constructor(label: string, javadoc: string)  {
         super(label, javadoc, "method", vscode.TreeItemCollapsibleState.None);
     }
 }
 
 export class Enum extends CodeElement{
-    constructor(
-        public readonly label: string,
-        public readonly javadoc: string,
-        children: string[]
-    )  {
+    constructor(label: string,javadoc: string,children: string[])  {
         super(label, javadoc, "enum", vscode.TreeItemCollapsibleState.Collapsed);
         for(let s of children){
             this.children.push(new EnumItem(s, ""));
@@ -67,10 +54,26 @@ export class Enum extends CodeElement{
 }
 
 export class EnumItem extends CodeElement{
-    constructor(
-        public readonly label: string,
-        public readonly javadoc: string,
+    constructor( label: string, javadoc: string,
     )  {
         super(label, javadoc, "enumItem", vscode.TreeItemCollapsibleState.None);
+    }
+}
+
+export class ReferencedSubsystem extends CodeElement {
+    constructor(label: string, javadoc: string, required: boolean)  {
+        let icon = "";
+        if(required){
+            icon = "../requiredSubsystem";
+        } else {
+            icon = "../subsystem";
+        }
+        super(label, javadoc, icon, vscode.TreeItemCollapsibleState.None);
+    }
+}
+
+export class DefaultCommand extends CodeElement {
+    constructor(label: string, javadoc: string)  {
+        super(label, javadoc, "../command", vscode.TreeItemCollapsibleState.None);
     }
 }

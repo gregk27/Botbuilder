@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { DataProvider } from './dataProvider';
 import { Subsystem, Command } from './treeType';
-import { Method, Constant, Enum } from './codeElements';
+import { Method, Constant, Enum, ReferencedSubsystem } from './codeElements';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -52,13 +52,14 @@ function getCommands(): Command[]{
 	return [
 		new Command("DriveCommand", "src/main/java/ler/robot/commands/DriveCommand.java", 
 		"A command to drive the robot with joystick input (passed in as {@link DoubleSupplier}s). Written\nexplicitly for pedagogical purposes - actual code should inline a command this simple with {@link\nedu.wpi.first.wpilibj2.command.RunCommand}.",
-		[]
+		[new ReferencedSubsystem("Drivetrain", "Drivetrain", true)]
 		),
 		new Command("Auto", "", "", [], Command.AUTO),
 		new Command("Instant", "", "", [], Command.INSTANT),
 		new Command("IntakeExtendCommand", "src/main/java/ler/robot/commands/instant/IntakeExtendCommand.java", 
 		"Extend the intake",
-		[],
+		[new ReferencedSubsystem("Intake", "Intake", true), 
+		new ReferencedSubsystem("Conveyor", "Conveyor", false)],
 		Command.AUTO | Command.INSTANT
 		)
 	];
