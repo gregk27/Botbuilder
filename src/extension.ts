@@ -3,7 +3,8 @@
 import * as vscode from 'vscode';
 import { DataProvider } from './dataProvider';
 import { Subsystem, Command } from './treeType';
-import { Method, Constant, Enum, ReferencedSubsystem } from './codeElements';
+import { Method, Constant, Enum, ReferencedSubsystem, DefaultCommand } from './codeElements';
+import * as Loader from './loader';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -22,8 +23,11 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from LER BotBuilder!');
 	});
-	vscode.window.registerTreeDataProvider('subsystems', new DataProvider(getSubsystems));
-	vscode.window.registerTreeDataProvider('commands', new DataProvider(getCommands));
+	Loader.load(vscode.workspace.rootPath || "").then(()=>{
+		console.log("Registering");
+		vscode.window.registerTreeDataProvider('subsystems', new DataProvider(getSubsystems));
+		vscode.window.registerTreeDataProvider('commands', new DataProvider(getCommands));
+	});
 
 	context.subscriptions.push(disposable);
 }
@@ -34,10 +38,12 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 function getSubsystems(): Subsystem[]{
+	return Loader.subsystems;
 	return [
 		new Subsystem("Drivetrain", "src/robot/subsystems/Drivetrain.java", 
 			"The subsystem representing the drivetrain<br/>This controls the 6 {@link neos}", 
-			[new Method("drive(double l, double r)", "Set the drivetrain speeds\n@param l Left speed\n@param r Right speed"),
+			[new DefaultCommand("DriveCommand", "DriveCommand"),
+			new Method("drive(double l, double r)", "Set the drivetrain speeds\n@param l Left speed\n@param r Right speed"),
 			 new Constant("MAX_SPEED", "The max speed the drivetrain can achieve"),
 			 new Enum("Sides", "Drivetrain sides", ["LEFT", "RIGHT"])]
 		),
@@ -49,6 +55,7 @@ function getSubsystems(): Subsystem[]{
 }
 
 function getCommands(): Command[]{
+	return Loader.commands;
 	return [
 		new Command("DriveCommand", "src/main/java/ler/robot/commands/DriveCommand.java", 
 		"A command to drive the robot with joystick input (passed in as {@link DoubleSupplier}s). Written\nexplicitly for pedagogical purposes - actual code should inline a command this simple with {@link\nedu.wpi.first.wpilibj2.command.RunCommand}.",

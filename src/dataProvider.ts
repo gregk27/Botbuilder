@@ -4,7 +4,7 @@ import { CodeElement } from './codeElements';
 
 export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     
-    constructor(private getter : ()=>TreeType[]){
+    constructor(private getter: ()=>TreeType[]){
         
     }
     
