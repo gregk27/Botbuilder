@@ -1,8 +1,6 @@
 import * as fs from 'fs';
 import { Subsystem, Command } from './treeType';
-import { parse } from 'path';
-import { DebugConsoleMode } from 'vscode';
-import { pathToFileURL } from 'url';
+import { parse } from './javaParser/javaParser';
 
 export var subsystems:Subsystem[] = [];
 export var commands:Command[] = [];
@@ -34,6 +32,7 @@ async function parseDir(root:string, files: string[]){
             promises.push(parseDir(filePath+"/", fs.readdirSync(filePath)));
         } else {
             let content = fs.readFileSync(filePath).toString();
+            parse(filePath, filePath.replace("src/main/java/", "build/classes/java/main/").replace(".java", ".class"));
         }
     }
     await Promise.all(promises);

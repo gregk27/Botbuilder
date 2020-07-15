@@ -31,7 +31,7 @@
 			]
 		},
 		"views": {
-			"ler-botbuilder":[
+			"ler-botbuilder": [
 				{
 					"id": "subsystems",
 					"name": "Subsystems",
@@ -53,7 +53,7 @@
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
-		"test": "node ./out/test/runTest.js"
+		"test": "node ./out/test/parserTest.js"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.47.0",
@@ -67,5 +67,8 @@
 		"mocha": "^7.1.2",
 		"typescript": "^3.8.3",
 		"vscode-test": "^1.3.0"
+	},
+	"dependencies": {
+		"java-class-tools": "^1.3.2"
 	}
 }
