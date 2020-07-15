@@ -22,7 +22,8 @@ export interface JavaField {
     type: Type;
     static: boolean,
     constant: boolean,
-    scope: Scope
+    scope: Scope,
+    constVal: any
 }
 
 export class Type {
