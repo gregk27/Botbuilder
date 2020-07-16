@@ -1,8 +1,9 @@
 import * as fs from 'fs';
-import {JavaClass, JavaField, Type, Scope, ClassType} from './interfaces';
-import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo} from 'java-class-tools';
+import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes} from './interfaces';
+import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
 import Big from 'big.js';
+import { METHODS } from 'http';
 
 const reader = new JavaClassFileReader();
 const textDecoder = new TextDecoder();
@@ -18,9 +19,14 @@ export function parse(path:string, classPath:string) : JavaClass{
     console.log(`Parsing ${classname}, extends ${superclass}`);
 
     let fields: JavaField[] = [];
+    let methods: JavaMethod[] = [];
 
     for(let field of file.fields){
         fields.push(getField(file, field));
+    }
+
+    for(let method of file.methods){
+        methods.push(getMethod(file, method));
     }
 
     console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
@@ -32,9 +38,9 @@ export function parse(path:string, classPath:string) : JavaClass{
         signature:classname,
         srcFile:"file.java",
         superclass,
-        fields
+        fields,
+        methods
     }
-
 }
 
 function getClassType(access:number){
@@ -146,4 +152,57 @@ function getField(file:JavaClassFile, field:FieldInfo): JavaField{
         scope,
         constVal
     }
+}
+
+function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
+    let name = getStringFromPool(file, method.name_index);
+    let descriptor = getStringFromPool(file, method.descriptor_index);
+    let returnType = new Type(descriptor.substr(descriptor.lastIndexOf(")")+1));
+    let argString = descriptor.substring(1, descriptor.lastIndexOf(")"));
+    let args: Type[] = [];
+    let currentArrayStart = -1;
+    for(let i = 0; i<argString.length; i++){
+        if(argString[i] === "["){ // Track start of array
+            if(currentArrayStart === -1){ 
+                currentArrayStart = i;
+            }
+            continue;
+        } else if (currentArrayStart >= 0){ // If this trips, then we've hit the end of the array count
+            if (argString[i] === "L"){
+                args.push(new Type(argString.substring(currentArrayStart, argString.indexOf(";", i)+1)));
+                i = argString.indexOf(";", i);
+            } else {
+                args.push(new Type(argString.substring(currentArrayStart, i+1)));
+            }
+            currentArrayStart = -1;
+        } else if (argString[i] === "L"){
+            args.push(new Type(argString.substring(i, argString.indexOf(";", i)+1)));
+            i = argString.indexOf(";", i);
+        } else {
+            args.push(new Type(argString[i]));
+        }
+    }
+
+    let prettySignature = name+"(";
+    for(let arg of args){
+        prettySignature+=arg.pretty+", ";
+    }
+    if(prettySignature.endsWith(", ")){
+        prettySignature = prettySignature.substring(0,prettySignature.length-2);
+    }
+    prettySignature+= ")";
+    if(returnType.type !== DescriptorTypes.VOID){
+        prettySignature += "=>"+returnType.pretty;
+    }
+
+    return {
+        scope:getScope(method.access_flags),
+        static: (method.access_flags & Modifier.STATIC) === Modifier.STATIC,
+        abstract: (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
+        name,
+        signatrue: name+descriptor,
+        prettySignature,
+        returnType,
+        args
+    };
 }

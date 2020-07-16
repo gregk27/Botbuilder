@@ -6,16 +6,19 @@ export interface JavaClass {
     signature: string,
     srcFile: string,
     superclass: string,
-    fields: JavaField[]
+    fields: JavaField[],
+    methods: JavaMethod[]
 }
 
-export interface JavaMethod {
-    scope: string,
+export interface JavaMethod {        
+    scope: Scope,
     static: boolean,
     abstract: boolean,
-    returnType: string,
     name: string,
-    signatrue: string
+    signatrue: string,
+    prettySignature: string,
+    returnType: Type,
+    args: Type[]
 }
 
 export interface JavaField {
@@ -76,7 +79,11 @@ export class Type {
                     break;
                 case(DescriptorTypes.BOOLEAN):
                     this.type = DescriptorTypes.BOOLEAN;
-                    this.pretty = "boolean"
+                    this.pretty = "boolean";
+                    break;
+                case(DescriptorTypes.VOID):
+                    this.type = DescriptorTypes.VOID;
+                    this.pretty = "void";
                     break;
             }
         }
@@ -97,6 +104,7 @@ export enum DescriptorTypes{
     LONG = "J",
     SHORT = "S",
     BOOLEAN = "Z",
+    VOID = "V",
     CLASS = "L",
     ARRAY = "["
 }
