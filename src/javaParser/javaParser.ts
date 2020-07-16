@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import {JavaClass, JavaField, Type, Scope} from './interfaces';
+import {JavaClass, JavaField, Type, Scope, ClassType} from './interfaces';
 import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
 import Big from 'big.js';
@@ -7,7 +7,7 @@ import Big from 'big.js';
 const reader = new JavaClassFileReader();
 const textDecoder = new TextDecoder();
 
-export function parse(path:string, classPath:string){
+export function parse(path:string, classPath:string) : JavaClass{
     let startTime = new Date();
     let file = reader.read(classPath);
     console.log(JSON.stringify(file));
@@ -17,11 +17,50 @@ export function parse(path:string, classPath:string){
 
     console.log(`Parsing ${classname}, extends ${superclass}`);
 
+    let fields: JavaField[] = [];
+
     for(let field of file.fields){
-        console.log(getField(file, field));
+        fields.push(getField(file, field));
     }
 
     console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
+
+    return {
+        public: ((file.access_flags & Modifier.PUBLIC) === Modifier.PUBLIC),
+        type: getClassType(file.access_flags),
+        name: classname.substr(classname.lastIndexOf("/")+1),
+        signature:classname,
+        srcFile:"file.java",
+        superclass,
+        fields
+    }
+
+}
+
+function getClassType(access:number){
+    if((access & Modifier.ENUM) === Modifier.ENUM){
+        return ClassType.ENUM;
+    } else if((access & Modifier.FINAL) === Modifier.FINAL){
+        return ClassType.FINAL;
+    } else if ((access & Modifier.INTERFACE) === Modifier.INTERFACE){
+        return ClassType.INTERFACE;
+    } else if((access & Modifier.ABSTRACT) === Modifier.ABSTRACT){
+        return ClassType.ABSTRACT;
+    } else {
+        return ClassType.NORMAL;
+    }
+}
+
+function getScope(access:number):Scope{
+    if((access & Modifier.PRIVATE) === Modifier.PRIVATE){
+        return Scope.PRIVATE;
+    } else if ((access & Modifier.PROTECTED) === Modifier.PROTECTED){
+        return Scope.PROTECTED;
+    } else if((access & Modifier.PUBLIC) === Modifier.PUBLIC){
+        return Scope.PUBLIC;
+    } else {
+        return Scope.DEFAULT;
+    }
 }
 
 function getValueFromPool(file:JavaClassFile, index:number): any{
@@ -90,14 +129,7 @@ function getField(file:JavaClassFile, field:FieldInfo): JavaField{
         return null;
     }
     let type = new Type(descriptor);
-    let scope = Scope.DEFAULT;
-    if((field.access_flags & Modifier.PRIVATE) === Modifier.PRIVATE){
-        scope = Scope.PRIVATE;
-    } else if ((field.access_flags & Modifier.PROTECTED) === Modifier.PROTECTED){
-        scope = Scope.PROTECTED;
-    } else if((field.access_flags & Modifier.PUBLIC) === Modifier.PUBLIC){
-        scope = Scope.PUBLIC;
-    }
+    let scope = getScope(field.access_flags);
 
     let constVal = null;
     for(let attr of field.attributes){

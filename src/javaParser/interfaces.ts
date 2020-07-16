@@ -1,14 +1,15 @@
 
 export interface JavaClass {
-    javadoc: string,
-    scope: string,
+    public: boolean,
+    type: ClassType,
     name: string,
-    superClass: string,
-    interfaces: string[],
+    signature: string,
+    srcFile: string,
+    superclass: string,
+    fields: JavaField[]
 }
 
 export interface JavaMethod {
-    javadoc: string,
     scope: string,
     static: boolean,
     abstract: boolean,
@@ -105,4 +106,12 @@ export enum Scope {
     DEFAULT="Default",
     PROTECTED="Protected",
     PUBLIC="Public"
+}
+
+export enum ClassType {
+    NORMAL="",
+    FINAL="Final",
+    INTERFACE="Interface",
+    ABSTRACT="Abstract",
+    ENUM="Enum"
 }
