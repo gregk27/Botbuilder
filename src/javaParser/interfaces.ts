@@ -1,3 +1,5 @@
+import { PRIORITY_HIGHEST } from "constants";
+import { DocumentSemanticTokensProvider } from "vscode";
 
 export interface JavaClass {
     public: boolean,
@@ -10,15 +12,63 @@ export interface JavaClass {
     methods: JavaMethod[]
 }
 
-export interface JavaMethod {        
-    scope: Scope,
-    static: boolean,
-    abstract: boolean,
-    name: string,
-    signatrue: string,
-    prettySignature: string,
-    returnType: Type,
-    args: Type[]
+abstract class JavaElement {
+    constructor(
+        public nameIndex: number,
+        public descriptorIndex: number,
+        public name: string,
+        public descriptor: string,
+        public parentClass: string,
+        public scope: Scope,
+        public isStatic: boolean
+    ){
+
+    }
+
+    public equals(e:JavaElement): boolean{
+        return e.parentClass === this.parentClass
+            && e.name === this.name
+            && e.descriptor === this.descriptor;
+    }
+
+    public toString(): string{
+        return this.parentClass.replace(/\//g, ".")+"."+this.name+this.descriptor;
+    }
+
+    public abstract prettyName(includeClass:boolean): string;
+
+    public is(signature:string): boolean{
+        return this.parentClass+this.name+this.descriptor === signature;
+    }
+}
+
+export class JavaMethod extends JavaElement{       
+    
+    constructor(
+        public nameIndex: number,
+        public descriptorIndex: number,
+        public name: string,
+        public descriptor: string,
+        public parentClass: string,
+        public scope: Scope,
+        public isStatic: boolean,
+        public isAbstract: boolean,
+        public returnType: Type,
+        public args: Type[],
+        private prettySiganture: string,
+    ) {
+        super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic);
+    }
+
+    public prettyName(includeClass:boolean): string{
+        let out = includeClass ? this.parentClass.replace(/\//g, ".")+" " : ""; 
+        out += this.scope+" ";
+        if(this.isStatic) out += "static ";
+        if(this.isAbstract) out += "abstract ";
+        out += this.returnType.pretty+" ";
+        out += this.prettySiganture;
+        return out;
+    }
 }
 
 export interface JavaField {
@@ -110,10 +160,10 @@ export enum DescriptorTypes{
 }
 
 export enum Scope {
-    PRIVATE="Private",
-    DEFAULT="Default",
-    PROTECTED="Protected",
-    PUBLIC="Public"
+    PRIVATE="private",
+    DEFAULT="",
+    PROTECTED="protected",
+    PUBLIC="public"
 }
 
 export enum ClassType {

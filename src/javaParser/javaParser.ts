@@ -11,7 +11,7 @@ const textDecoder = new TextDecoder();
 export function parse(path:string, classPath:string) : JavaClass{
     let startTime = new Date();
     let file = reader.read(classPath);
-    console.log(JSON.stringify(file));
+    // console.log(JSON.stringify(file));
     // let classname = classFile.constant_pool[(<ClassInfo> classFile.constant_pool[classFile.this_class]).name_index];
     let classname = getClassName(file, file.this_class);
     let superclass = getClassName(file, file.super_class)
@@ -27,6 +27,8 @@ export function parse(path:string, classPath:string) : JavaClass{
 
     for(let method of file.methods){
         methods.push(getMethod(file, method));
+        console.log(methods[methods.length-1].toString());
+        console.log(methods[methods.length-1].prettyName(true));
     }
 
     console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
@@ -195,14 +197,19 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
         prettySignature += "=>"+returnType.pretty;
     }
 
-    return {
-        scope:getScope(method.access_flags),
-        static: (method.access_flags & Modifier.STATIC) === Modifier.STATIC,
-        abstract: (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
-        name,
-        signatrue: name+descriptor,
-        prettySignature,
-        returnType,
-        args
-    };
+    return new JavaMethod(method.name_index, method.descriptor_index, 
+        name, descriptor, getClassName(file, file.this_class), 
+        getScope(method.access_flags), (method.access_flags & Modifier.STATIC) === Modifier.STATIC, (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
+        returnType, args, prettySignature);
+
+    // return {
+    //     scope:getScope(method.access_flags),
+    //     static: (method.access_flags & Modifier.STATIC) === Modifier.STATIC,
+    //     abstract: (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
+    //     name,
+    //     signatrue: name+descriptor,
+    //     prettySignature,
+    //     returnType,
+    //     args
+    // };
 }
