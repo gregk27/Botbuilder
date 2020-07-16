@@ -1,12 +1,11 @@
 import * as fs from 'fs';
 import {JavaClass, JavaField, Type, Scope} from './interfaces';
-import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo} from 'java-class-tools';
+import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
+import Big from 'big.js';
 
 const reader = new JavaClassFileReader();
 const textDecoder = new TextDecoder();
-
-
 
 export function parse(path:string, classPath:string){
     let startTime = new Date();
@@ -45,19 +44,33 @@ function getStringFromPool(file:JavaClassFile, index:number): string {
     return null;
 }
 
-function getNumberFromPool(file:JavaClassFile, index:number): number{
-    let info = file.constant_pool[index];
+function getNumberFromPool(file:JavaClassFile, index:number): number | bigint{
+    let info = <any> file.constant_pool[index];
+    let bytes = null;
+    if(info?.bytes !== undefined){
+        bytes = info.bytes;
+    } else if (info?.low_bytes !== undefined){
+        bytes = (BigInt(info.high_bytes) << BigInt(32)) + BigInt(info.low_bytes);
+    } else {
+        return null;
+    }
+
     switch(info.tag){
         case ConstantType.INTEGER:
-            return (<IntegerInfo> info).bytes;
+        case ConstantType.LONG:
+            return bytes;
         case ConstantType.FLOAT:
-            let bytes = (<FloatInfo> info).bytes;
-            let s = ((bytes >> 31) === 0) ? 1 : -1;
-            let e = ((bytes >> 23) & 0xff);
-            let m = e === 0 ? (bytes & 0x7fffff) << 1 : (bytes & 0x7fffff) | 0x800000;
-            return Number.parseFloat((s*m*2**(e-150)).toPrecision(6));
-
-
+            let sf = ((bytes >> 31) === 0) ? 1 : -1;
+            let ef = ((bytes >> 23) & 0xff);
+            let mf = ef === 0 ? (bytes & 0x7fffff) << 1 : (bytes & 0x7fffff) | 0x800000;
+            return Number.parseFloat((sf*mf*2**(ef-150)).toPrecision(6));
+        case ConstantType.DOUBLE:
+            let sd = bytes >> BigInt(63) === BigInt(0) ? BigInt(1) : BigInt(-1);
+            let ed = (bytes >> BigInt(52)) & BigInt(0x7ff);
+            let md = ed === BigInt(0) ?
+                bytes & BigInt(0xfffffffffffff) >> BigInt(1):
+                (bytes & BigInt(0xfffffffffffff)) | BigInt(0x10000000000000);
+            return Number(sd)*Number(md)*Math.pow(2, Number(ed)-1075);
     }
     return null;
 
