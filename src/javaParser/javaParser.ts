@@ -23,12 +23,18 @@ export function parse(path:string, classPath:string) : JavaClass{
 
     for(let field of file.fields){
         fields.push(getField(file, field));
+        console.log(fields[fields.length-1].toString());
+        console.log(fields[fields.length-1].getPrettyName());
+        console.log(fields[fields.length-1].getFullPrettyName(true));
+        console.log();
     }
 
     for(let method of file.methods){
         methods.push(getMethod(file, method));
         console.log(methods[methods.length-1].toString());
-        console.log(methods[methods.length-1].prettyName(true));
+        console.log(methods[methods.length-1].getPrettyName());
+        console.log(methods[methods.length-1].getFullPrettyName(true));
+        console.log();
     }
 
     console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
@@ -40,6 +46,7 @@ export function parse(path:string, classPath:string) : JavaClass{
         signature:classname,
         srcFile:"file.java",
         superclass,
+        classFile: file,
         fields,
         methods
     }
@@ -146,14 +153,11 @@ function getField(file:JavaClassFile, field:FieldInfo): JavaField{
         }
     }
 
-    return {
-        name: <string> getStringFromPool(file, field.name_index),
-        type, 
-        static:((field.access_flags & Modifier.STATIC) === Modifier.STATIC),
-        constant: ((field.access_flags & Modifier.FINAL) === Modifier.FINAL),
-        scope,
-        constVal
-    }
+    return new JavaField(field.name_index, field.descriptor_index,
+        getStringFromPool(file, field.name_index), getStringFromPool(file, field.descriptor_index), getClassName(file, file.this_class),
+        scope, ((field.access_flags & Modifier.FINAL) === Modifier.FINAL), ((field.access_flags & Modifier.STATIC) === Modifier.STATIC),
+        type, constVal);
+
 }
 
 function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
@@ -199,7 +203,7 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
 
     return new JavaMethod(method.name_index, method.descriptor_index, 
         name, descriptor, getClassName(file, file.this_class), 
-        getScope(method.access_flags), (method.access_flags & Modifier.STATIC) === Modifier.STATIC, (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
+        getScope(method.access_flags), (method.access_flags & Modifier.STATIC) === Modifier.STATIC, (method.access_flags & Modifier.FINAL) === Modifier.FINAL, (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
         returnType, args, prettySignature);
 
     // return {

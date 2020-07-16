@@ -1,5 +1,4 @@
-import { PRIORITY_HIGHEST } from "constants";
-import { DocumentSemanticTokensProvider } from "vscode";
+import { JavaClassFile } from "java-class-tools";
 
 export interface JavaClass {
     public: boolean,
@@ -8,6 +7,7 @@ export interface JavaClass {
     signature: string,
     srcFile: string,
     superclass: string,
+    classFile: JavaClassFile,
     fields: JavaField[],
     methods: JavaMethod[]
 }
@@ -20,7 +20,8 @@ abstract class JavaElement {
         public descriptor: string,
         public parentClass: string,
         public scope: Scope,
-        public isStatic: boolean
+        public isStatic: boolean,
+        public isFinal: boolean
     ){
 
     }
@@ -35,7 +36,18 @@ abstract class JavaElement {
         return this.parentClass.replace(/\//g, ".")+"."+this.name+this.descriptor;
     }
 
-    public abstract prettyName(includeClass:boolean): string;
+    /**
+     *  Internal function used to get the pretty name.
+     *  This is used by prettyName(boolean), and is appended to the class name as required
+     */
+    public abstract getPrettyName(): string;
+    public getFullPrettyName(includeClass:boolean): string{
+        let out = includeClass ? this.parentClass.replace(/\//g, ".")+"/" : ""; 
+        if(this.scope !== Scope.DEFAULT) out += this.scope+" ";
+        if(this.isStatic) out += "static ";
+        if(this.isFinal) out += "final ";
+        return out+this.getPrettyName();
+    };
 
     public is(signature:string): boolean{
         return this.parentClass+this.name+this.descriptor === signature;
@@ -52,32 +64,44 @@ export class JavaMethod extends JavaElement{
         public parentClass: string,
         public scope: Scope,
         public isStatic: boolean,
+        public isFinal: boolean,
         public isAbstract: boolean,
         public returnType: Type,
         public args: Type[],
         private prettySiganture: string,
     ) {
-        super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic);
+        super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic, isFinal);
     }
 
-    public prettyName(includeClass:boolean): string{
-        let out = includeClass ? this.parentClass.replace(/\//g, ".")+" " : ""; 
-        out += this.scope+" ";
-        if(this.isStatic) out += "static ";
-        if(this.isAbstract) out += "abstract ";
-        out += this.returnType.pretty+" ";
-        out += this.prettySiganture;
-        return out;
+    public getPrettyName(): string{
+        return this.prettySiganture;
     }
 }
 
-export interface JavaField {
-    name: string,
-    type: Type;
-    static: boolean,
-    constant: boolean,
-    scope: Scope,
-    constVal: any
+export class JavaField extends JavaElement{
+    constructor(
+        public nameIndex: number,
+        public descriptorIndex: number,
+        public name: string,
+        public descriptor: string,
+        public parentClass: string,
+        public scope: Scope,
+        public isFinal: boolean,
+        public isStatic: boolean,
+        public type: Type,
+        public constVal: any
+    ){
+        super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic, isFinal);
+    }
+
+    public getPrettyName(): string{
+        let out = this.type.pretty+" ";
+        out += this.name;
+        if(this.isFinal){
+            out+= "="+this.constVal;
+        }
+        return out;
+    }
 }
 
 export class Type {
@@ -161,7 +185,7 @@ export enum DescriptorTypes{
 
 export enum Scope {
     PRIVATE="private",
-    DEFAULT="",
+    DEFAULT="default",
     PROTECTED="protected",
     PUBLIC="public"
 }
