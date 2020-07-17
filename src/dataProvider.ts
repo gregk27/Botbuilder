@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { TreeType } from './treeType';
 import { TreeElement } from './codeElements';
+import { JavaElement, Scope } from './javaParser/interfaces';
 
 export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     
@@ -18,6 +19,12 @@ export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     getTreeItem(element: TreeElement | vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if(element instanceof vscode.TreeItem){
             return element;
+        } else if(element instanceof JavaElement){
+            if((<JavaElement> element).scope === Scope.PUBLIC || ((<JavaElement> element).isStatic && (<JavaElement> element).isFinal)){
+                return TreeElement.getTreeItem(element);
+            } else {
+                return null;
+            }
         } else {
             return TreeElement.getTreeItem(element);
         }

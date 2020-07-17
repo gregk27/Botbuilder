@@ -37,12 +37,12 @@ export class JavaClass extends JavaBase{
         if(includeClass){
             return this.getPrettyName() + " extends " + this.superClass; 
         } else {
-            return this.getPrettyName() + " extends " + this.superClass.substr(this.superClass.lastIndexOf("/"));
+            return this.getPrettyName() + " extends " + this.superClass.substr(this.superClass.lastIndexOf("/")+1);
         }
     }
 }
 
-abstract class JavaElement extends JavaBase{
+export abstract class JavaElement extends JavaBase{
     constructor(
         public nameIndex: number,
         public descriptorIndex: number,

@@ -1,6 +1,6 @@
 import { TreeItemCollapsibleState, TreeItem} from 'vscode';
 import * as Path from 'path';
-import { JavaField, JavaMethod } from './javaParser/interfaces';
+import { JavaField, JavaMethod, Scope } from './javaParser/interfaces';
 
 
 
@@ -70,7 +70,7 @@ export class Field extends JavaField implements TreeElement {
         return this.getFullPrettyName(false);
     }
     getIcon(): { dark: string; light: string; } {
-        let icon = this.isFinal ? "constant" : "field";
+        let icon = this.isFinal ? (this.scope === Scope.PUBLIC && this.isStatic ? "publicStaticConstant" : "constant") : "field";
         return {
             dark: TreeElement.RES_FOLDER + `/dark/vscode/${icon}.svg`,
             light: TreeElement.RES_FOLDER + `/light/vscode/${icon}.svg`
