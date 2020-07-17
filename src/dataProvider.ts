@@ -7,8 +7,14 @@ export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     constructor(private getter: ()=>TreeType[]){
         
     }
+
+    private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined> = new vscode.EventEmitter<vscode.TreeItem | undefined>();
+    onDidChangeTreeData?: vscode.Event<void | vscode.TreeItem | null | undefined> | undefined  = this._onDidChangeTreeData.event;
     
-    onDidChangeTreeData?: vscode.Event<void | vscode.TreeItem | null | undefined> | undefined;
+    public refresh(){
+        this._onDidChangeTreeData.fire(null);
+    }
+    
     getTreeItem(element: TreeElement | vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if(element instanceof vscode.TreeItem){
             return element;

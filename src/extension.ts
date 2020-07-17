@@ -4,6 +4,10 @@ import * as vscode from 'vscode';
 import { DataProvider } from './dataProvider';
 import { Subsystem, Command } from './treeType';
 import * as Loader from './loader';
+import * as fs from 'fs';
+import { Console } from 'console';
+
+let providers:DataProvider[] = [];
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -16,16 +20,22 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('ler-botbuilder.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from LER BotBuilder!');
+	let disposable = vscode.commands.registerCommand('ler-botbuilder.refresh', () => {
+		refresh();
 	});
 	Loader.load(vscode.workspace.rootPath || "").then(()=>{
 		console.log("Registering");
-		vscode.window.registerTreeDataProvider('subsystems', new DataProvider(getSubsystems));
-		vscode.window.registerTreeDataProvider('commands', new DataProvider(getCommands));
+		let d = new DataProvider(getSubsystems);
+		providers.push(d);
+		vscode.window.registerTreeDataProvider('subsystems', d);
+		d = new DataProvider(getCommands);
+		providers.push(d);
+		vscode.window.registerTreeDataProvider('commands', d);
+	});
+
+	fs.watch(vscode.workspace.rootPath +"/build/classes", {persistent:false, recursive:true}, (event, filename)=>{
+		console.log(event+":"+filename);
+		refresh(1000);
 	});
 
 	context.subscriptions.push(disposable);
@@ -36,37 +46,33 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {}
 
+
+// Timer optionally used by refresh to prevent multiple calls
+var refreshTimer:NodeJS.Timeout = null;
+/**
+ * Refresh the treeview.
+ * @param timeout A timeout with this duration will be created, if another call to refresh() is made before the timeout occurs, the refresh will be cancelled in favour of the newer one
+ */
+function refresh(timeout = 0){
+	// Clear existing timer
+	if(refreshTimer !== null){
+		clearTimeout(refreshTimer);
+	}
+
+	refreshTimer = setTimeout(() => {
+		console.log("Refreshing");
+		Loader.load(vscode.workspace.rootPath).then(()=>{
+			for(let p of providers){
+				p.refresh();
+			}
+		});
+	}, timeout);
+}
+
 function getSubsystems(): Subsystem[]{
 	return Loader.subsystems;
-	// return [
-	// 	new Subsystem("Drivetrain", "src/robot/subsystems/Drivetrain.java", 
-	// 		"The subsystem representing the drivetrain<br/>This controls the 6 {@link neos}", 
-	// 		[new DefaultCommand("DriveCommand", "DriveCommand"),
-	// 		new Method("drive(double l, double r)", "Set the drivetrain speeds\n@param l Left speed\n@param r Right speed"),
-	// 		 new Constant("MAX_SPEED", "The max speed the drivetrain can achieve"),
-	// 		 new Enum("Sides", "Drivetrain sides", ["LEFT", "RIGHT"])]
-	// 	),
-	// 	new Subsystem("Shooter", "src/robot/subsystems/Shooter.java", 
-	// 		"Subsystem to control Shooter wheels", 
-	// 		[]
-	// 	)
-	// 	];
 }
 
 function getCommands(): Command[]{
 	return Loader.commands;
-	// return [
-	// 	new Command("DriveCommand", "src/main/java/ler/robot/commands/DriveCommand.java", 
-	// 	"A command to drive the robot with joystick input (passed in as {@link DoubleSupplier}s). Written\nexplicitly for pedagogical purposes - actual code should inline a command this simple with {@link\nedu.wpi.first.wpilibj2.command.RunCommand}.",
-	// 	[new ReferencedSubsystem("Drivetrain", "Drivetrain", true)]
-	// 	),
-	// 	new Command("Auto", "", "", [], Command.AUTO),
-	// 	new Command("Instant", "", "", [], Command.INSTANT),
-	// 	new Command("IntakeExtendCommand", "src/main/java/ler/robot/commands/instant/IntakeExtendCommand.java", 
-	// 	"Extend the intake",
-	// 	[new ReferencedSubsystem("Intake", "Intake", true), 
-	// 	new ReferencedSubsystem("Conveyor", "Conveyor", false)],
-	// 	Command.AUTO | Command.INSTANT
-	// 	)
-	// ];
 }

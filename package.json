@@ -10,15 +10,19 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:ler-botbuilder.helloWorld",
 		"onView:subsystems"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "ler-botbuilder.helloWorld",
-				"title": "Hello World"
+				"command": "ler-botbuilder.refresh",
+				"title": "Refresh BotBuilder",
+                "icon": "$(refresh)"
+			},
+			{
+				"command": "ler-botbuilder.toggleScope",
+				"title": "Toggle BotBuilder scope"
 			}
 		],
 		"viewsContainers": {
@@ -45,6 +49,23 @@
 					"icon": "resources/command.svg"
 				}
 			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "ler-botbuilder.refresh",
+					"when": "view == subsystems || view == commands",
+					"group": "navigation"
+				}
+			],
+			"commandPalette": [
+				{
+					"command":"ler-botbuilder.refresh",
+					"when": "never"
+				}
+
+			]
+
 		}
 	},
 	"scripts": {
