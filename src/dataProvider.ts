@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { TreeType } from './treeType';
-import { CodeElement } from './codeElements';
+import { TreeElement } from './codeElements';
 
 export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     
@@ -9,14 +9,18 @@ export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     }
     
     onDidChangeTreeData?: vscode.Event<void | vscode.TreeItem | null | undefined> | undefined;
-    getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        return element;
+    getTreeItem(element: TreeElement | vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+        if(element instanceof vscode.TreeItem){
+            return element;
+        } else {
+            return TreeElement.getTreeItem(element);
+        }
     }
     getChildren(element?: vscode.TreeItem | undefined): vscode.ProviderResult<vscode.TreeItem[]> {
         if(element instanceof TreeType){
             return element.elements;
-        } else if (element instanceof CodeElement){
-            return element.children;
+        } else if ('children' in element){
+            return (<TreeElement> element).children;
         } else {
             return this.getter();
         }

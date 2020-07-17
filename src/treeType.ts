@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { CodeElement,Method,Constant,Enum,EnumItem } from './codeElements';
 import * as Path from 'path';
+import { TreeElement } from './codeElements';
 
 
 export class TreeType extends vscode.TreeItem {
@@ -11,7 +11,7 @@ export class TreeType extends vscode.TreeItem {
         public readonly label: string,
         public readonly path: string,
         public readonly javadoc: string,
-        public elements: CodeElement[],
+        public elements: TreeElement[],
         private iconName: string
     )  {
         super(label, vscode.TreeItemCollapsibleState.Collapsed);
@@ -32,7 +32,7 @@ export class TreeType extends vscode.TreeItem {
 }
 
 export class Subsystem extends TreeType {
-    constructor(label:string, path:string, javadoc:string, elements:CodeElement[]){
+    constructor(label:string, path:string, javadoc:string, elements:TreeElement[]){
         super(label, path, javadoc, elements, "subsystem");
     }
 }
@@ -42,7 +42,7 @@ export class Command extends TreeType {
     public static readonly AUTO    = 0b01;
     public static readonly INSTANT = 0b10;
 
-    constructor(label:string, path:string, javadoc:string, elements:CodeElement[], type = 0){
+    constructor(label:string, path:string, javadoc:string, elements:TreeElement[], type = 0){
         let icon = "";
         if((type & Command.AUTO) === Command.AUTO){
             icon = "auto";
