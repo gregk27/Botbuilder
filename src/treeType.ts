@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as Path from 'path';
-import { TreeElement, Field } from './codeElements';
+import { TreeElement, Field, Method } from './codeElements';
 import { JavaClass } from './javaParser/interfaces';
 
 
@@ -16,6 +16,9 @@ export class TreeType extends JavaClass implements TreeElement {
         super(base.name, base.pckg, base.scope, base.isFinal, base.type, base.superClass, base.classFile, base.srcFile, base.fields, base.methods);
         for(let f of this.fields){
             this.children.push(new Field(f));
+        }        
+        for(let m of this.methods){
+            this.children.push(new Method(m));
         }
     
     }

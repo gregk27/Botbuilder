@@ -1,6 +1,6 @@
 import { TreeItemCollapsibleState, TreeItem} from 'vscode';
 import * as Path from 'path';
-import { JavaField } from './javaParser/interfaces';
+import { JavaField, JavaMethod } from './javaParser/interfaces';
 
 
 
@@ -68,17 +68,38 @@ export class Field extends JavaField implements TreeElement {
             light: TreeElement.RES_FOLDER + `/light/vscode/${icon}.svg`
         };
     }
+}
+export class Method extends JavaMethod implements TreeElement {
 
+    children: TreeElement[] = [];
+    iconName: string = "method";
+    collapsibleState: TreeItemCollapsibleState;
 
+    /**
+     * Create a new Method instance from a JavaMethod instance.
+     * @param method The JavaMethod instance to clone from 
+     */
+    constructor(method:JavaMethod){
+        super(method.nameIndex, method.descriptorIndex, method.name, method.descriptor, method.parentClass, method.scope, method.isStatic, method.isFinal, method.isAbstract, method.returnType, method.args, method.getPrettyName());
+    }
 
+    getLabel(): string{
+        return this.name;
+    }
+    getDescription(): string {
+        return this.getPrettyName();
+    }
+    getTooltip(): string {
+        return this.getPrettyName();
+    }
+    getIcon(): { dark: string; light: string; } {
+        return {
+            dark: TreeElement.RES_FOLDER + `/dark/vscode/${this.iconName}.svg`,
+            light: TreeElement.RES_FOLDER + `/light/vscode/${this.iconName}.svg`
+        };
+    }
 
 }
-
-// export class Method extends CodeElement{
-//     constructor(label: string, javadoc: string)  {
-//         super(label, javadoc, "method", TreeItemCollapsibleState.None);
-//     }
-// }
 
 // export class Enum extends CodeElement{
 //     constructor(label: string,javadoc: string,children: string[])  {
