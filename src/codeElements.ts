@@ -1,79 +1,114 @@
-import * as vscode from 'vscode';
+import { TreeItemCollapsibleState, TreeItem} from 'vscode';
 import * as Path from 'path';
+import { JavaField } from './javaParser/interfaces';
 
-export class CodeElement extends vscode.TreeItem{
-    
-    children: CodeElement[] = [];
-    
-    constructor(
-        public readonly label: string,
-        public readonly javadoc: string,
-        private readonly iconName: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState   
-    )  {
-        super(label, collapsibleState);
-    }
 
-    get tooltip(): string {
-        return this.javadoc.replace("<br/>", "\n");
-    }
 
-    get description(): string {
-        return this.javadoc;
-    }
-    
-    iconPath = {
-        dark: Path.join(__filename, "..", "..", "resources", "dark", "vscode", this.iconName+".svg"),
-        light: Path.join(__filename, "..", "..", "resources", "light", "vscode", this.iconName+".svg")
-    };
+export interface TreeElement {
+        
+    children: TreeElement[];
+    iconName: string;
+    collapsibleState: TreeItemCollapsibleState;
+
+    /**
+     * Get the label to be displayed in the menu
+     */
+    getLabel(): string;
+    /**
+     * Get the description to show beside the label
+     */
+    getDescription(): string;
+    /**
+     * Get the tooltip to show on hover
+     */
+    getTooltip(): string;
+    /**
+     * Get the paths to the dark and light icons (preferably .csv)
+     */
+    getIcon(): {dark:string, light:string};
 }
-
-export class Field extends CodeElement{
-    constructor(label: string, javadoc: string)  {
-        super(label, javadoc, "field", vscode.TreeItemCollapsibleState.None);
-    }
-}
-export class Constant extends CodeElement{
-    constructor(label: string, javadoc: string)  {
-        super(label, javadoc, "constant", vscode.TreeItemCollapsibleState.None);
-    }
-}
-export class Method extends CodeElement{
-    constructor(label: string, javadoc: string)  {
-        super(label, javadoc, "method", vscode.TreeItemCollapsibleState.None);
+export namespace TreeElement {
+    export const RES_FOLDER = Path.join(__filename, "..", "..", "resources");
+    export function getTreeItem(e:TreeElement): TreeItem{
+        let item = new TreeItem(e.getLabel(), e.collapsibleState);
+        item.iconPath = e.getIcon();
+        item.tooltip = e.getTooltip();
+        return item;
     }
 }
 
-export class Enum extends CodeElement{
-    constructor(label: string,javadoc: string,children: string[])  {
-        super(label, javadoc, "enum", vscode.TreeItemCollapsibleState.Collapsed);
-        for(let s of children){
-            this.children.push(new EnumItem(s, ""));
-        }
+export class Field extends JavaField implements TreeElement {
+
+    children: TreeElement[] = [];
+    iconName: string;
+    collapsibleState: TreeItemCollapsibleState;
+
+    /**
+     * Create a new Field instance from a JavaField instance.
+     * @param field The JavaField instance to clone from 
+     */
+    public static Create(field:JavaField): Field{
+        return new Field(field.nameIndex, field.descriptorIndex, field.name, field.descriptor, field.parentClass, field.scope, field.isStatic, field.isFinal, field.type, field.constVal);
     }
+
+    getLabel(): string{
+        return this.name;
+    }
+    getDescription(): string {
+        return this.getPrettyName();
+    }
+    getTooltip(): string {
+        return this.getPrettyName();
+    }
+    getIcon(): { dark: string; light: string; } {
+        let icon = this.isFinal ? "constant" : "field";
+        return {
+            dark: TreeElement.RES_FOLDER + `/dark/vscode/${icon}.svg`,
+            light: TreeElement.RES_FOLDER + `/light/vscode/${icon}.svg`
+        };
+    }
+
+
+
+
 }
 
-export class EnumItem extends CodeElement{
-    constructor( label: string, javadoc: string,
-    )  {
-        super(label, javadoc, "enumItem", vscode.TreeItemCollapsibleState.None);
-    }
-}
+// export class Method extends CodeElement{
+//     constructor(label: string, javadoc: string)  {
+//         super(label, javadoc, "method", TreeItemCollapsibleState.None);
+//     }
+// }
 
-export class ReferencedSubsystem extends CodeElement {
-    constructor(label: string, javadoc: string, required: boolean)  {
-        let icon = "";
-        if(required){
-            icon = "../requiredSubsystem";
-        } else {
-            icon = "../subsystem";
-        }
-        super(label, javadoc, icon, vscode.TreeItemCollapsibleState.None);
-    }
-}
+// export class Enum extends CodeElement{
+//     constructor(label: string,javadoc: string,children: string[])  {
+//         super(label, javadoc, "enum", vscode.TreeItemCollapsibleState.Collapsed);
+//         for(let s of children){
+//             this.children.push(new EnumItem(s, ""));
+//         }
+//     }
+// }
 
-export class DefaultCommand extends CodeElement {
-    constructor(label: string, javadoc: string)  {
-        super(label, javadoc, "../command", vscode.TreeItemCollapsibleState.None);
-    }
-}
+// export class EnumItem extends CodeElement{
+//     constructor( label: string, javadoc: string,
+//     )  {
+//         super(label, javadoc, "enumItem", TreeItemCollapsibleState.None);
+//     }
+// }
+
+// export class ReferencedSubsystem extends CodeElement {
+//     constructor(label: string, javadoc: string, required: boolean)  {
+//         let icon = "";
+//         if(required){
+//             icon = "../requiredSubsystem";
+//         } else {
+//             icon = "../subsystem";
+//         }
+//         super(label, javadoc, icon, TreeItemCollapsibleState.None);
+//     }
+// }
+
+// export class DefaultCommand extends CodeElement {
+//     constructor(label: string, javadoc: string)  {
+//         super(label, javadoc, "../command", TreeItemCollapsibleState.None);
+//     }
+// }
