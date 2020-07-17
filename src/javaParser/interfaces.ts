@@ -1,18 +1,34 @@
 import { JavaClassFile } from "java-class-tools";
 
-export interface JavaClass {
-    public: boolean,
-    type: ClassType,
-    name: string,
-    signature: string,
-    srcFile: string,
-    superclass: string,
-    classFile: JavaClassFile,
-    fields: JavaField[],
-    methods: JavaMethod[]
+abstract class JavaBase{
+    constructor (
+        public name: string,
+        public descriptor: string,
+        public scope: string,
+        public isFinal: boolean
+    ){
+
+    }
 }
 
-abstract class JavaElement {
+export class JavaClass extends JavaBase{
+    constructor (
+        public name: string,
+        public pckg: string,
+        public scope: string,
+        public isFinal: boolean,
+        public type: ClassType,
+        public superClass: string,
+        public classFile: JavaClassFile,
+        public srcFile: string,
+        public fields: JavaField[],
+        public methods: JavaMethod[]
+    ){
+        super(name, pckg+"/"+name, scope, isFinal);
+    }
+}
+
+abstract class JavaElement extends JavaBase{
     constructor(
         public nameIndex: number,
         public descriptorIndex: number,
@@ -23,7 +39,7 @@ abstract class JavaElement {
         public isStatic: boolean,
         public isFinal: boolean
     ){
-
+        super(name, descriptor, scope, isFinal);
     }
 
     public equals(e:JavaElement): boolean{

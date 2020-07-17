@@ -39,17 +39,8 @@ export function parse(path:string, classPath:string) : JavaClass{
 
     console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
 
-    return {
-        public: ((file.access_flags & Modifier.PUBLIC) === Modifier.PUBLIC),
-        type: getClassType(file.access_flags),
-        name: classname.substr(classname.lastIndexOf("/")+1),
-        signature:classname,
-        srcFile:"file.java",
-        superclass,
-        classFile: file,
-        fields,
-        methods
-    }
+    return new JavaClass(classname.substr(classname.lastIndexOf("/")+1), classname.substring(0, classname.lastIndexOf("/")),
+        getScope(file.access_flags), false, getClassType(file.access_flags), superclass, file, "Todo.java", fields, methods);
 }
 
 function getClassType(access:number){
