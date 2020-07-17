@@ -45,30 +45,29 @@ export class Subsystem extends TreeType {
 }
 
 export class Command extends TreeType {
+    public static readonly AUTO    = 0b01;
+    public static readonly INSTANT = 0b10;
+
+    constructor(base:JavaClass, type = 0){
+        let icon = "";
+        if((type & Command.AUTO) === Command.AUTO){
+            icon = "auto";
+        }
+        if((type & Command.INSTANT) === Command.INSTANT){
+            // If the icon already has text, then instant needs to be capitalized
+            if(icon === ""){
+                icon = "instant";
+            } else {
+                icon += "Instant";
+            }
+        }
+        // If the icon already has text, then command needs to be capitalized
+        if(icon === ""){
+            icon = "command";
+        } else {
+            icon += "Command";
+        }
+
+        super(base, icon);
+    }
 }
-//     public static readonly AUTO    = 0b01;
-//     public static readonly INSTANT = 0b10;
-
-//     constructor(base:class, type = 0){
-//         let icon = "";
-//         if((type & Command.AUTO) === Command.AUTO){
-//             icon = "auto";
-//         }
-//         if((type & Command.INSTANT) === Command.INSTANT){
-//             // If the icon already has text, then instant needs to be capitalized
-//             if(icon === ""){
-//                 icon = "instant";
-//             } else {
-//                 icon += "Instant";
-//             }
-//         }
-//         // If the icon already has text, then command needs to be capitalized
-//         if(icon === ""){
-//             icon = "command";
-//         } else {
-//             icon += "Command";
-//         }
-
-//         super(label, path, javadoc, elements, icon);
-//     }
-// }

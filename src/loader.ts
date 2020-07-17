@@ -35,8 +35,16 @@ async function parseDir(root:string, files: string[]){
             let cls = parse(filePath, filePath.replace("src/main/java/", "build/classes/java/main/").replace(".java", ".class"));
             if(cls.superClass === "edu/wpi/first/wpilibj2/command/SubsystemBase"){
                 subsystems.push(new Subsystem(cls));
-            }
-        }
+            }else if (cls.superClass === "edu/wpi/first/wpilibj2/command/CommandBase" && cls.pckg.includes("auto")){
+                commands.push(new Command(cls, Command.AUTO));
+            } else if (cls.superClass === "edu/wpi/first/wpilibj2/command/InstantCommand" && cls.pckg.includes("auto")){
+                commands.push(new Command(cls, Command.AUTO | Command.INSTANT));
+            } else if (cls.superClass === "edu/wpi/first/wpilibj2/command/CommandBase"){
+                commands.push(new Command(cls));
+            } else if (cls.superClass === "edu/wpi/first/wpilibj2/command/InstantCommand"){
+                commands.push(new Command(cls, Command.INSTANT));
+            } 
+       }
     }
     await Promise.all(promises);
 }
