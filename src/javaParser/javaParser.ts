@@ -146,7 +146,7 @@ function getField(file:JavaClassFile, field:FieldInfo): JavaField{
 
     return new JavaField(field.name_index, field.descriptor_index,
         getStringFromPool(file, field.name_index), getStringFromPool(file, field.descriptor_index), getClassName(file, file.this_class),
-        scope, ((field.access_flags & Modifier.FINAL) === Modifier.FINAL), ((field.access_flags & Modifier.STATIC) === Modifier.STATIC),
+        scope, ((field.access_flags & Modifier.STATIC) === Modifier.STATIC), ((field.access_flags & Modifier.FINAL) === Modifier.FINAL),
         type, constVal);
 
 }

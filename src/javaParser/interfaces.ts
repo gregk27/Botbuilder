@@ -116,8 +116,8 @@ export class JavaField extends JavaElement{
         public descriptor: string,
         public parentClass: string,
         public scope: Scope,
-        public isFinal: boolean,
         public isStatic: boolean,
+        public isFinal: boolean,
         public type: Type,
         public constVal: any
     ){

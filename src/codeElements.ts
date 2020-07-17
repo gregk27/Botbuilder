@@ -49,17 +49,25 @@ export class Field extends JavaField implements TreeElement {
      * @param field The JavaField instance to clone from 
      */
     constructor(field:JavaField){
-        super(field.nameIndex, field.descriptorIndex, field.name, field.descriptor, field.parentClass, field.scope, field.isStatic, field.isFinal, field.type, field.constVal);
+        super(field.nameIndex, field.descriptorIndex, field.name, field.descriptor, field.parentClass, 
+            field.scope, field.isStatic, field.isFinal, field.type, field.constVal);
     }
 
     getLabel(): string{
         return this.name;
     }
     getDescription(): string {
+        if(this.isStatic && this.isFinal){
+            return "S/F "+this.getPrettyName();
+        } else if(this.isStatic){
+            return "S "+this.getPrettyName();
+        } else if(this.isFinal){
+            return "F "+this.getPrettyName();
+        }
         return this.getPrettyName();
     }
     getTooltip(): string {
-        return this.getPrettyName();
+        return this.getFullPrettyName(false);
     }
     getIcon(): { dark: string; light: string; } {
         let icon = this.isFinal ? "constant" : "field";
@@ -87,10 +95,17 @@ export class Method extends JavaMethod implements TreeElement {
         return this.name;
     }
     getDescription(): string {
+        if(this.isStatic && this.isFinal){
+            return "S/F "+this.getPrettyName();
+        } else if(this.isStatic){
+            return "S "+this.getPrettyName();
+        } else if(this.isFinal){
+            return "F "+this.getPrettyName();
+        }
         return this.getPrettyName();
     }
     getTooltip(): string {
-        return this.getPrettyName();
+        return this.getFullPrettyName(false);
     }
     getIcon(): { dark: string; light: string; } {
         return {

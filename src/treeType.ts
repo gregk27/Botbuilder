@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as Path from 'path';
 import { TreeElement, Field, Method } from './codeElements';
 import { JavaClass } from './javaParser/interfaces';
+import { resolveCliPathFromVSCodeExecutablePath } from 'vscode-test';
 
 
 export class TreeType extends JavaClass implements TreeElement {
@@ -14,9 +15,20 @@ export class TreeType extends JavaClass implements TreeElement {
         public iconName:string,
     ){
         super(base.name, base.pckg, base.scope, base.isFinal, base.type, base.superClass, base.classFile, base.srcFile, base.fields, base.methods);
+        let elems = [];
         for(let f of this.fields){
-            this.children.push(new Field(f));
-        }        
+            if(f.isFinal){
+                console.log("Final: "+f.name);
+                this.children.push(new Field(f));
+            } else {
+                console.log("Field: "+f.name);
+                elems.push(new Field(f));
+            }
+        }
+        console.log(this.children);
+        console.log(elems);
+        this.children = this.children.concat(elems);
+        console.log(this.children);
         for(let m of this.methods){
             this.children.push(new Method(m));
         }
