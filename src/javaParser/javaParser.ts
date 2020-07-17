@@ -14,7 +14,7 @@ export function parse(path:string, classPath:string) : JavaClass{
     // console.log(JSON.stringify(file));
     // let classname = classFile.constant_pool[(<ClassInfo> classFile.constant_pool[classFile.this_class]).name_index];
     let classname = getClassName(file, file.this_class);
-    let superclass = getClassName(file, file.super_class)
+    let superclass = getClassName(file, file.super_class);
 
     console.log(`Parsing ${classname}, extends ${superclass}`);
 

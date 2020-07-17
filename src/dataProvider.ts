@@ -18,8 +18,8 @@ export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     }
     getChildren(element?: vscode.TreeItem | undefined): vscode.ProviderResult<vscode.TreeItem[]> {
         if(element instanceof TreeType){
-            return element.elements;
-        } else if ('children' in element){
+            return element.children;
+        } else if (element !== undefined && 'children' in element){
             return (<TreeElement> element).children;
         } else {
             return this.getter();

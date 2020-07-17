@@ -30,11 +30,11 @@ async function parseDir(root:string, files: string[]){
         let filePath = root+fileName;
         if(fs.lstatSync(filePath).isDirectory()){
             promises.push(parseDir(filePath+"/", fs.readdirSync(filePath)));
-        } else {
+        } else if (filePath.endsWith(".java")) {
             let content = fs.readFileSync(filePath).toString();
             let cls = parse(filePath, filePath.replace("src/main/java/", "build/classes/java/main/").replace(".java", ".class"));
-            if(cls.superclass == "edu/wpi/first/wpilibj2/command/SubsystemBase"){
-                
+            if(cls.superClass === "edu/wpi/first/wpilibj2/command/SubsystemBase"){
+                subsystems.push(new Subsystem(cls));
             }
         }
     }

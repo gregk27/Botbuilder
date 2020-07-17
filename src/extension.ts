@@ -3,7 +3,6 @@
 import * as vscode from 'vscode';
 import { DataProvider } from './dataProvider';
 import { Subsystem, Command } from './treeType';
-import { Method, Constant, Enum, ReferencedSubsystem, DefaultCommand } from './codeElements';
 import * as Loader from './loader';
 
 // this method is called when your extension is activated
@@ -39,35 +38,35 @@ export function deactivate() {}
 
 function getSubsystems(): Subsystem[]{
 	return Loader.subsystems;
-	return [
-		new Subsystem("Drivetrain", "src/robot/subsystems/Drivetrain.java", 
-			"The subsystem representing the drivetrain<br/>This controls the 6 {@link neos}", 
-			[new DefaultCommand("DriveCommand", "DriveCommand"),
-			new Method("drive(double l, double r)", "Set the drivetrain speeds\n@param l Left speed\n@param r Right speed"),
-			 new Constant("MAX_SPEED", "The max speed the drivetrain can achieve"),
-			 new Enum("Sides", "Drivetrain sides", ["LEFT", "RIGHT"])]
-		),
-		new Subsystem("Shooter", "src/robot/subsystems/Shooter.java", 
-			"Subsystem to control Shooter wheels", 
-			[]
-		)
-		];
+	// return [
+	// 	new Subsystem("Drivetrain", "src/robot/subsystems/Drivetrain.java", 
+	// 		"The subsystem representing the drivetrain<br/>This controls the 6 {@link neos}", 
+	// 		[new DefaultCommand("DriveCommand", "DriveCommand"),
+	// 		new Method("drive(double l, double r)", "Set the drivetrain speeds\n@param l Left speed\n@param r Right speed"),
+	// 		 new Constant("MAX_SPEED", "The max speed the drivetrain can achieve"),
+	// 		 new Enum("Sides", "Drivetrain sides", ["LEFT", "RIGHT"])]
+	// 	),
+	// 	new Subsystem("Shooter", "src/robot/subsystems/Shooter.java", 
+	// 		"Subsystem to control Shooter wheels", 
+	// 		[]
+	// 	)
+	// 	];
 }
 
 function getCommands(): Command[]{
 	return Loader.commands;
-	return [
-		new Command("DriveCommand", "src/main/java/ler/robot/commands/DriveCommand.java", 
-		"A command to drive the robot with joystick input (passed in as {@link DoubleSupplier}s). Written\nexplicitly for pedagogical purposes - actual code should inline a command this simple with {@link\nedu.wpi.first.wpilibj2.command.RunCommand}.",
-		[new ReferencedSubsystem("Drivetrain", "Drivetrain", true)]
-		),
-		new Command("Auto", "", "", [], Command.AUTO),
-		new Command("Instant", "", "", [], Command.INSTANT),
-		new Command("IntakeExtendCommand", "src/main/java/ler/robot/commands/instant/IntakeExtendCommand.java", 
-		"Extend the intake",
-		[new ReferencedSubsystem("Intake", "Intake", true), 
-		new ReferencedSubsystem("Conveyor", "Conveyor", false)],
-		Command.AUTO | Command.INSTANT
-		)
-	];
+	// return [
+	// 	new Command("DriveCommand", "src/main/java/ler/robot/commands/DriveCommand.java", 
+	// 	"A command to drive the robot with joystick input (passed in as {@link DoubleSupplier}s). Written\nexplicitly for pedagogical purposes - actual code should inline a command this simple with {@link\nedu.wpi.first.wpilibj2.command.RunCommand}.",
+	// 	[new ReferencedSubsystem("Drivetrain", "Drivetrain", true)]
+	// 	),
+	// 	new Command("Auto", "", "", [], Command.AUTO),
+	// 	new Command("Instant", "", "", [], Command.INSTANT),
+	// 	new Command("IntakeExtendCommand", "src/main/java/ler/robot/commands/instant/IntakeExtendCommand.java", 
+	// 	"Extend the intake",
+	// 	[new ReferencedSubsystem("Intake", "Intake", true), 
+	// 	new ReferencedSubsystem("Conveyor", "Conveyor", false)],
+	// 	Command.AUTO | Command.INSTANT
+	// 	)
+	// ];
 }

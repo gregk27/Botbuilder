@@ -1,67 +1,74 @@
 import * as vscode from 'vscode';
 import * as Path from 'path';
-import { TreeElement } from './codeElements';
+import { TreeElement, Field } from './codeElements';
+import { JavaClass } from './javaParser/interfaces';
 
 
-export class TreeType extends vscode.TreeItem {
+export class TreeType extends JavaClass implements TreeElement {
     
-    readonly collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+    children: TreeElement[] = [];
+    collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
-    constructor(
-        public readonly label: string,
-        public readonly path: string,
-        public readonly javadoc: string,
-        public elements: TreeElement[],
-        private iconName: string
-    )  {
-        super(label, vscode.TreeItemCollapsibleState.Collapsed);
+    constructor (
+        base:JavaClass,
+        public iconName:string,
+    ){
+        super(base.name, base.pckg, base.scope, base.isFinal, base.type, base.superClass, base.classFile, base.srcFile, base.fields, base.methods);
+        for(let f of this.fields){
+            this.children.push(new Field(f));
+        }
+    
     }
 
-    get tooltip(): string {
-        return this.javadoc.replace("<br/>", "\n");
+    getLabel(): string{
+        return this.name;
+    }
+    getDescription(): string {
+        return this.getPrettyName();
+    }
+    getTooltip(): string {
+        return this.getFullPrettyName(false);
+    }
+    getIcon(): { dark: string; light: string; } {
+        return {
+            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.svg`,
+            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.svg`
+        };
     }
 
-    get description(): string {
-        return this.path;
-    }
-
-    iconPath = {
-        dark: Path.join(__filename, "..", "..", "resources", "dark", this.iconName+".svg"),
-        light: Path.join(__filename, "..", "..", "resources", "light", this.iconName+".svg")
-    };
 }
 
 export class Subsystem extends TreeType {
-    constructor(label:string, path:string, javadoc:string, elements:TreeElement[]){
-        super(label, path, javadoc, elements, "subsystem");
+    constructor(base:JavaClass){
+        super(base, "subsystem");
     }
 }
 
 export class Command extends TreeType {
-
-    public static readonly AUTO    = 0b01;
-    public static readonly INSTANT = 0b10;
-
-    constructor(label:string, path:string, javadoc:string, elements:TreeElement[], type = 0){
-        let icon = "";
-        if((type & Command.AUTO) === Command.AUTO){
-            icon = "auto";
-        }
-        if((type & Command.INSTANT) === Command.INSTANT){
-            // If the icon already has text, then instant needs to be capitalized
-            if(icon === ""){
-                icon = "instant";
-            } else {
-                icon += "Instant";
-            }
-        }
-        // If the icon already has text, then command needs to be capitalized
-        if(icon === ""){
-            icon = "command";
-        } else {
-            icon += "Command";
-        }
-
-        super(label, path, javadoc, elements, icon);
-    }
 }
+//     public static readonly AUTO    = 0b01;
+//     public static readonly INSTANT = 0b10;
+
+//     constructor(base:class, type = 0){
+//         let icon = "";
+//         if((type & Command.AUTO) === Command.AUTO){
+//             icon = "auto";
+//         }
+//         if((type & Command.INSTANT) === Command.INSTANT){
+//             // If the icon already has text, then instant needs to be capitalized
+//             if(icon === ""){
+//                 icon = "instant";
+//             } else {
+//                 icon += "Instant";
+//             }
+//         }
+//         // If the icon already has text, then command needs to be capitalized
+//         if(icon === ""){
+//             icon = "command";
+//         } else {
+//             icon += "Command";
+//         }
+
+//         super(label, path, javadoc, elements, icon);
+//     }
+// }

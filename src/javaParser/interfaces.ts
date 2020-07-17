@@ -9,6 +9,9 @@ abstract class JavaBase{
     ){
 
     }
+
+    public abstract getPrettyName(): string;
+    public abstract getFullPrettyName(includeClass:boolean): string;
 }
 
 export class JavaClass extends JavaBase{
@@ -25,6 +28,17 @@ export class JavaClass extends JavaBase{
         public methods: JavaMethod[]
     ){
         super(name, pckg+"/"+name, scope, isFinal);
+    }
+
+    public getPrettyName(): string{
+        return this.pckg.replace(/\//g, ".")+"."+this.name;
+    }
+    public getFullPrettyName(includeClass:boolean): string{
+        if(includeClass){
+            return this.getPrettyName() + " extends " + this.superClass; 
+        } else {
+            return this.getPrettyName() + " extends " + this.superClass.substr(this.superClass.lastIndexOf("/"));
+        }
     }
 }
 

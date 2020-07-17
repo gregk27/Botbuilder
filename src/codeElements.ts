@@ -32,6 +32,7 @@ export namespace TreeElement {
     export function getTreeItem(e:TreeElement): TreeItem{
         let item = new TreeItem(e.getLabel(), e.collapsibleState);
         item.iconPath = e.getIcon();
+        item.description = e.getDescription();
         item.tooltip = e.getTooltip();
         return item;
     }
@@ -47,8 +48,8 @@ export class Field extends JavaField implements TreeElement {
      * Create a new Field instance from a JavaField instance.
      * @param field The JavaField instance to clone from 
      */
-    public static Create(field:JavaField): Field{
-        return new Field(field.nameIndex, field.descriptorIndex, field.name, field.descriptor, field.parentClass, field.scope, field.isStatic, field.isFinal, field.type, field.constVal);
+    constructor(field:JavaField){
+        super(field.nameIndex, field.descriptorIndex, field.name, field.descriptor, field.parentClass, field.scope, field.isStatic, field.isFinal, field.type, field.constVal);
     }
 
     getLabel(): string{
