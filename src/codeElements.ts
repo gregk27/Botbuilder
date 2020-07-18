@@ -1,6 +1,7 @@
 import { TreeItemCollapsibleState, TreeItem} from 'vscode';
 import * as Path from 'path';
 import { JavaField, JavaMethod, Scope } from './javaParser/interfaces';
+import { Subsystem, Command } from './treeType';
 
 
 
@@ -34,6 +35,15 @@ export namespace TreeElement {
         item.iconPath = e.getIcon();
         item.description = e.getDescription();
         item.tooltip = e.getTooltip();
+        if(e instanceof Subsystem){
+            item.contextValue = "subsystem";
+        } else if(e instanceof Command){
+            item.contextValue = "command";
+        } else if(e instanceof Field){
+            item.contextValue = "field";
+        } else if(e instanceof Method){
+            item.contextValue = "method";
+        }
         return item;
     }
 }

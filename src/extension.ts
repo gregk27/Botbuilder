@@ -2,10 +2,13 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { DataProvider } from './dataProvider';
-import { Subsystem, Command } from './treeType';
+import { Subsystem, Command, TreeType } from './treeType';
 import * as Loader from './loader';
 import * as fs from 'fs';
 import { Console } from 'console';
+import { systemDefaultPlatform } from 'vscode-test/out/util';
+import { TreeElement } from './codeElements';
+import { JavaElement, JavaClass } from './javaParser/interfaces';
 
 let providers:DataProvider[] = [];
 
@@ -20,9 +23,17 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('ler-botbuilder.refresh', () => {
+	let refreshCommand = vscode.commands.registerCommand('ler-botbuilder.refresh', () => {
 		refresh();
 	});
+	let openCommand = vscode.commands.registerCommand('ler-botbuilder.openFile', (file) => {
+		if(file instanceof JavaClass){
+			vscode.workspace.openTextDocument((<JavaClass> file).srcFile).then(document => {
+				vscode.window.showTextDocument(document);
+			});
+		}
+	});
+
 	Loader.load(vscode.workspace.rootPath || "").then(()=>{
 		console.log("Registering");
 		let d = new DataProvider(getSubsystems);
@@ -38,7 +49,8 @@ export function activate(context: vscode.ExtensionContext) {
 		refresh(1000);
 	});
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(refreshCommand);
+	context.subscriptions.push(openCommand);
 }
 
 

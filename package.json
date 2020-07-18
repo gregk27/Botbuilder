@@ -23,6 +23,11 @@
 			{
 				"command": "ler-botbuilder.toggleScope",
 				"title": "Toggle BotBuilder scope"
+			},
+			{
+				"command": "ler-botbuilder.openFile",
+				"title": "Open",
+				"icon": "$(file-symlink-file)"
 			}
 		],
 		"viewsContainers": {
@@ -58,12 +63,22 @@
 					"group": "navigation"
 				}
 			],
+			"view/item/context": [
+				{
+					"command": "ler-botbuilder.openFile",
+					"when": "viewItem == subsystem || viewItem == command",
+					"group": "inline"
+				}
+			],
 			"commandPalette": [
 				{
 					"command":"ler-botbuilder.refresh",
 					"when": "never"
+				},
+				{
+					"command":"ler-botbuilder.openFile",
+					"when": "never"
 				}
-
 			]
 
 		}
