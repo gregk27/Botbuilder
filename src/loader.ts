@@ -32,7 +32,7 @@ async function parseDir(root:string, files: string[]){
             promises.push(parseDir(filePath+"/", fs.readdirSync(filePath)));
         } else if (filePath.endsWith(".java")) {
             let content = fs.readFileSync(filePath).toString();
-            let cls = parse(filePath, filePath.replace("src/main/java/", "build/classes/java/main/").replace(".java", ".class"));
+            let cls = parse(basePath, filePath.replace("src/main/java/", "build/classes/java/main/").replace(".java", ".class"));
             if(cls.superClass === "edu/wpi/first/wpilibj2/command/SubsystemBase"){
                 subsystems.push(new Subsystem(cls));
             }else if (cls.superClass === "edu/wpi/first/wpilibj2/command/CommandBase" && cls.pckg.includes("auto")){

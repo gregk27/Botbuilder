@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes} from './interfaces';
-import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo} from 'java-class-tools';
+import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
 import Big from 'big.js';
 import { METHODS } from 'http';
@@ -8,10 +8,10 @@ import { METHODS } from 'http';
 const reader = new JavaClassFileReader();
 const textDecoder = new TextDecoder();
 
-export function parse(path:string, classPath:string) : JavaClass{
+export function parse(basePath:string, classPath:string) : JavaClass{
     let startTime = new Date();
     let file = reader.read(classPath);
-    // console.log(JSON.stringify(file));
+    console.log(JSON.stringify(file));
     // let classname = classFile.constant_pool[(<ClassInfo> classFile.constant_pool[classFile.this_class]).name_index];
     let classname = getClassName(file, file.this_class);
     let superclass = getClassName(file, file.super_class);
@@ -39,8 +39,17 @@ export function parse(path:string, classPath:string) : JavaClass{
 
     console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
 
-    return new JavaClass(classname.substr(classname.lastIndexOf("/")+1), classname.substring(0, classname.lastIndexOf("/")),
-        getScope(file.access_flags), false, getClassType(file.access_flags), superclass, file, "Todo.java", fields, methods);
+    let pckg = classname.substring(0, classname.lastIndexOf("/"));
+    let srcFile = "null";
+    for(let attr of file.attributes){
+        let attrName = getStringFromPool(file, attr.attribute_name_index);
+        if(attrName === "SourceFile"){
+            srcFile = basePath+"/"+pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
+        }
+    }
+
+    return new JavaClass(classname.substr(classname.lastIndexOf("/")+1), pckg,
+        getScope(file.access_flags), false, getClassType(file.access_flags), superclass, file, srcFile, fields, methods);
 }
 
 function getClassType(access:number){
