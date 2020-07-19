@@ -14,7 +14,7 @@ export class TreeType extends JavaClass implements TreeElement {
         base:JavaClass,
         public iconName:string,
     ){
-        super(base.name, base.pckg, base.scope, base.isFinal, base.type, base.superClass, base.classFile, base.srcFile, base.fields, base.methods);
+        super(base.name, base.pckg, base.scope, base.isFinal, base.type, base.superClass, base.classFile, base.srcFile, base.fields, base.methods, []);
         // Order by properties
         let psfinal = [];
         let final = [];

@@ -1,9 +1,10 @@
 import * as fs from 'fs';
-import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes} from './interfaces';
-import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo} from 'java-class-tools';
+import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes, JavaEnum} from './interfaces';
+import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo, InnerClassesAttributeInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
 import Big from 'big.js';
 import { METHODS } from 'http';
+import { exit } from 'process';
 
 const reader = new JavaClassFileReader();
 const textDecoder = new TextDecoder();
@@ -16,25 +17,26 @@ export function parse(basePath:string, classPath:string) : JavaClass{
     let classname = getClassName(file, file.this_class);
     let superclass = getClassName(file, file.super_class);
 
-    console.log(`Parsing ${classname}, extends ${superclass}`);
+    console.log(`\n\nParsing ${classname}, extends ${superclass}`);
 
     let fields: JavaField[] = [];
     let methods: JavaMethod[] = [];
+    let innerClasses:{classes:JavaClass[], enums:JavaEnum[]} = {classes:null, enums:null};
 
     for(let field of file.fields){
         fields.push(getField(file, field));
-        console.log(fields[fields.length-1].toString());
-        console.log(fields[fields.length-1].getPrettyName());
-        console.log(fields[fields.length-1].getFullPrettyName(true));
-        console.log();
+        // console.log(fields[fields.length-1].toString());
+        // console.log(fields[fields.length-1].getPrettyName());
+        // console.log(fields[fields.length-1].getFullPrettyName(true));
+        // console.log();
     }
 
     for(let method of file.methods){
         methods.push(getMethod(file, method));
-        console.log(methods[methods.length-1].toString());
-        console.log(methods[methods.length-1].getPrettyName());
-        console.log(methods[methods.length-1].getFullPrettyName(true));
-        console.log();
+        // console.log(methods[methods.length-1].toString());
+        // console.log(methods[methods.length-1].getPrettyName());
+        // console.log(methods[methods.length-1].getFullPrettyName(true));
+        // console.log();
     }
 
     console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
@@ -45,11 +47,13 @@ export function parse(basePath:string, classPath:string) : JavaClass{
         let attrName = getStringFromPool(file, attr.attribute_name_index);
         if(attrName === "SourceFile"){
             srcFile = basePath+"/"+pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
+        } else if (attrName === "InnerClasses"){
+            innerClasses = getInnerClases(file, <InnerClassesAttributeInfo> attr, classPath.replace(classname+".class", ""), basePath);
         }
     }
 
     return new JavaClass(classname.substr(classname.lastIndexOf("/")+1), pckg,
-        getScope(file.access_flags), false, getClassType(file.access_flags), superclass, file, srcFile, fields, methods);
+        getScope(file.access_flags), false, getClassType(file.access_flags), superclass, file, srcFile, fields, methods, innerClasses.classes);
 }
 
 function getClassType(access:number){
@@ -216,4 +220,26 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
     //     returnType,
     //     args
     // };
+}
+
+function getInnerClases(file:JavaClassFile, info:InnerClassesAttributeInfo, buildPath:string, basePath:string): {classes:JavaClass[], enums:JavaEnum[]}{
+    let classes:JavaClass[] = [];
+    let enums:JavaEnum[] = [];
+    for(let cls of info.classes){
+        if(file.this_class !==  cls.inner_class_info_index){ // If the inner class is also the outer class
+            let path = buildPath+getClassName(file, cls.inner_class_info_index)+".class";
+            if(!fs.existsSync(path)){ // Catch files that are from external libraries
+                console.warn(`File does not exist ${path}`);
+            } else if((cls.inner_class_access_flags & Modifier.ENUM) === Modifier.ENUM){
+                console.log("Enum");
+                console.log(parse(basePath, path));
+                exit(0);
+            } else {
+                let newCls = parse(basePath, path);
+                newCls.name = newCls.name.substr(newCls.name.lastIndexOf("$")+1);
+                classes.push(newCls);
+            }
+        }
+    }
+    return {classes, enums};
 }

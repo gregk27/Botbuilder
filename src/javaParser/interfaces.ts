@@ -25,7 +25,8 @@ export class JavaClass extends JavaBase{
         public classFile: JavaClassFile,
         public srcFile: string,
         public fields: JavaField[],
-        public methods: JavaMethod[]
+        public methods: JavaMethod[],
+        public innerClasses: JavaClass[]
     ){
         super(name, pckg+"/"+name, scope, isFinal);
     }
@@ -72,12 +73,15 @@ export abstract class JavaElement extends JavaBase{
      */
     public abstract getPrettyName(): string;
     public getFullPrettyName(includeClass:boolean): string{
-        let out = includeClass ? this.parentClass.replace(/\//g, ".")+"/" : ""; 
-        if(this.scope !== Scope.DEFAULT) out += this.scope+" ";
-        if(this.isStatic) out += "static ";
-        if(this.isFinal) out += "final ";
-        return out+this.getPrettyName();
+        return this.getModifiers(includeClass)+this.getPrettyName();
     };
+    protected getModifiers(includeClass:boolean): string {
+        let out = includeClass ? this.parentClass.replace(/\//g, ".")+"/" : ""; 
+        if(this.scope !== Scope.DEFAULT){out += this.scope+" ";}
+        if(this.isStatic){out += "static ";}
+        if(this.isFinal){out += "final ";}
+        return out;
+    }
 
     public is(signature:string): boolean{
         return this.parentClass+this.name+this.descriptor === signature;
@@ -132,6 +136,30 @@ export class JavaField extends JavaElement{
         }
         return out;
     }
+}
+
+export class JavaEnum extends JavaElement{
+    constructor(
+        public nameIndex: number,
+        public descriptorIndex: number,
+        public name: string,
+        public descriptor: string,
+        public parentClass: string,
+        public scope: Scope,
+        public isStatic: boolean,
+        public isFinal: boolean,
+        public values: string[]
+    ){
+        super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic, isFinal);
+    }
+
+    public getPrettyName(): string {
+        return this.name;
+    }
+    public getFullPrettyName(includeClass:boolean): string{
+        return this.getModifiers(includeClass) + "enum " + this.getPrettyName();
+    }
+
 }
 
 export class Type {
