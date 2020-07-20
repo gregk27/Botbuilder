@@ -1,4 +1,5 @@
-import { JavaClassFile } from "java-class-tools";
+import { JavaClassFile, Modifier } from "java-class-tools";
+import { SSL_OP_PKCS1_CHECK_1 } from "constants";
 
 abstract class JavaBase{
     constructor (
@@ -26,9 +27,17 @@ export class JavaClass extends JavaBase{
         public srcFile: string,
         public fields: JavaField[],
         public methods: JavaMethod[],
-        public innerClasses: JavaClass[]
+        public innerClasses: JavaInnerClass[]
     ){
         super(name, pckg+"/"+name, scope, isFinal);
+        if(type === ClassType.FINAL){
+            this.isFinal = true;
+        }
+        if(type === ClassType.ENUM){
+            if((classFile.access_flags & Modifier.ENUM) === Modifier.ENUM){
+                this.isFinal = true;
+            }
+        }
     }
 
     public getPrettyName(): string{
@@ -36,7 +45,65 @@ export class JavaClass extends JavaBase{
     }
     public getFullPrettyName(includeClass:boolean): string{
         if(includeClass){
-            return this.getPrettyName() + " extends " + this.superClass; 
+            return this.getPrettyName() + " extends " + this.superClass.replace(/\//g, "."); 
+        } else {
+            return this.getPrettyName() + " extends " + this.superClass.substr(this.superClass.lastIndexOf("/")+1);
+        }
+    }
+    public getDeclarationString(): string{
+        let out = "";
+        if(this.scope !== Scope.DEFAULT){out += this.scope;}
+        if(this.isFinal){
+            out += " final";
+        }
+        if(this.type === ClassType.INTERFACE){
+            out += " interface";
+        } else if(this.type === ClassType.ENUM){
+            out += " enum";
+        } else if(this.type === ClassType.ABSTRACT){
+            out += " abstract class";
+        } else {
+            out += " class";
+        }
+        out += " "+this.name;
+        if(this.superClass !== null){
+            out+= " extends "+this.superClass.replace(/\//g, ".");
+        }
+        return out.trim();
+    }
+}
+
+export class JavaInnerClass extends JavaClass {
+    public parentClass: string;
+    public isStatic: boolean;
+    constructor (
+        name: string,
+        pckg: string,
+        scope: string,
+        isFinal: boolean,
+        type: ClassType,
+        superClass: string,
+        classFile: JavaClassFile,
+        srcFile: string,
+        fields: JavaField[],
+        methods: JavaMethod[],
+        innerClasses: JavaInnerClass[]
+    ){
+        super(name, pckg, scope, isFinal, type, superClass, classFile, srcFile, fields, methods, innerClasses);
+        this.name = name.substring(name.lastIndexOf("$")+1);
+        this.parentClass = pckg + "/" + name.substring(0,name.lastIndexOf("$"));
+    }
+
+    public static fromClass(cls:JavaClass): JavaInnerClass{
+        return new JavaInnerClass(cls.name, cls.pckg, cls.scope, cls.isFinal, cls.type, cls.superClass, cls.classFile, cls.srcFile, cls.fields, cls.methods, cls.innerClasses);
+    }
+    
+    public getPrettyName(): string{
+        return this.parentClass+"$"+this.name;
+    }
+    public getFullPrettyName(includeClass:boolean): string{
+        if(includeClass){
+            return this.getPrettyName() + " extends " + this.superClass.replace(/\//g, "."); 
         } else {
             return this.getPrettyName() + " extends " + this.superClass.substr(this.superClass.lastIndexOf("/")+1);
         }
@@ -138,29 +205,6 @@ export class JavaField extends JavaElement{
     }
 }
 
-export class JavaEnum extends JavaElement{
-    constructor(
-        public nameIndex: number,
-        public descriptorIndex: number,
-        public name: string,
-        public descriptor: string,
-        public parentClass: string,
-        public scope: Scope,
-        public isStatic: boolean,
-        public isFinal: boolean,
-        public values: string[]
-    ){
-        super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic, isFinal);
-    }
-
-    public getPrettyName(): string {
-        return this.name;
-    }
-    public getFullPrettyName(includeClass:boolean): string{
-        return this.getModifiers(includeClass) + "enum " + this.getPrettyName();
-    }
-
-}
 
 export class Type {
     public pretty = "";

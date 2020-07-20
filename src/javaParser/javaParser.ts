@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes, JavaEnum} from './interfaces';
+import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes, JavaInnerClass} from './interfaces';
 import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo, InnerClassesAttributeInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
 import Big from 'big.js';
@@ -21,7 +21,7 @@ export function parse(basePath:string, classPath:string) : JavaClass{
 
     let fields: JavaField[] = [];
     let methods: JavaMethod[] = [];
-    let innerClasses:{classes:JavaClass[], enums:JavaEnum[]} = {classes:null, enums:null};
+    let innerClasses:JavaInnerClass[] = [];
 
     for(let field of file.fields){
         fields.push(getField(file, field));
@@ -53,7 +53,7 @@ export function parse(basePath:string, classPath:string) : JavaClass{
     }
 
     return new JavaClass(classname.substr(classname.lastIndexOf("/")+1), pckg,
-        getScope(file.access_flags), false, getClassType(file.access_flags), superclass, file, srcFile, fields, methods, innerClasses.classes);
+        getScope(file.access_flags), false, getClassType(file.access_flags), superclass, file, srcFile, fields, methods, innerClasses);
 }
 
 function getClassType(access:number){
@@ -222,24 +222,19 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
     // };
 }
 
-function getInnerClases(file:JavaClassFile, info:InnerClassesAttributeInfo, buildPath:string, basePath:string): {classes:JavaClass[], enums:JavaEnum[]}{
-    let classes:JavaClass[] = [];
-    let enums:JavaEnum[] = [];
+function getInnerClases(file:JavaClassFile, info:InnerClassesAttributeInfo, buildPath:string, basePath:string): JavaInnerClass[] {
+    let classes:JavaInnerClass[] = [];
     for(let cls of info.classes){
         if(file.this_class !==  cls.inner_class_info_index){ // If the inner class is also the outer class
             let path = buildPath+getClassName(file, cls.inner_class_info_index)+".class";
             if(!fs.existsSync(path)){ // Catch files that are from external libraries
                 console.warn(`File does not exist ${path}`);
-            } else if((cls.inner_class_access_flags & Modifier.ENUM) === Modifier.ENUM){
-                console.log("Enum");
-                console.log(parse(basePath, path));
-                exit(0);
             } else {
                 let newCls = parse(basePath, path);
                 newCls.name = newCls.name.substr(newCls.name.lastIndexOf("$")+1);
-                classes.push(newCls);
+                classes.push(JavaInnerClass.fromClass(newCls));
             }
         }
     }
-    return {classes, enums};
+    return classes;
 }
