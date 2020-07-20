@@ -1,6 +1,6 @@
 import { TreeItemCollapsibleState, TreeItem} from 'vscode';
 import * as Path from 'path';
-import { JavaField, JavaMethod, Scope } from './javaParser/interfaces';
+import { JavaField, JavaMethod, Scope, JavaClass, JavaInnerClass } from './javaParser/interfaces';
 import { Subsystem, Command } from './treeType';
 
 
@@ -126,7 +126,8 @@ export class Method extends JavaMethod implements TreeElement {
 
 }
 
-// export class Enum extends CodeElement{
+
+// export class Enum extends InnerClass {
 //     constructor(label: string,javadoc: string,children: string[])  {
 //         super(label, javadoc, "enum", vscode.TreeItemCollapsibleState.Collapsed);
 //         for(let s of children){

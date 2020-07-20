@@ -12,7 +12,7 @@ const textDecoder = new TextDecoder();
 export function parse(basePath:string, classPath:string) : JavaClass{
     let startTime = new Date();
     let file = reader.read(classPath);
-    console.log(JSON.stringify(file));
+    // console.log(JSON.stringify(file));
     // let classname = classFile.constant_pool[(<ClassInfo> classFile.constant_pool[classFile.this_class]).name_index];
     let classname = getClassName(file, file.this_class);
     let superclass = getClassName(file, file.super_class);
