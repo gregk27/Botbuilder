@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as Path from 'path';
-import { TreeElement, Field, Method } from './codeElements';
-import { JavaClass, Scope, JavaInnerClass } from './javaParser/interfaces';
+import { TreeElement, Field, Method, EnumItem } from './codeElements';
+import { JavaClass, Scope, JavaInnerClass, ClassType } from './javaParser/interfaces';
 import { resolveCliPathFromVSCodeExecutablePath } from 'vscode-test';
 
 
@@ -15,9 +15,18 @@ export class TreeType extends JavaClass implements TreeElement {
         public iconName:string,
     ){
         super(base.name, base.pckg, base.scope, base.isFinal, base.type, base.superClass, base.classFile, base.srcFile, base.fields, base.methods, base.innerClasses);
+        
+        let inners = [];
+        let enums = [];
         for(let i of this.innerClasses){
-            this.children.push(new InnerClass(i));
+            if(i.type === ClassType.ENUM){
+                enums.push(new Enum(i));
+            } else {
+                inners.push(new InnerClass(i));
+            }
         }
+        this.children.push(...inners, ...enums);
+
         console.log(this.children);
    
         // Order by properties
@@ -34,7 +43,7 @@ export class TreeType extends JavaClass implements TreeElement {
             }
         }
         // Combine into children
-        this.children = [...this.children, ...psfinal, ...final, ...fields];
+        this.children.push(...psfinal, ...final, ...fields);
 
         console.log(this.children);
         for(let m of this.methods){
@@ -101,7 +110,6 @@ export class InnerClass extends TreeType{
     constructor(cls: JavaInnerClass){
         super(cls, "vscode/class");
         this.innerClass = cls;
-        console.log(cls);
     }
 
     public getDescription(): string{
@@ -111,4 +119,24 @@ export class InnerClass extends TreeType{
     public getTooltip(): string{
         return this.innerClass.getFullPrettyName(false);
     }
+}
+
+export class Enum extends InnerClass {
+    
+    constructor(cls: JavaInnerClass){
+        super(cls);
+        this.iconName = "vscode/enum";
+
+        // Remove elements that are not needed
+        let tmpChildren: TreeElement[] = [];
+        for(let c of this.children){
+            if(c instanceof Field && c.name !== "$VALUES"){
+                c.iconName = "enumItem";
+                tmpChildren.push(new EnumItem(c));
+            }
+        }
+        this.children = tmpChildren;
+    }
+
+
 }

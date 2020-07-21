@@ -127,21 +127,29 @@ export class Method extends JavaMethod implements TreeElement {
 }
 
 
-// export class Enum extends InnerClass {
-//     constructor(label: string,javadoc: string,children: string[])  {
-//         super(label, javadoc, "enum", vscode.TreeItemCollapsibleState.Collapsed);
-//         for(let s of children){
-//             this.children.push(new EnumItem(s, ""));
-//         }
-//     }
-// }
+export class EnumItem extends Field{
+    constructor(f: Field){
+        super(f);
+    }
 
-// export class EnumItem extends CodeElement{
-//     constructor( label: string, javadoc: string,
-//     )  {
-//         super(label, javadoc, "enumItem", TreeItemCollapsibleState.None);
-//     }
-// }
+    getLabel(): string{
+        return this.name;
+    }
+    getDescription(): string {
+        return "";
+    }
+    getTooltip(): string {
+        return this.getFullPrettyName(false);
+    }
+
+    getIcon(): { dark: string; light: string; } {
+        return {
+            dark: TreeElement.RES_FOLDER + `/dark/vscode/enumItem.svg`,
+            light: TreeElement.RES_FOLDER + `/light/vscode/enumItem.svg`
+        };
+    }
+
+}
 
 // export class ReferencedSubsystem extends CodeElement {
 //     constructor(label: string, javadoc: string, required: boolean)  {
