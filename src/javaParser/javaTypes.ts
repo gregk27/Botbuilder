@@ -1,11 +1,17 @@
-import { JavaClassFile, Modifier } from "java-class-tools";
-import { Method } from "../codeElements";
+import { JavaClassFile, Modifier, FieldRefInfo, SourceFileAttributeInfo, MethodInfo, FieldInfo, ElementValue } from "java-class-tools";
+import { Method, Field } from "../codeElements";
+import { getStringFromPool, ClassDetail, getClassDetail, getScope, ClassType, getClassType } from "./parserFunctions";
 
 export abstract class JavaBase{
-    public name: string;
-    public descriptor: string;
-    public scope: string;
-    public isFinal: boolean;
+
+    constructor(
+        public readonly name: string,
+        public readonly descriptor: string,
+        public readonly scope: string,
+        public readonly isFinal: boolean,     
+    ){
+
+    }
 
     public abstract getPrettyName(): string;
     public abstract getFullPrettyName(includeClass:boolean): string;
@@ -13,40 +19,69 @@ export abstract class JavaBase{
 
 export class JavaClass extends JavaBase{
 
-        public name: string;
-        public pckg: string;
-        public scope: string;
-        public isFinal: boolean;
-        public type: ClassType;
-        public superClass: string;
-        public classFile: JavaClassFile;
-        public srcFile: string;
-        public fields: JavaField[];
-        public methods: JavaMethod[];
-        public innerClasses: JavaInnerClass[];
+    public readonly pckg: string;
+    public readonly superClass: ClassDetail;
+    public readonly type: ClassType;
+        
+    public readonly classFile: JavaClassFile;
+    public readonly srcFile: string;
+    
+    public readonly fields: JavaField[];
+    public readonly methods: JavaMethod[];
+    public readonly innerClasses: JavaInnerClass[];
 
-    oldConst(){
-        if(this.type === ClassType.FINAL){
-            this.isFinal = true;
+    constructor(file:JavaClassFile, basePath: string){        
+        // Get name and package
+        let nameDetail = getClassDetail(getStringFromPool(file, file.this_class));
+        console.log(getStringFromPool(file, file.this_class));
+        console.log(nameDetail);
+        super(nameDetail.name, nameDetail.full, getScope(file.access_flags), (file.access_flags & Modifier.FINAL) === Modifier.FINAL);
+        this.classFile = file;
+
+        this.pckg = nameDetail.pckg;
+        
+        // Get class type
+        this.type = getClassType(file.access_flags);
+
+        // Get superclass and interfaces
+        this.superClass = getClassDetail(getStringFromPool(file, file.super_class));
+        // TODO: Add code to get interfaces
+
+        this.fields = []
+        // Get fields
+        for(let f of file.fields){
+            this.fields.push(new JavaField(this, f));
         }
-        if(this.type === ClassType.ENUM){
-            if((this.classFile.access_flags & Modifier.ENUM) === Modifier.ENUM){
-                this.isFinal = true;
+
+        this.methods = [];
+        // Get methods
+        for(let f of file.methods){
+            // this.methods.push(new JavaMethod());
+        }
+
+        this.srcFile = "";
+        for(let attr of file.attributes){
+            let attrName = getStringFromPool(file, attr.attribute_name_index);
+            if(attrName === "SourceFile"){
+                this.srcFile = basePath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
             }
         }
+
+        this.innerClasses = [];
+
     }
 
     public getPrettyName(): string{
         return this.pckg.replace(/\//g, ".")+"."+this.name;
     }
     public getFullPrettyName(includeClass:boolean=false): string{
-        if(this.superClass === "java/lang/Object"){
+        if(this.superClass.full === "java/lang/Object"){
             return this.getPrettyName();
         }
         if(includeClass){
-            return this.getPrettyName() + " extends " + this.superClass.replace(/\//g, "."); 
+            return this.getPrettyName() + " extends " + this.superClass.full.replace(/\//g, "."); 
         } else {
-            return this.getPrettyName() + " extends " + this.superClass.substr(this.superClass.lastIndexOf("/")+1);
+            return this.getPrettyName() + " extends " + this.superClass.full.substr(this.superClass.full.lastIndexOf("/")+1);
         }
     }
     public getDeclarationString(): string{
@@ -66,8 +101,8 @@ export class JavaClass extends JavaBase{
         }
         out += " "+this.name;
         // Show extensions, except for enum default
-        if(this.superClass !== "java/lang/Object" && !(this.superClass === "java/lang/Enum" && this.type === ClassType.ENUM)){
-            out+= " extends "+this.superClass.replace(/\//g, ".");
+        if(this.superClass.full !== "java/lang/Object" && !(this.superClass.full === "java/lang/Enum" && this.type === ClassType.ENUM)){
+            out+= " extends "+this.superClass.full.replace(/\//g, ".");
         }
         return out.trim();
     }
@@ -80,7 +115,7 @@ export class JavaInnerClass extends JavaClass {
     scope: string;
     isFinal: boolean;
     type: ClassType;
-    superClass: string;
+    superClass: ClassDetail;
     classFile: JavaClassFile;
     srcFile: string;
     fields: JavaField[];
@@ -104,27 +139,37 @@ export class JavaInnerClass extends JavaClass {
     }
     public getFullPrettyName(includeClass:boolean): string{
         // Don't show extension if it's the default for enum
-        if(this.superClass === "java/lang/Object" || (this.superClass === "java/lang/Enum" && this.type === ClassType.ENUM)){
+        if(this.superClass.full === "java/lang/Object" || (this.superClass.full === "java/lang/Enum" && this.type === ClassType.ENUM)){
             return this.getPrettyName();
         }
         if(includeClass){
-            return this.getPrettyName() + " extends " + this.superClass.replace(/\//g, "."); 
+            return this.getPrettyName() + " extends " + this.superClass.full.replace(/\//g, "."); 
         } else {
-            return this.getPrettyName() + " extends " + this.superClass.substr(this.superClass.lastIndexOf("/")+1);
+            return this.getPrettyName() + " extends " + this.superClass.full.substr(this.superClass.full.lastIndexOf("/")+1);
         }
     }
 }
 
 export abstract class JavaElement extends JavaBase{
-    public nameIndex: number;
-    public descriptorIndex: number;
-    public name: string;
-    public descriptor: string;
-    public parentClass: string;
-    public scope: Scope;
-    public isStatic: boolean;
-    public isFinal: boolean;
-    // super(name, descriptor, scope, isFinal);
+    public readonly nameIndex: number;
+    public readonly descriptorIndex: number;
+    
+    public readonly parentClass: ClassDetail;
+    
+    public readonly isStatic: boolean;
+
+    constructor(parent:JavaClass, element: FieldInfo | MethodInfo){
+        let file = parent.classFile;
+        super(getStringFromPool(file, element.name_index), getStringFromPool(parent.classFile, 
+            element.descriptor_index), getScope(element.access_flags), ((element.access_flags & Modifier.FINAL) === Modifier.FINAL));
+        
+        this.nameIndex = element.name_index;
+        this.descriptorIndex = element.descriptor_index;
+        
+        this.parentClass = getClassDetail(parent.descriptor);
+        this.isStatic = ((element.access_flags & Modifier.STATIC) === Modifier.STATIC);
+    }
+
 
     public equals(e:JavaElement): boolean{
         return e.parentClass === this.parentClass
@@ -133,7 +178,7 @@ export abstract class JavaElement extends JavaBase{
     }
 
     public toString(): string{
-        return this.parentClass.replace(/\//g, ".")+"."+this.name+this.descriptor;
+        return this.parentClass.full.replace(/\//g, ".")+"."+this.name+this.descriptor;
     }
 
     /**
@@ -145,7 +190,7 @@ export abstract class JavaElement extends JavaBase{
         return this.getModifiers(includeClass)+this.getPrettyName();
     };
     protected getModifiers(includeClass:boolean): string {
-        let out = includeClass ? this.parentClass.replace(/\//g, ".")+"/" : ""; 
+        let out = includeClass ? this.parentClass.full.replace(/\//g, ".")+"/" : ""; 
         if(this.scope !== Scope.DEFAULT){out += this.scope+" ";}
         if(this.isStatic){out += "static ";}
         if(this.isFinal){out += "final ";}
@@ -163,7 +208,7 @@ export class JavaMethod extends JavaElement{
     public descriptorIndex: number;
     public name: string;
     public descriptor: string;
-    public parentClass: string;
+    public parentClass: ClassDetail;
     public scope: Scope;
     public isStatic: boolean;
     public isFinal: boolean;
@@ -189,7 +234,7 @@ export class JavaField extends JavaElement{
     public descriptorIndex: number;
     public name: string;
     public descriptor: string;
-    public parentClass: string;
+    public parentClass: ClassDetail;
     public scope: Scope;
     public isStatic: boolean;
     public isFinal: boolean;
@@ -292,12 +337,4 @@ export enum Scope {
     DEFAULT="default",
     PROTECTED="protected",
     PUBLIC="public"
-}
-
-export enum ClassType {
-    NORMAL="",
-    FINAL="Final",
-    INTERFACE="Interface",
-    ABSTRACT="Abstract",
-    ENUM="Enum"
 }
