@@ -1,4 +1,5 @@
 import { JavaClassFile, Modifier } from "java-class-tools";
+import { Method } from "../codeElements";
 
 abstract class JavaBase{
     constructor (
@@ -176,7 +177,7 @@ export class JavaMethod extends JavaElement{
         public isAbstract: boolean,
         public startLine: number,
         public returnType: Type,
-        public args: Type[],
+        public args: MethodArg[],
         private prettySiganture: string,
     ) {
         super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic, isFinal);
@@ -185,6 +186,11 @@ export class JavaMethod extends JavaElement{
     public getPrettyName(): string{
         return this.prettySiganture;
     }
+}
+
+export interface MethodArg {
+    name:string,
+    type:Type
 }
 
 export class JavaField extends JavaElement{

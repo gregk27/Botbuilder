@@ -1,10 +1,11 @@
 import * as fs from 'fs';
-import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes, JavaInnerClass} from './interfaces';
-import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo, InnerClassesAttributeInfo, LineNumberTableAttributeInfo, CodeAttributeInfo} from 'java-class-tools';
+import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes, JavaInnerClass, MethodArg} from './interfaces';
+import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo, InnerClassesAttributeInfo, LineNumberTableAttributeInfo, CodeAttributeInfo, LocalVariableTypeTableAttributeInfo, LocalVariableTableAttributeInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
 import Big from 'big.js';
 import { METHODS } from 'http';
 import { exit, mainModule } from 'process';
+import { Method } from '../codeElements';
 
 const reader = new JavaClassFileReader();
 const textDecoder = new TextDecoder();
@@ -12,7 +13,7 @@ const textDecoder = new TextDecoder();
 export function parse(basePath:string, classPath:string) : JavaClass{
     let startTime = new Date();
     let file = reader.read(classPath);
-    // console.log(JSON.stringify(file));
+    console.log(JSON.stringify(file));
     // let classname = classFile.constant_pool[(<ClassInfo> classFile.constant_pool[classFile.this_class]).name_index];
     let classname = getClassName(file, file.this_class);
     let superclass = getClassName(file, file.super_class);
@@ -169,12 +170,15 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
     let descriptor = getStringFromPool(file, method.descriptor_index);
     let returnType = new Type(descriptor.substr(descriptor.lastIndexOf(")")+1));
     let argString = descriptor.substring(1, descriptor.lastIndexOf(")"));
-    let args: Type[] = [];
+    let args: MethodArg[] = [];
+    let idxMap = new Map<number, number>();
+    let nextIdx = 0;
     let startLine = -1;
 
-    // Parse arguments into type[]
+    // Parse argument types, argument values comes from code attributes
     let currentArrayStart = -1;
     for(let i = 0; i<argString.length; i++){
+        let arg = <MethodArg>{name:"", type:null};
         if(argString[i] === "["){ // Track start of array
             if(currentArrayStart === -1){ 
                 currentArrayStart = i;
@@ -182,24 +186,34 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
             continue;
         } else if (currentArrayStart >= 0){ // If this trips, then we've hit the end of the array count
             if (argString[i] === "L"){
-                args.push(new Type(argString.substring(currentArrayStart, argString.indexOf(";", i)+1)));
+                arg.type = new Type(argString.substring(currentArrayStart, argString.indexOf(";", i)+1));
                 i = argString.indexOf(";", i);
             } else {
-                args.push(new Type(argString.substring(currentArrayStart, i+1)));
+                arg.type = new Type(argString.substring(currentArrayStart, i+1));
             }
             currentArrayStart = -1;
         } else if (argString[i] === "L"){
-            args.push(new Type(argString.substring(i, argString.indexOf(";", i)+1)));
+            arg.type = new Type(argString.substring(i, argString.indexOf(";", i)+1));
             i = argString.indexOf(";", i);
         } else {
-            args.push(new Type(argString[i]));
+            arg.type = new Type(argString[i]);
         }
+
+
+        idxMap.set(nextIdx, args.length);
+        // Longs/doubles take two spaces, so increment index by 2
+        if(arg.type.type === DescriptorTypes.LONG || arg.type.type === DescriptorTypes.DOUBLE){
+            nextIdx += 2;
+        } else {
+            nextIdx ++;
+        }
+        args.push(arg);
     }
 
     // Create pretty readble signature
     let prettySignature = name+"(";
     for(let arg of args){
-        prettySignature+=arg.pretty+", ";
+        prettySignature+=arg.type.pretty+", ";
     }
     if(prettySignature.endsWith(", ")){
         prettySignature = prettySignature.substring(0,prettySignature.length-2);
@@ -209,6 +223,7 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
         prettySignature += "=>"+returnType.pretty;
     }
 
+    console.log(name);
     // Get information from various attributes
     for(let attr of method.attributes){
         if(getStringFromPool(file, attr.attribute_name_index) === "Code"){
@@ -217,6 +232,24 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
                 if(getStringFromPool(file, codeAttr.attribute_name_index) === "LineNumberTable"){
                     // The first element in the index is the first instruction, so line before is method declaration
                     startLine = (<LineNumberTableAttributeInfo> codeAttr).line_number_table[0].line_number-1;
+                } else if(getStringFromPool(file, codeAttr.attribute_name_index) === "LocalVariableTable"){
+                    // The first element in the index is the first instruction, so line before is method declaration
+                    for(let v of (<LocalVariableTableAttributeInfo> codeAttr).local_variable_table){
+                        let vName = getStringFromPool(file, v.name_index);
+                        // Ignore "this" or any variables declared during the function (pc > 0)
+                        if(vName === "this" || v.start_pc !== 0){
+                            continue;
+                        }
+                        let idx = v.index;
+                        // Non-static methods have a "this" argument, so index must be bumped down for args to start at 0 
+                        if((method.access_flags & Modifier.STATIC) !== Modifier.STATIC){
+                            idx --;
+                        }
+                        console.log(idx);
+                        console.log(vName);
+                        args[idxMap.get(idx)].name = vName;
+                        console.log(args);
+                    }
                 }
             }
         }
