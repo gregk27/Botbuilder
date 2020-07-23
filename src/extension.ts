@@ -7,7 +7,7 @@ import * as Loader from './loader';
 import * as fs from 'fs';
 import { Console } from 'console';
 import { systemDefaultPlatform } from 'vscode-test/out/util';
-import { TreeElement } from './codeElements';
+import { Linkable } from './codeElements';
 import { JavaElement, JavaClass } from './javaParser/interfaces';
 
 let providers:DataProvider[] = [];
@@ -27,9 +27,22 @@ export function activate(context: vscode.ExtensionContext) {
 		refresh();
 	});
 	let openCommand = vscode.commands.registerCommand('ler-botbuilder.openFile', (file) => {
-		if(file instanceof JavaClass){
-			vscode.workspace.openTextDocument((<JavaClass> file).srcFile).then(document => {
-				vscode.window.showTextDocument(document);
+		console.log(file);
+		// if(file instanceof JavaClass){
+		// 	vscode.workspace.openTextDocument((<JavaClass> file).srcFile).then(document => {
+		// 		vscode.window.showTextDocument(document);
+		// 	});
+		if (file !== null && 'getTarget' in file){ // Check if file implements linkable
+			let target = (<Linkable> file).getTarget();
+			console.log(`Opening ${target.file}:${target.line}`);
+			vscode.workspace.openTextDocument(target.file).then(document => {
+				vscode.window.showTextDocument(document).then(editor => {
+					if(target.line > 0){
+						let pos = new vscode.Position(target.line-1, 0);
+						editor.revealRange(new vscode.Range(pos, pos));
+						editor.selection = new vscode.Selection(pos, pos);
+					}
+				});
 			});
 		}
 	});
@@ -44,10 +57,10 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerTreeDataProvider('commands', d);
 	});
 
-	fs.watch(vscode.workspace.rootPath +"/build/classes", {persistent:false, recursive:true}, (event, filename)=>{
-		console.log(event+":"+filename);
-		refresh(1000);
-	});
+	// fs.watch(vscode.workspace.rootPath +"/build/classes", {persistent:false, recursive:true}, (event, filename)=>{
+	// 	console.log(event+":"+filename);
+	// 	refresh(1000);
+	// });
 
 	context.subscriptions.push(refreshCommand);
 	context.subscriptions.push(openCommand);

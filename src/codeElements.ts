@@ -1,9 +1,11 @@
 import { TreeItemCollapsibleState, TreeItem} from 'vscode';
 import * as Path from 'path';
 import { JavaField, JavaMethod, Scope, JavaClass, JavaInnerClass } from './javaParser/interfaces';
-import { Subsystem, Command } from './treeType';
+import { Subsystem, Command, InnerClass } from './treeType';
 
-
+export interface Linkable{
+    getTarget():{file:string, line:number};
+}
 
 export interface TreeElement {
         
@@ -43,6 +45,8 @@ export namespace TreeElement {
             item.contextValue = "field";
         } else if(e instanceof Method){
             item.contextValue = "method";
+        } else if(e instanceof InnerClass){
+            item.contextValue = "innerClass";
         }
         return item;
     }
@@ -87,18 +91,29 @@ export class Field extends JavaField implements TreeElement {
         };
     }
 }
-export class Method extends JavaMethod implements TreeElement {
+export class Method extends JavaMethod implements TreeElement, Linkable {
 
     children: TreeElement[] = [];
     iconName: string = "method";
     collapsibleState: TreeItemCollapsibleState;
 
+    srcFile: string;
+    linkTargetLine: number;
+
     /**
      * Create a new Method instance from a JavaMethod instance.
      * @param method The JavaMethod instance to clone from 
      */
-    constructor(method:JavaMethod){
-        super(method.nameIndex, method.descriptorIndex, method.name, method.descriptor, method.parentClass, method.scope, method.isStatic, method.isFinal, method.isAbstract, method.returnType, method.args, method.getPrettyName());
+    constructor(method:JavaMethod, srcFile:string){
+        super(method.nameIndex, method.descriptorIndex, method.name, method.descriptor, method.parentClass, method.scope, method.isStatic, method.isFinal, method.isAbstract, method.startLine, method.returnType, method.args, method.getPrettyName());
+        this.srcFile = srcFile;
+    }
+    
+    getTarget(){
+        return {
+            file: this.srcFile,
+            line: this.startLine
+        };
     }
 
     getLabel(): string{

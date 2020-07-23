@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import {JavaClass, JavaField, Type, Scope, ClassType, JavaMethod, DescriptorTypes, JavaInnerClass} from './interfaces';
-import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo, InnerClassesAttributeInfo} from 'java-class-tools';
+import { JavaClassFileReader, ConstantType, Modifier, ClassInfo, JavaClassFile, Utf8Info, ConstantPoolInfo, FieldInfo, ConstantValueAttributeInfo, StringInfo, IntegerInfo, FloatInfo, DoubleInfo, MethodInfo, AttributeInfo, SourceFileAttributeInfo, InnerClassesAttributeInfo, LineNumberTableAttributeInfo, CodeAttributeInfo} from 'java-class-tools';
 import { TextDecoder } from 'util';
 import Big from 'big.js';
 import { METHODS } from 'http';
-import { exit } from 'process';
+import { exit, mainModule } from 'process';
 
 const reader = new JavaClassFileReader();
 const textDecoder = new TextDecoder();
@@ -170,6 +170,9 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
     let returnType = new Type(descriptor.substr(descriptor.lastIndexOf(")")+1));
     let argString = descriptor.substring(1, descriptor.lastIndexOf(")"));
     let args: Type[] = [];
+    let startLine = -1;
+
+    // Parse arguments into type[]
     let currentArrayStart = -1;
     for(let i = 0; i<argString.length; i++){
         if(argString[i] === "["){ // Track start of array
@@ -193,6 +196,7 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
         }
     }
 
+    // Create pretty readble signature
     let prettySignature = name+"(";
     for(let arg of args){
         prettySignature+=arg.pretty+", ";
@@ -205,21 +209,24 @@ function getMethod(file:JavaClassFile, method:MethodInfo): JavaMethod{
         prettySignature += "=>"+returnType.pretty;
     }
 
+    // Get information from various attributes
+    for(let attr of method.attributes){
+        if(getStringFromPool(file, attr.attribute_name_index) === "Code"){
+            // Get start line from line number table
+            for(let codeAttr of (<CodeAttributeInfo> attr).attributes){
+                if(getStringFromPool(file, codeAttr.attribute_name_index) === "LineNumberTable"){
+                    // The first element in the index is the first instruction, so line before is method declaration
+                    startLine = (<LineNumberTableAttributeInfo> codeAttr).line_number_table[0].line_number-1;
+                }
+            }
+        }
+
+    }
+
     return new JavaMethod(method.name_index, method.descriptor_index, 
         name, descriptor, getClassName(file, file.this_class), 
         getScope(method.access_flags), (method.access_flags & Modifier.STATIC) === Modifier.STATIC, (method.access_flags & Modifier.FINAL) === Modifier.FINAL, (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
-        returnType, args, prettySignature);
-
-    // return {
-    //     scope:getScope(method.access_flags),
-    //     static: (method.access_flags & Modifier.STATIC) === Modifier.STATIC,
-    //     abstract: (method.access_flags & Modifier.ABSTRACT) === Modifier.ABSTRACT,
-    //     name,
-    //     signatrue: name+descriptor,
-    //     prettySignature,
-    //     returnType,
-    //     args
-    // };
+        startLine, returnType, args, prettySignature);
 }
 
 function getInnerClases(file:JavaClassFile, info:InnerClassesAttributeInfo, buildPath:string, basePath:string): JavaInnerClass[] {

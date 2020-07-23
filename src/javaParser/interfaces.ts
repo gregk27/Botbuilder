@@ -126,7 +126,7 @@ export abstract class JavaElement extends JavaBase{
         public parentClass: string,
         public scope: Scope,
         public isStatic: boolean,
-        public isFinal: boolean
+        public isFinal: boolean,
     ){
         super(name, descriptor, scope, isFinal);
     }
@@ -174,6 +174,7 @@ export class JavaMethod extends JavaElement{
         public isStatic: boolean,
         public isFinal: boolean,
         public isAbstract: boolean,
+        public startLine: number,
         public returnType: Type,
         public args: Type[],
         private prettySiganture: string,

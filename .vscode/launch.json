@@ -6,6 +6,16 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name":"Parser test",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/src/test/parserTest.ts",
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "${defaultBuildTask}"
+		},
+		{
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
