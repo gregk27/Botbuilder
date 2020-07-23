@@ -1,7 +1,7 @@
 import { JavaClassFile, Modifier } from "java-class-tools";
 import { Method } from "../codeElements";
 
-abstract class JavaBase{
+export abstract class JavaBase{
     constructor (
         public name: string,
         public descriptor: string,
@@ -16,6 +16,7 @@ abstract class JavaBase{
 }
 
 export class JavaClass extends JavaBase{
+
     constructor (
         public name: string,
         public pckg: string,

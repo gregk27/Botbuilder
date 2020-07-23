@@ -1,6 +1,6 @@
-import { JavaClassFile, Modifier, FieldRefInfo, SourceFileAttributeInfo, MethodInfo, FieldInfo, ElementValue } from "java-class-tools";
+import { JavaClassFile, Modifier, FieldRefInfo, SourceFileAttributeInfo, MethodInfo, FieldInfo, ElementValue, AttributeInfo, ConstantValueAttributeInfo } from "java-class-tools";
 import { Method, Field } from "../codeElements";
-import { getStringFromPool, ClassDetail, getClassDetail, getScope, ClassType, getClassType } from "./parserFunctions";
+import { getStringFromPool, ClassDetail, getClassDetail, getScope, ClassType, getClassType, getValueFromPool } from "./parserFunctions";
 
 export abstract class JavaBase{
 
@@ -15,6 +15,21 @@ export abstract class JavaBase{
 
     public abstract getPrettyName(): string;
     public abstract getFullPrettyName(includeClass:boolean): string;
+    
+    /**
+     * Iterate over the attached attributes
+     * @param file The `JavaClassFile` with relevant constant pool
+     * @param attributes The attributes to parse
+     * @param callbacks A hashmap with <Attribute name, Callback> such that an attribute with the given name will call the callback
+     */
+    protected parseAttributes(file:JavaClassFile, attributes: AttributeInfo[], callbacks:{[name:string]: (attr:AttributeInfo)=>void}){
+        let clbk:(attr:AttributeInfo)=>void = null;
+        for(let attr of attributes){
+            if((clbk = callbacks[getStringFromPool(file, attr.attribute_name_index)]) !== undefined){
+                clbk(attr);
+            }
+        }
+    }
 }
 
 export class JavaClass extends JavaBase{
@@ -24,7 +39,7 @@ export class JavaClass extends JavaBase{
     public readonly type: ClassType;
         
     public readonly classFile: JavaClassFile;
-    public readonly srcFile: string;
+    public srcFile: string;
     
     public readonly fields: JavaField[];
     public readonly methods: JavaMethod[];
@@ -60,12 +75,10 @@ export class JavaClass extends JavaBase{
         }
 
         this.srcFile = "";
-        for(let attr of file.attributes){
-            let attrName = getStringFromPool(file, attr.attribute_name_index);
-            if(attrName === "SourceFile"){
-                this.srcFile = basePath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
-            }
-        }
+        this.parseAttributes(file, file.attributes, {
+            "SourceFile": (attr) => 
+                this.srcFile = basePath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index),
+        });
 
         this.innerClasses = [];
 
@@ -230,17 +243,22 @@ export interface MethodArg {
 }
 
 export class JavaField extends JavaElement{
-    public nameIndex: number;
-    public descriptorIndex: number;
-    public name: string;
-    public descriptor: string;
-    public parentClass: ClassDetail;
-    public scope: Scope;
-    public isStatic: boolean;
-    public isFinal: boolean;
-    public type: Type;
+    
+    public readonly type: Type;
     public constVal: any;
-    // super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic, isFinal);
+
+    constructor(parent: JavaClass, field:FieldInfo){
+        super(parent, field);
+        this.type = new Type(this.descriptor);
+        
+        this.constVal = null;
+        this.parseAttributes(parent.classFile, field.attributes, 
+            {
+                "ConstantValue": (attr) => 
+                    this.constVal = getValueFromPool(parent.classFile, (<ConstantValueAttributeInfo> attr).constantvalue_index),
+            }
+        );
+    }
 
     public getPrettyName(): string{
         let out = this.type.pretty+" ";
