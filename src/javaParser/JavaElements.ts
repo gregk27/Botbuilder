@@ -1,5 +1,5 @@
 import { CodeAttributeInfo, ConstantValueAttributeInfo, FieldInfo, LineNumberTableAttributeInfo, LocalVariableTableAttributeInfo, MethodInfo, Modifier } from "java-class-tools";
-import { ClassDetail, DescriptorTypes, JavaBase, MethodArg, Scope, Type } from "./common";
+import { ClassDetail, DescriptorTypes, JavaBase, MethodParam, Scope, Type } from "./common";
 import { JavaClass } from "./JavaClasses";
 import { getClassDetail, getScope, getStringFromPool, getValueFromPool, parseAttributes } from "./parserFunctions";
 
@@ -88,7 +88,7 @@ export class JavaMethod extends JavaElement{
     public readonly isAbstract: boolean;
     
     private prettySiganture: string;
-    public args: MethodArg[];
+    public args: MethodParam[];
     public readonly returnType: Type;
 
     public readonly startLine: number;
@@ -160,7 +160,7 @@ export class JavaMethod extends JavaElement{
         // Variable to track array values
         let currentArrayStart = -1;
         for(let i = 0; i<argString.length; i++){
-            let arg = <MethodArg>{name:"", type:null};
+            let arg = <MethodParam>{name:"", type:null};
             if(argString[i] === "["){ // Track start of array
                 if(currentArrayStart === -1){ 
                     currentArrayStart = i;
