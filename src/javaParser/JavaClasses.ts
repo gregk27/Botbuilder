@@ -4,21 +4,55 @@ import { ClassDetail, ClassType, JavaBase, Scope } from "./common";
 import { JavaField, JavaMethod } from "./JavaElements";
 import { getClassDetail, getClassType, getScope, getStringFromPool, parseAttributes } from "./parserFunctions";
 
+/** Reader used to read subclasses */
 const reader = new JavaClassFileReader();
 
+/**
+ * Class representing a Java Class
+ */
 export class JavaClass extends JavaBase{
 
+    /**
+     * The package containing the class, slash-separated
+     */
     public readonly pckg: string;
+    /**
+     * The {@link ClassDetail} with information regarding the superclass
+     */
     public readonly superClass: ClassDetail;
+    /**
+     * The {@link ClassType} of the class.
+     * @remarks final enums are marked as Enum
+     */
     public readonly type: ClassType;
-        
+    
+    /**
+     * The {@link JavaclassFile} containing the raw information about the class
+     */
     public readonly classFile: JavaClassFile;
+    /**
+     * The `.java` source file, extracted from the `.class` file
+     */
     public srcFile: string;
     
+    /**
+     * Array containing the {@link JavaField | Fields} of the class
+     */
     public readonly fields: JavaField[];
+    /**
+     * Array containing the {@link JavaMethod | Methods} of the class
+     */
     public readonly methods: JavaMethod[];
+    /**
+     * Array conaining the {@link JavaInnerClass | InnerClasses} of the class (includes enums)
+     */
     public readonly innerClasses: JavaInnerClass[];
 
+    /**
+     * Parse a Java Class from a specified JavaClassFile
+     * @param file The JavaClassFile to parse from
+     * @param basePath The path to the base of the package
+     */
     constructor(file:JavaClassFile, basePath: string){        
         // Get name and package
         let nameDetail = getClassDetail(getStringFromPool(file, file.this_class));
@@ -77,16 +111,26 @@ export class JavaClass extends JavaBase{
     public getPrettyName(): string{
         return this.pckg.replace(/\//g, ".")+"."+this.name;
     }
+    
+    /**
+     * Get an extended version of the pretty-print name 
+     * @param includeClass Flag to indicate wether the superclass package should be included
+     * @remarks Classes extending `java.lang.Object` and enums extending `java.lang.Enum` will not include these superclasses
+     */
     public getFullPrettyName(includeClass:boolean=false): string{
-        if(this.superClass.full === "java/lang/Object"){
+        if(this.superClass.full === "java/lang/Object" || (this.superClass.full === "java/lang/Enum" && this.type === ClassType.ENUM)){
             return this.getPrettyName();
         }
         if(includeClass){
             return this.getPrettyName() + " extends " + this.superClass.full.replace(/\//g, "."); 
         } else {
-            return this.getPrettyName() + " extends " + this.superClass.full.substr(this.superClass.full.lastIndexOf("/")+1);
+            return this.getPrettyName() + " extends " + this.superClass.name;
         }
     }
+
+    /**
+     * Get a string representation of the class declaration
+     */
     public getDeclarationString(): string{
         let out = "";
         if(this.scope !== Scope.DEFAULT){out += this.scope;}
@@ -111,9 +155,21 @@ export class JavaClass extends JavaBase{
     }
 }
 
+/**
+ * A class used to represent Inner Classes
+ * @see JavaClass
+ */
 export class JavaInnerClass extends JavaClass {
+    /**
+     * The {@link JavaBase#descriptor | descriptor} of the class containing this inner class
+     */
     public readonly outerClass: string;
 
+    /**
+     * Parse a Java Class from a specified JavaClassFile
+     * @param file The JavaClassFile to parse from
+     * @param basePath The path to the base of the package
+     */
     constructor(file:JavaClassFile, basePath:string){
         super(file, basePath);
         this.outerClass = this.descriptor.substring(0,this.descriptor.lastIndexOf("$"));
@@ -121,16 +177,5 @@ export class JavaInnerClass extends JavaClass {
 
     public getPrettyName(): string{
         return this.outerClass.replace(/\//g, ".")+"$"+this.name;
-    }
-    public getFullPrettyName(includeClass:boolean): string{
-        // Don't show extension if it's the default for enum
-        if(this.superClass.full === "java/lang/Object" || (this.superClass.full === "java/lang/Enum" && this.type === ClassType.ENUM)){
-            return this.getPrettyName();
-        }
-        if(includeClass){
-            return this.getPrettyName() + " extends " + this.superClass.full.replace(/\//g, "."); 
-        } else {
-            return this.getPrettyName() + " extends " + this.superClass.full.substr(this.superClass.full.lastIndexOf("/")+1);
-        }
     }
 }
