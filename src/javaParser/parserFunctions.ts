@@ -1,6 +1,6 @@
-import { JavaClassFile, ConstantType, StringInfo, Utf8Info, Modifier, ClassInfo, AttributeInfo } from "java-class-tools";
+import { AttributeInfo, ClassInfo, ConstantType, JavaClassFile, Modifier, StringInfo, Utf8Info } from "java-class-tools";
 import { TextDecoder } from "util";
-import { Scope } from "./interfaces";
+import { ClassDetail, ClassType, Scope } from "./common";
 
 
 const textDecoder = new TextDecoder();
@@ -57,6 +57,7 @@ export function getNumberFromPool(file:JavaClassFile, index:number): number | bi
     return null;
 
 }
+
 export function getScope(access:number):Scope{
     if((access & Modifier.PRIVATE) === Modifier.PRIVATE){
         return Scope.PRIVATE;
@@ -84,13 +85,6 @@ export function parseAttributes(file:JavaClassFile, attributes: AttributeInfo[],
     }
 }
 
-export enum ClassType {
-    NORMAL="",
-    FINAL="Final",
-    INTERFACE="Interface",
-    ABSTRACT="Abstract",
-    ENUM="Enum"
-}
 export function getClassType(access:number){
     if((access & Modifier.ENUM) === Modifier.ENUM){
         return ClassType.ENUM;
@@ -105,12 +99,6 @@ export function getClassType(access:number){
     }
 }
 
-export interface ClassDetail{
-    pckg:string,
-    name:string,
-    outer:string,
-    full:string
-}
 export function getClassDetail(fullName: string):ClassDetail {
     if(fullName === null){
         return null;

@@ -1,5 +1,7 @@
-import { JavaClassFile, Modifier } from "java-class-tools";
-import { Method } from "../codeElements";
+import { JavaClassFile, JavaClassFileReader, Modifier } from "java-class-tools";
+
+
+const reader = new JavaClassFileReader();
 
 export abstract class JavaBase{
     constructor (

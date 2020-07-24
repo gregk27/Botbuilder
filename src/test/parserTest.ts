@@ -1,7 +1,5 @@
-import { parse } from '../javaParser/javaParser';
-import { JavaInnerClass } from '../javaParser/interfaces';
-import { JavaClassFileReader } from 'java-class-tools';
-import { JavaClass } from '../javaParser/javaTypes';
+import { JavaClassFileReader } from "java-class-tools";
+import { JavaClass } from "../javaParser/JavaClasses";
 
 console.log("Running!");
 
