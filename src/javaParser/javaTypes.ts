@@ -1,6 +1,6 @@
-import { JavaClassFile, Modifier, FieldRefInfo, SourceFileAttributeInfo, MethodInfo, FieldInfo, ElementValue, AttributeInfo, ConstantValueAttributeInfo } from "java-class-tools";
+import { JavaClassFile, Modifier, FieldRefInfo, SourceFileAttributeInfo, MethodInfo, FieldInfo, ElementValue, AttributeInfo, ConstantValueAttributeInfo, CodeAttributeInfo, LineNumberTableAttributeInfo, LocalVariableTableAttributeInfo } from "java-class-tools";
 import { Method, Field } from "../codeElements";
-import { getStringFromPool, ClassDetail, getClassDetail, getScope, ClassType, getClassType, getValueFromPool } from "./parserFunctions";
+import { getStringFromPool, ClassDetail, getClassDetail, getScope, ClassType, getClassType, getValueFromPool, parseAttributes } from "./parserFunctions";
 
 export abstract class JavaBase{
 
@@ -15,21 +15,6 @@ export abstract class JavaBase{
 
     public abstract getPrettyName(): string;
     public abstract getFullPrettyName(includeClass:boolean): string;
-    
-    /**
-     * Iterate over the attached attributes
-     * @param file The `JavaClassFile` with relevant constant pool
-     * @param attributes The attributes to parse
-     * @param callbacks A hashmap with <Attribute name, Callback> such that an attribute with the given name will call the callback
-     */
-    protected parseAttributes(file:JavaClassFile, attributes: AttributeInfo[], callbacks:{[name:string]: (attr:AttributeInfo)=>void}){
-        let clbk:(attr:AttributeInfo)=>void = null;
-        for(let attr of attributes){
-            if((clbk = callbacks[getStringFromPool(file, attr.attribute_name_index)]) !== undefined){
-                clbk(attr);
-            }
-        }
-    }
 }
 
 export class JavaClass extends JavaBase{
@@ -70,12 +55,14 @@ export class JavaClass extends JavaBase{
 
         this.methods = [];
         // Get methods
-        for(let f of file.methods){
-            // this.methods.push(new JavaMethod());
+        for(let m of file.methods){
+            this.methods.push(new JavaMethod(this, m));
         }
 
+        console.log(JSON.stringify(this.methods));
+
         this.srcFile = "";
-        this.parseAttributes(file, file.attributes, {
+        parseAttributes(file, file.attributes, {
             "SourceFile": (attr) => 
                 this.srcFile = basePath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index),
         });
@@ -217,20 +204,115 @@ export abstract class JavaElement extends JavaBase{
 
 export class JavaMethod extends JavaElement{       
     
-    public nameIndex: number;
-    public descriptorIndex: number;
-    public name: string;
-    public descriptor: string;
-    public parentClass: ClassDetail;
-    public scope: Scope;
-    public isStatic: boolean;
-    public isFinal: boolean;
-    public isAbstract: boolean;
-    public startLine: number;
-    public returnType: Type;
-    public args: MethodArg[];
+    public readonly isAbstract: boolean;
+    
     private prettySiganture: string;
+    public args: MethodArg[];
+    public readonly returnType: Type;
+
+    public readonly startLine: number;
+    
     // super(nameIndex, descriptorIndex, name, descriptor, parentClass, scope, isStatic, isFinal);
+    
+    constructor(parent:JavaClass, method:MethodInfo){
+        super(parent, method);
+        // Get the return type from the end of the descriptor
+        this.returnType = new Type(this.descriptor.substr(this.descriptor.lastIndexOf(")")+1));
+        let startLine = -1;
+    
+        // Parse argument types, argument values comes from code attributes
+        let idxMap = this.getArgs();
+        
+        // Create pretty readble signature
+        let prettySignature = this.name+"(";
+        for(let arg of this.args){
+            prettySignature+=arg.type.pretty+", ";
+        }
+        if(prettySignature.endsWith(", ")){
+            prettySignature = prettySignature.substring(0,prettySignature.length-2);
+        }
+        prettySignature+= ")";
+        if(this.returnType.type !== DescriptorTypes.VOID){
+            prettySignature += "=>"+this.returnType.pretty;
+        }
+    
+        // Get information from various attributes
+        parseAttributes(parent.classFile, method.attributes, {
+            "Code": (attr)=>{
+                parseAttributes(parent.classFile, (<CodeAttributeInfo> attr).attributes, {
+                    "LineNumberTable": (codeAttr)=>{
+                        // The first element in the index is the first instruction, so line before is method declaration
+                        startLine = (<LineNumberTableAttributeInfo> codeAttr).line_number_table[0].line_number-1;
+                    },
+                    "LocalVariableTable": (codeAttr)=>{
+                        // Parse local variable table to get method parameters
+                        for(let v of (<LocalVariableTableAttributeInfo> codeAttr).local_variable_table){
+                            let vName = getStringFromPool(parent.classFile, v.name_index);
+                            // Ignore "this" or any variables declared during the function (pc > 0)
+                            if(vName === "this" || v.start_pc !== 0){
+                                continue;
+                            }
+                            let idx = v.index;
+                            // Non-static methods have a "this" argument, so index must be bumped down for args to start at 0 
+                            if((method.access_flags & Modifier.STATIC) !== Modifier.STATIC){
+                                idx --;
+                            }
+                            this.args[idxMap.get(idx)].name = vName;
+                        }
+                    }
+                });
+            },
+        });
+
+    }
+
+    private getArgs(): Map<number, number>{        
+        this.args = [];
+
+        // Mapping to track index of arguments for matching with names
+        let idxMap = new Map<number, number>();
+        let nextIdx = 0;
+
+        // Get the arguments from the descriptor
+        let argString = this.descriptor.substring(1, this.descriptor.lastIndexOf(")"));
+        
+        // Variable to track array values
+        let currentArrayStart = -1;
+        for(let i = 0; i<argString.length; i++){
+            let arg = <MethodArg>{name:"", type:null};
+            if(argString[i] === "["){ // Track start of array
+                if(currentArrayStart === -1){ 
+                    currentArrayStart = i;
+                }
+                continue;
+            } else if (currentArrayStart >= 0){ // If this trips, then we've hit the end of the array count
+                if (argString[i] === "L"){
+                    arg.type = new Type(argString.substring(currentArrayStart, argString.indexOf(";", i)+1));
+                    i = argString.indexOf(";", i);
+                } else {
+                    arg.type = new Type(argString.substring(currentArrayStart, i+1));
+                }
+                currentArrayStart = -1;
+            } else if (argString[i] === "L"){
+                arg.type = new Type(argString.substring(i, argString.indexOf(";", i)+1));
+                i = argString.indexOf(";", i);
+            } else {
+                arg.type = new Type(argString[i]);
+            }
+    
+    
+            idxMap.set(nextIdx, this.args.length);
+            // Longs/doubles take two spaces, so increment index by 2
+            if(arg.type.type === DescriptorTypes.LONG || arg.type.type === DescriptorTypes.DOUBLE){
+                nextIdx += 2;
+            } else {
+                nextIdx ++;
+            }
+            this.args.push(arg);
+        }
+
+        return idxMap;
+    }
 
     public getPrettyName(): string{
         return this.prettySiganture;
@@ -252,7 +334,7 @@ export class JavaField extends JavaElement{
         this.type = new Type(this.descriptor);
         
         this.constVal = null;
-        this.parseAttributes(parent.classFile, field.attributes, 
+        parseAttributes(parent.classFile, field.attributes, 
             {
                 "ConstantValue": (attr) => 
                     this.constVal = getValueFromPool(parent.classFile, (<ConstantValueAttributeInfo> attr).constantvalue_index),

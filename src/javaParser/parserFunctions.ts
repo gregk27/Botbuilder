@@ -1,4 +1,4 @@
-import { JavaClassFile, ConstantType, StringInfo, Utf8Info, Modifier, ClassInfo } from "java-class-tools";
+import { JavaClassFile, ConstantType, StringInfo, Utf8Info, Modifier, ClassInfo, AttributeInfo } from "java-class-tools";
 import { TextDecoder } from "util";
 import { Scope } from "./interfaces";
 
@@ -66,6 +66,21 @@ export function getScope(access:number):Scope{
         return Scope.PUBLIC;
     } else {
         return Scope.DEFAULT;
+    }
+}
+
+/**
+ * Iterate over the attached attributes
+ * @param file The `JavaClassFile` with relevant constant pool
+ * @param attributes The attributes to parse
+ * @param callbacks A hashmap with <Attribute name, Callback> such that an attribute with the given name will call the callback
+ */
+export function parseAttributes(file:JavaClassFile, attributes: AttributeInfo[], callbacks:{[name:string]: (attr:AttributeInfo)=>void}){
+    let clbk:(attr:AttributeInfo)=>void = null;
+    for(let attr of attributes){
+        if((clbk = callbacks[getStringFromPool(file, attr.attribute_name_index)]) !== undefined){
+            clbk(attr);
+        }
     }
 }
 
