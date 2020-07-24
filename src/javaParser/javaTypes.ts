@@ -1,6 +1,8 @@
-import { JavaClassFile, Modifier, FieldRefInfo, SourceFileAttributeInfo, MethodInfo, FieldInfo, ElementValue, AttributeInfo, ConstantValueAttributeInfo, CodeAttributeInfo, LineNumberTableAttributeInfo, LocalVariableTableAttributeInfo } from "java-class-tools";
-import { Method, Field } from "../codeElements";
+import { JavaClassFile, Modifier, FieldRefInfo, SourceFileAttributeInfo, MethodInfo, FieldInfo, ElementValue, AttributeInfo, ConstantValueAttributeInfo, CodeAttributeInfo, LineNumberTableAttributeInfo, LocalVariableTableAttributeInfo, InnerClassesAttributeInfo, JavaClassFileReader } from "java-class-tools";
 import { getStringFromPool, ClassDetail, getClassDetail, getScope, ClassType, getClassType, getValueFromPool, parseAttributes } from "./parserFunctions";
+import * as fs from 'fs';
+
+const reader = new JavaClassFileReader();
 
 export abstract class JavaBase{
 
@@ -47,7 +49,7 @@ export class JavaClass extends JavaBase{
         this.superClass = getClassDetail(getStringFromPool(file, file.super_class));
         // TODO: Add code to get interfaces
 
-        this.fields = []
+        this.fields = [];
         // Get fields
         for(let f of file.fields){
             this.fields.push(new JavaField(this, f));
@@ -60,15 +62,29 @@ export class JavaClass extends JavaBase{
         }
 
         console.log(JSON.stringify(this.methods));
+        
+        this.innerClasses = [];
 
+        let buildPath = basePath.replace("src/main/java", "build/classes/java/main");
         this.srcFile = "";
         parseAttributes(file, file.attributes, {
             "SourceFile": (attr) => 
                 this.srcFile = basePath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index),
+            "InnerClasses": (attr) => {
+                for(let cls of (<InnerClassesAttributeInfo> attr).classes){
+                    if(file.this_class !==  cls.inner_class_info_index){ // If the inner class is also the outer class
+                        let path = buildPath+getStringFromPool(file, cls.inner_class_info_index)+".class";
+                        if(!fs.existsSync(path)){ // Catch files that are from external libraries
+                            console.warn(`File does not exist ${path}`);
+                        } else {
+                            let newCls = new JavaInnerClass(reader.read(path), basePath);
+                            console.log(newCls);
+                            this.innerClasses.push(newCls);
+                        }
+                    }
+                }
+            }
         });
-
-        this.innerClasses = [];
-
     }
 
     public getPrettyName(): string{
@@ -109,33 +125,15 @@ export class JavaClass extends JavaBase{
 }
 
 export class JavaInnerClass extends JavaClass {
-    public parentClass: string;
-    name: string;
-    pckg: string;
-    scope: string;
-    isFinal: boolean;
-    type: ClassType;
-    superClass: ClassDetail;
-    classFile: JavaClassFile;
-    srcFile: string;
-    fields: JavaField[];
-    methods: JavaMethod[];
-    innerClasses: JavaInnerClass[];
-    
-    oldConst(){
-        // super(name, pckg, scope, isFinal, type, superClass, classFile, srcFile, fields, methods, innerClasses);
-        this.parentClass = this.descriptor.substring(0,this.descriptor.lastIndexOf("$"));
-        this.name = this.name.substring(this.name.lastIndexOf("$")+1);
+    public readonly outerClass: string;
+
+    constructor(file:JavaClassFile, basePath:string){
+        super(file, basePath);
+        this.outerClass = this.descriptor.substring(0,this.descriptor.lastIndexOf("$"));
     }
 
-    public static fromClass(cls:JavaClass): JavaInnerClass{
-        console.log(cls);
-        // return new JavaInnerClass(cls.descriptor.substring(cls.descriptor.lastIndexOf("/")+1), cls.pckg, cls.scope, cls.isFinal, cls.type, cls.superClass, cls.classFile, cls.srcFile, cls.fields, cls.methods, cls.innerClasses);
-        return null;
-    }
-    
     public getPrettyName(): string{
-        return this.parentClass.replace(/\//g, ".")+"$"+this.name;
+        return this.outerClass.replace(/\//g, ".")+"$"+this.name;
     }
     public getFullPrettyName(includeClass:boolean): string{
         // Don't show extension if it's the default for enum

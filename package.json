@@ -18,7 +18,7 @@
 			{
 				"command": "ler-botbuilder.refresh",
 				"title": "Refresh BotBuilder",
-                "icon": "$(refresh)"
+				"icon": "$(refresh)"
 			},
 			{
 				"command": "ler-botbuilder.toggleScope",
@@ -72,15 +72,14 @@
 			],
 			"commandPalette": [
 				{
-					"command":"ler-botbuilder.refresh",
+					"command": "ler-botbuilder.refresh",
 					"when": "never"
 				},
 				{
-					"command":"ler-botbuilder.openFile",
+					"command": "ler-botbuilder.openFile",
 					"when": "never"
 				}
 			]
-
 		}
 	},
 	"scripts": {

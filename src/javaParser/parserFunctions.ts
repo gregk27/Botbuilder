@@ -115,11 +115,14 @@ export function getClassDetail(fullName: string):ClassDetail {
     if(fullName === null){
         return null;
     }
+    if(fullName.includes("$")){
+
+    }
     let splitpoint = fullName.lastIndexOf("/");
     let pckg = fullName.substring(0,splitpoint);
     let name = fullName.substring(splitpoint+1);
     let outer = null;
-    if((splitpoint = name.lastIndexOf("$")) !== -1){
+    if((splitpoint = fullName.lastIndexOf("$")) !== -1){
         outer = fullName.substring(0, splitpoint);
         name = fullName.substring(splitpoint+1);
     }
