@@ -7,13 +7,14 @@ FNT		ler/robot/subsystems/Drivetrain extends com/wpilib2/SubsystemBase
 DEC		public class Drivetrain extends SubsystemBase
 	
 Inners
-PN 		Side
 N		Drivetrain.Side
-NT		ler/robot/subsystems/Drivetrain.Side
+NT		Drivetrain.Side extends SUPER
+PN 		Side
+PNT		Side extends SUPER
+FN		ler/robot/subsystems/Drivetrain.Side
+FNT		ler/robot/subsystems/Drivetrain.Side extends com/example/SUPER
 SIG		ler/robot/subsystems/Drivetrain$Side
-FN		Drivetrain.Side extends Enum
-FNT		Drivetrain.Side extends java/lang/Enum
-DEC		public static enum Side
+DEC		public static enum SUPER
 	
 Methods
 N		Drive(double, double)

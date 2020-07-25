@@ -12,12 +12,12 @@ let cls = new JavaClass(file, "C:/Users/Greg/Documents/Workspaces/Robocode/LER20
 
 console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
 // console.log(cls);
-console.log(cls.getName(false));
-console.log(cls.getName(true));
-console.log(cls.getPrettyName(false));
-console.log(cls.getPrettyName(true));
-console.log(cls.getFullName(false));
-console.log(cls.getFullName(true));
-console.log(cls.getSignature());
-console.log(cls.getDeclaration());
+console.log("N:\t"+cls.innerClasses[1].getName(false));
+console.log("NT:\t"+cls.innerClasses[1].getName(true));
+console.log("PN:\t"+cls.innerClasses[1].getPrettyName(false));
+console.log("PNT:\t"+cls.innerClasses[1].getPrettyName(true));
+console.log("FN:\t"+cls.innerClasses[1].getFullName(false));
+console.log("FNT:\t"+cls.innerClasses[1].getFullName(true));
+console.log("SIG:\t"+cls.innerClasses[1].getSignature());
+console.log("DEC:\t"+cls.innerClasses[1].getDeclaration());
 // console.log(JSON.stringify(cls));

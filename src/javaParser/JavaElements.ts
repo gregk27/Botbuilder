@@ -141,8 +141,8 @@ export class JavaField extends JavaElement{
 /**
  * Class used to represent a method in a {@link JavaClass}
  */
-export class JavaMethod extends JavaElement{       
-    
+export class JavaMethod extends JavaElement{
+
     /**
      * Flag indicating wether the function is abstract
      */

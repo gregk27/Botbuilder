@@ -204,4 +204,46 @@ export class JavaInnerClass extends JavaClass {
         super(file, basePath);
         this.outerClass = this.descriptor.substring(0,this.descriptor.lastIndexOf("$"));
     }
+
+    /**
+     * Get the name of the class, including the outer class, in the format `OuterClass.InnerClass`
+     * @param extended If true, will include `extends [superclass name]`, unless superclass is Object or Enum
+     * 
+     * @see JavaInnerClass#getPretty()
+     */
+    public getName(extended: boolean): string {
+        if(extended){
+            return this.outerClass.substring(this.outerClass.lastIndexOf("/")+1)+"."+this.name + this.getSuperPretty(false);
+        } else {
+            return this.outerClass.substring(this.outerClass.lastIndexOf("/")+1)+"."+this.name;
+        }
+    }
+
+    /**
+     * Get the name of the class, without including the outer class
+     * @param extended If true, will include `extends [superclass name]`, unless superclass is Object or Enum
+     * 
+     * @see JavaInnerClass#getName()
+     */
+    public getPrettyName(extended: boolean): string {
+        if(extended){
+            return this.name + this.getSuperPretty(false);
+        } else {
+            return this.name;
+        }
+    }
+
+    /**
+     * Get the class name with full package+name
+     * @param extended If true, superclass will be included
+     * 
+     * @see JavaInnerClass#getName()
+     */
+    public getFullName(extended: boolean): string {
+        if(extended){
+            return this.outerClass+"."+this.name+this.getSuperPretty(true);
+        } else {
+            return this.outerClass+"."+this.name;
+        }
+    }
 }
