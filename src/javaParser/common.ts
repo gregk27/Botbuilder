@@ -20,14 +20,41 @@ export abstract class JavaBase{
     }
 
     /**
-     * Get a pretty-print version of the name 
+     * Get a simple name to represent the element
+     * @param extended Flag to include extra information, varies by implementation
+     * 
+     * @remark Result may differ from {@link JavaBase#name} depending on implementation. Extended effect will be consistent with {@link JavaBase#getPrettyName()}
+     * @see JavaBase#getPrettyName() 
      */
-    public abstract getPrettyName(): string;
+    public abstract getName(extended:boolean): string;
+
     /**
-     * Get an extended version of the pretty-print name 
-     * @param includeClass Flag to indicate wether the full class should be included (useage varies by implementation)
+     * Get a prettier name to represent the element
+     * @param extended Flag to include extra information, varies by implementation
+     * 
+     * @remark Extended effect will be consistent with {@link JavaBase#getName()}
+     * @see JavaBase#getName() 
      */
-    public abstract getFullPrettyName(includeClass:boolean): string;
+    public abstract getPrettyName(extended:boolean): string;
+
+    /**
+     * Get a full name to represent the element
+     * @param extended Flag to include extra information, varies by implementation
+     * 
+     * @remark Extended effect will be consistent with {@link JavaBase#getName()}
+     * @see JavaBase#getName() 
+     */
+    public abstract getFullName(extended:boolean): string;
+
+    /**
+     * Get a unique descriptive signature
+     */
+    public abstract getSignature(): string;
+
+    /**
+     * Get a string representing the java delcaration
+     */
+    public abstract getDeclaration(): string;
 }
 
 /**
@@ -39,7 +66,7 @@ export interface MethodParam {
 }
 /**
  * Interface used to represent the components of a class package/name string
- * @example ca/example/TestClass$Enum -> pckg: ca/example, name: Enum, outer: ca/example/TestClass
+ * @example ca/example/TestClass$Enum -> pckg: ca/example, name: Enum, outer: TestClass
  */
 export interface ClassDetail{
     pckg:string,
