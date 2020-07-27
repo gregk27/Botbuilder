@@ -264,7 +264,6 @@ export class JavaMethod extends JavaElement{
                             }
                             this.params[idxMap.get(idx)].name = vName;
                         }
-                        console.log(this.params);
                     }
                 });
             },

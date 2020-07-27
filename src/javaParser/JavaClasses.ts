@@ -50,14 +50,15 @@ export class JavaClass extends JavaBase{
 
     /**
      * Parse a Java Class from a specified JavaClassFile
-     * @param file The JavaClassFile to parse from
-     * @param basePath The path to the base of the package
+     * @param file The JavaClassFile to parse from or the string pointing to said file
+     * @param srcPath The path to the base of the src package
+     * @param buildPath The path to the base of the build package
      */
-    constructor(file:JavaClassFile, basePath: string){        
+    constructor(file:JavaClassFile, srcPath: string, buildPath: string){        
+        // Set the type for future use
         // Get name and package
         let nameDetail = getClassDetail(getStringFromPool(file, file.this_class));
-        console.log(getStringFromPool(file, file.this_class));
-        console.log(nameDetail);
+        console.log("Parsing "+nameDetail.full);
         super(nameDetail.name, nameDetail.full, getScope(file.access_flags), (file.access_flags & Modifier.FINAL) === Modifier.FINAL);
         this.classFile = file;
 
@@ -82,15 +83,13 @@ export class JavaClass extends JavaBase{
             this.methods.push(new JavaMethod(this, m));
         }
 
-        console.log(JSON.stringify(this.methods));
         
         this.innerClasses = [];
 
-        let buildPath = basePath.replace("src/main/java", "build/classes/java/main");
         this.srcFile = "";
         parseAttributes(file, file.attributes, {
             "SourceFile": (attr) => 
-                this.srcFile = basePath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index),
+                this.srcFile = srcPath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index),
             "InnerClasses": (attr) => {
                 for(let cls of (<InnerClassesAttributeInfo> attr).classes){
                     if(file.this_class !==  cls.inner_class_info_index){ // If the inner class is also the outer class
@@ -98,14 +97,14 @@ export class JavaClass extends JavaBase{
                         if(!fs.existsSync(path)){ // Catch files that are from external libraries
                             console.warn(`File does not exist ${path}`);
                         } else {
-                            let newCls = new JavaInnerClass(reader.read(path), basePath);
-                            console.log(newCls);
+                            let newCls = new JavaInnerClass(reader.read(path), srcPath, buildPath);
                             this.innerClasses.push(newCls);
                         }
                     }
                 }
             }
         });
+        console.log();
     }
 
     /**
@@ -198,10 +197,11 @@ export class JavaInnerClass extends JavaClass {
     /**
      * Parse a Java Class from a specified JavaClassFile
      * @param file The JavaClassFile to parse from
-     * @param basePath The path to the base of the package
+     * @param srcPath The path to the base of the package
+     * @param buildPath The path to the base of the build package
      */
-    constructor(file:JavaClassFile, basePath:string){
-        super(file, basePath);
+    constructor(file:JavaClassFile, srcPath:string, buildPath:string){
+        super(file, srcPath, buildPath);
         this.outerClass = this.descriptor.substring(0,this.descriptor.lastIndexOf("$"));
     }
 
