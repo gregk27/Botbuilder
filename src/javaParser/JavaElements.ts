@@ -329,8 +329,9 @@ export class JavaMethod extends JavaElement{
     
     
             idxMap.set(nextIdx, this.params.length);
-            // Longs/doubles take two spaces, so increment index by 2
-            if(param.type.type === DescriptorTypes.LONG || param.type.type === DescriptorTypes.DOUBLE){
+            // Longs/doubles (but not L[]/D[]) take two spaces, so increment index by 2
+            if((param.type.type === DescriptorTypes.LONG || param.type.type === DescriptorTypes.DOUBLE)
+                    && param.type.isArray === false){
                 nextIdx += 2;
             } else {
                 nextIdx ++;
