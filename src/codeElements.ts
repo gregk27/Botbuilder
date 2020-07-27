@@ -1,169 +1,114 @@
-import { TreeItemCollapsibleState, TreeItem} from 'vscode';
-import * as Path from 'path';
-import { JavaField, JavaMethod, Scope, JavaClass, JavaInnerClass } from './javaParser/interfaces';
-import { Subsystem, Command, InnerClass } from './treeType';
+import * as Path from "path";
+import { TreeItem, TreeItemCollapsibleState } from "vscode";
+import { JavaBase, Scope } from "./javaParser/common";
+import { JavaClass } from "./javaParser/JavaClasses";
+import { JavaField, JavaMethod } from "./javaParser/JavaElements";
 
 export interface Linkable{
     getTarget():{file:string, line:number};
 }
 
-export interface TreeElement {
+export abstract class TreeElement<T extends JavaBase> {
         
-    children: TreeElement[];
-    iconName: string;
-    collapsibleState: TreeItemCollapsibleState;
+    children: TreeElement<JavaBase>[];
+    abstract collapsibleState: TreeItemCollapsibleState;
+
+    constructor(
+        public element:T,
+        public iconName:string,
+        public contextValue:string[]
+    ) {
+
+    }
 
     /**
      * Get the label to be displayed in the menu
      */
-    getLabel(): string;
+    getLabel(): string{
+        return this.element.getPrettyName(false);
+    };
     /**
      * Get the description to show beside the label
      */
-    getDescription(): string;
+    getDescription(): string{
+        return this.element.getSignature();
+    };
     /**
      * Get the tooltip to show on hover
      */
-    getTooltip(): string;
+    getTooltip(): string{
+        return this.element.getDeclaration();
+    };
     /**
      * Get the paths to the dark and light icons (preferably .csv)
      */
-    getIcon(): {dark:string, light:string};
+    getIcon(): {dark:string, light:string} {
+        return {
+            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.svg`,
+            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.svg`
+        };
+    }
 }
+
 export namespace TreeElement {
     export const RES_FOLDER = Path.join(__filename, "..", "..", "resources");
-    export function getTreeItem(e:TreeElement): TreeItem{
+    export function getTreeItem(e:TreeElement<JavaBase>): TreeItem{
         let item = new TreeItem(e.getLabel(), e.collapsibleState);
         item.iconPath = e.getIcon();
         item.description = e.getDescription();
         item.tooltip = e.getTooltip();
-        if(e instanceof Subsystem){
-            item.contextValue = "subsystem";
-        } else if(e instanceof Command){
-            item.contextValue = "command";
-        } else if(e instanceof Field){
-            item.contextValue = "field";
-        } else if(e instanceof Method){
-            item.contextValue = "method";
-        } else if(e instanceof InnerClass){
-            item.contextValue = "innerClass";
+        item.contextValue = e.contextValue.join(",");
+        if('getTarget' in e){
+            item.contextValue += ",linkeable";
         }
         return item;
     }
 }
 
-export class Field extends JavaField implements TreeElement {
+export class Field extends TreeElement<JavaField> {
 
-    children: TreeElement[] = [];
-    iconName: string;
-    collapsibleState: TreeItemCollapsibleState;
+    collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None;
 
-    /**
-     * Create a new Field instance from a JavaField instance.
-     * @param field The JavaField instance to clone from 
-     */
-    constructor(field:JavaField){
-        super(field.nameIndex, field.descriptorIndex, field.name, field.descriptor, field.parentClass, 
-            field.scope, field.isStatic, field.isFinal, field.type, field.constVal);
+    constructor(element:JavaField){
+        super(element, "vscode/field", ["field"]);
     }
 
-    getLabel(): string{
-        return this.name;
-    }
-    getDescription(): string {
-        if(this.isStatic && this.isFinal){
-            return "S/F "+this.getPrettyName();
-        } else if(this.isStatic){
-            return "S "+this.getPrettyName();
-        } else if(this.isFinal){
-            return "F "+this.getPrettyName();
-        }
-        return this.getPrettyName();
-    }
-    getTooltip(): string {
-        return this.getFullPrettyName(false);
-    }
-    getIcon(): { dark: string; light: string; } {
-        let icon = this.isFinal ? (this.scope === Scope.PUBLIC && this.isStatic ? "publicStaticConstant" : "constant") : "field";
+    getIcon(): { dark: string; light: string; } {        
+        let icon = this.element.isFinal ? (this.element.scope === Scope.PUBLIC && this.element.isStatic ? "publicStaticConstant" : "constant") : "field";
         return {
             dark: TreeElement.RES_FOLDER + `/dark/vscode/${icon}.svg`,
             light: TreeElement.RES_FOLDER + `/light/vscode/${icon}.svg`
         };
     }
 }
-export class Method extends JavaMethod implements TreeElement, Linkable {
 
-    children: TreeElement[] = [];
-    iconName: string = "method";
-    collapsibleState: TreeItemCollapsibleState;
 
-    srcFile: string;
-    linkTargetLine: number;
+export class Method extends TreeElement<JavaMethod> implements Linkable {
 
-    /**
-     * Create a new Method instance from a JavaMethod instance.
-     * @param method The JavaMethod instance to clone from 
-     */
-    constructor(method:JavaMethod, srcFile:string){
-        super(method.nameIndex, method.descriptorIndex, method.name, method.descriptor, method.parentClass, method.scope, method.isStatic, method.isFinal, method.isAbstract, method.startLine, method.returnType, method.args, method.getPrettyName());
-        this.srcFile = srcFile;
+    collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None;
+    srcFile:string;
+
+    constructor(element:JavaMethod, parent:JavaClass){
+        super(element, "vscode/method", ["method"]);
+        this.srcFile = parent.srcFile;
     }
-    
-    getTarget(){
+
+    getTarget(): { file: string; line: number; } {        
         return {
             file: this.srcFile,
-            line: this.startLine
+            line: this.element.startLine
         };
     }
-
-    getLabel(): string{
-        return this.name;
-    }
-    getDescription(): string {
-        if(this.isStatic && this.isFinal){
-            return "S/F "+this.getPrettyName();
-        } else if(this.isStatic){
-            return "S "+this.getPrettyName();
-        } else if(this.isFinal){
-            return "F "+this.getPrettyName();
-        }
-        return this.getPrettyName();
-    }
-    getTooltip(): string {
-        return this.getFullPrettyName(false);
-    }
-    getIcon(): { dark: string; light: string; } {
-        return {
-            dark: TreeElement.RES_FOLDER + `/dark/vscode/${this.iconName}.svg`,
-            light: TreeElement.RES_FOLDER + `/light/vscode/${this.iconName}.svg`
-        };
-    }
-
 }
 
 
-export class EnumItem extends Field{
-    constructor(f: Field){
-        super(f);
-    }
+export class EnumItem extends TreeElement<JavaField>{
 
-    getLabel(): string{
-        return this.name;
-    }
-    getDescription(): string {
-        return "";
-    }
-    getTooltip(): string {
-        return this.getFullPrettyName(false);
-    }
+    collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None;
 
-    getIcon(): { dark: string; light: string; } {
-        return {
-            dark: TreeElement.RES_FOLDER + `/dark/vscode/enumItem.svg`,
-            light: TreeElement.RES_FOLDER + `/light/vscode/enumItem.svg`
-        };
+    constructor(element:JavaField){
+        super(element, "vscode/enumItem", ["enumItem"]);
     }
-
 }
 
 // export class ReferencedSubsystem extends CodeElement {
