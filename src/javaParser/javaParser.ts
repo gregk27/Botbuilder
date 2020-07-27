@@ -16,6 +16,7 @@ export function parseFile(filePath:string, srcPath:string, temp:boolean) : JavaC
         throw new Error("Not a class file");
     }
     let file = reader.read(filePath);
+    console.log(JSON.stringify(file));
     let name = getStringFromPool(file, file.this_class);
     let buildPath = filePath.replace(name+".class", "");
     return new JavaClass(file, srcPath, buildPath);

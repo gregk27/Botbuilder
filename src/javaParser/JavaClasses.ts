@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { InnerClassesAttributeInfo, JavaClassFile, JavaClassFileReader, Modifier, SourceFileAttributeInfo } from "java-class-tools";
+import { InnerClassesAttributeInfo, JavaClassFile, JavaClassFileReader, Modifier, SourceFileAttributeInfo, ConstantType } from "java-class-tools";
 import { ClassDetail, ClassType, JavaBase, Scope } from "./common";
 import { JavaField, JavaMethod } from "./JavaElements";
 import { getClassDetail, getClassType, getScope, getStringFromPool, parseAttributes } from "./parserFunctions";
@@ -20,6 +20,7 @@ export class JavaClass extends JavaBase{
      * The {@link ClassDetail} with information regarding the superclass
      */
     public readonly superClass: ClassDetail;
+    public readonly interfaces: ClassDetail[];
     /**
      * The {@link ClassType} of the class.
      * @remarks final enums are marked as Enum
@@ -70,6 +71,11 @@ export class JavaClass extends JavaBase{
         // Get superclass and interfaces
         this.superClass = getClassDetail(getStringFromPool(file, file.super_class));
         // TODO: Add code to get interfaces
+        this.interfaces = [];
+        //Get interfaces
+        for(let i of file.interfaces){
+            this.interfaces.push(getClassDetail(getStringFromPool(file, i)));
+        }
 
         this.fields = [];
         // Get fields

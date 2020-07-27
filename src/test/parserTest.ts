@@ -9,14 +9,9 @@ async function test(){
     let startTime = new Date();
 
     const reader = new JavaClassFileReader();
-    // let cls = parseFile("C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/build/classes/java/main/ler/robot/subsystems/Drivetrain.class", "C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/src/main/java/", false);
+    let cls = parseFile("C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/build/classes/java/main/ler/robot/subsystems/Drivetrain.class", "C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/src/main/java/", false);
 
-    let classes = await parseFolder("C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/build/classes/java/main", "C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/src/main/java/", true,
-        (cls:JavaClass)=>{
-            console.log(cls.getPrettyName(true));
-        });
-    console.log(classes);
-
+    console.log(JSON.stringify(cls));
     console.log(`Parsed in: ${new Date().getUTCMilliseconds() - startTime.getUTCMilliseconds()}ms`);
 }
 test();
