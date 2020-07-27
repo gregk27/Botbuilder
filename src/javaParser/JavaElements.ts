@@ -61,20 +61,6 @@ export abstract class JavaElement extends JavaBase{
     }
 
     /**
-     *  Internal function used to get the pretty name.
-     *  This is used by prettyName(boolean), and is appended to the class name as required
-     */
-    public abstract getPrettyName(): string;
-
-    /**
-     * Get an extended version of the pretty-print name 
-     * @param includeClass Flag to indicate wether the parent class should be added to the start
-     */
-    public getFullPrettyName(includeClass:boolean): string{
-        return this.getModifiers(includeClass)+this.getPrettyName();
-    };
-
-    /**
      * Internal method used to get the modifiers (final/public/abstract/etc)
      * @param includeClass If true, the parent class will be added to the start
      */
@@ -87,12 +73,23 @@ export abstract class JavaElement extends JavaBase{
     }
 
     /**
+     * Internal method used to get a shorthnd for static/final modifiers
+     */
+    protected getShorthandModifiers(): string{
+        if(this.isStatic && this.isFinal){return "S/F ";}
+        else if(this.isStatic){return "S ";}
+        else if(this.isFinal){return "F ";}
+        else {return ""};
+    }
+
+    /**
      * Check if this is equal to another element by comparing the signatures
      * @param signature The signature of the other element to compare against
      */
     public is(signature:string): boolean{
         return this.parentClass+this.name+this.descriptor === signature;
     }
+
 }
 
 /**
@@ -128,13 +125,65 @@ export class JavaField extends JavaElement{
         );
     }
 
-    public getPrettyName(): string{
-        let out = this.type.pretty+" ";
-        out += this.name;
-        if(this.isFinal){
-            out+= "="+this.constVal;
+    /**
+     * Local function used by string get functions
+     */
+    protected getConstValString(): string{
+        if(this.isFinal && this.constVal !== null){
+            return "="+this.constVal;
         }
+        return "";
+    }
+    
+    /**
+     * Get the name of the field, including type
+     * @param extended If true, and the field is a constant, will include constant value
+     * 
+     * @see JavaField#getPrettyName()
+     */
+    public getName(extended: boolean): string {
+        return this.type.pretty + " " + this.getPrettyName(extended);
+    }
+
+    /**
+     * Get the name of the field, without type
+     * @param extended If true, and the field is a constant, will include constant value
+     * 
+     * @see JavaField#getName()
+     */
+    public getPrettyName(extended:boolean): string{
+        if(extended){
+            return this.name + this.getConstValString();
+        } else {
+            return this.name;
+        }
+    } 
+
+    /**
+     * Get the name fo the field, with Static/Final indicated by `S/F`, and type
+     * @param extended If true, and the field is a constant, will include constant value
+     * 
+     * @see JavaField#getName()
+     */
+    public getFullName(extended: boolean): string {
+        return this.getShorthandModifiers() + this.getName(extended);
+    }
+
+    /**
+     * Get the signature, in the format `[scope] [S/F] type name [constVal]`, with values filled as applicable
+     */
+    public getSignature(): string {
+        let out = "";
+        if(this.scope !== Scope.DEFAULT) {out += this.scope+" ";}
+        out += this.getShorthandModifiers();
+        out += this.type.pretty + " ";
+        out += this.getConstValString();
+        out.trim();
         return out;
+    }
+
+    public getDeclaration(): string {
+        return this.getModifiers(false) + this.type.pretty + " " + this.name + this.getConstValString();
     }
 }
 
@@ -279,5 +328,18 @@ export class JavaMethod extends JavaElement{
 
     public getPrettyName(): string{
         return this.prettySiganture;
+    }
+
+    public getName(extended: boolean): string {
+        throw new Error("Method not implemented.");
+    }
+    public getFullName(extended: boolean): string {
+        throw new Error("Method not implemented.");
+    }
+    public getSignature(): string {
+        throw new Error("Method not implemented.");
+    }
+    public getDeclaration(): string {
+        throw new Error("Method not implemented.");
     }
 }

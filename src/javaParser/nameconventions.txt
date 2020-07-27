@@ -27,11 +27,13 @@ SIG		(double, double)=>void
 DEC		public static abstract void Drive(int left, int right)
 	
 Fields
-N/PN 	SPEED
-NT/PNT	SPEED=1
-FN		int SPEED
-FNT		int SPEED=1
-SIG 	S/F int = 1
+PN 		SPEED
+PNT		SPEED=1
+N		int SPEED
+NT		int SPEED=1
+FN		S/F int SPEED
+FNT		S/F int SPEED=1
+SIG 	public S/F int = 1
 DEC		public static final int SPEED=1
 	
 UI:

@@ -1,4 +1,4 @@
-import { JavaClassFileReader } from "java-class-tools";
+import { JavaClassFileReader, ConstantPoolInfo } from "java-class-tools";
 import { JavaClass } from "../javaParser/JavaClasses";
 
 console.log("Running!");
@@ -11,13 +11,16 @@ let file = reader.read("C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Test
 let cls = new JavaClass(file, "C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/src/main/java/");
 
 console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
-// console.log(cls);
-console.log("N:\t"+cls.innerClasses[1].getName(false));
-console.log("NT:\t"+cls.innerClasses[1].getName(true));
-console.log("PN:\t"+cls.innerClasses[1].getPrettyName(false));
-console.log("PNT:\t"+cls.innerClasses[1].getPrettyName(true));
-console.log("FN:\t"+cls.innerClasses[1].getFullName(false));
-console.log("FNT:\t"+cls.innerClasses[1].getFullName(true));
-console.log("SIG:\t"+cls.innerClasses[1].getSignature());
-console.log("DEC:\t"+cls.innerClasses[1].getDeclaration());
-// console.log(JSON.stringify(cls));
+console.log(cls);
+
+for(let field of cls.fields){
+    console.log("N:\t"+field.getName(false));
+    console.log("NT:\t"+field.getName(true));
+    console.log("PN:\t"+field.getPrettyName(false));
+    console.log("PNT:\t"+field.getPrettyName(true));
+    console.log("FN:\t"+field.getFullName(false));
+    console.log("FNT:\t"+field.getFullName(true));
+    console.log("SIG:\t"+field.getSignature());
+    console.log("DEC:\t"+field.getDeclaration());
+    console.log();
+}// console.log(JSON.stringify(cls));
