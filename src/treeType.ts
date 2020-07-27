@@ -13,7 +13,7 @@ export class TreeType extends TreeElement<JavaClass> implements Linkable {
         iconName:string,
         type:string
     ) {
-        super(cls, iconName, [type]);
+        super(cls, iconName, type);
 
         let inners = [];
         let enums = [];

@@ -16,7 +16,7 @@ export abstract class TreeElement<T extends JavaBase> {
     constructor(
         public element:T,
         public iconName:string,
-        public contextValue:string[]
+        public contextValue:string
     ) {
 
     }
@@ -57,10 +57,7 @@ export namespace TreeElement {
         item.iconPath = e.getIcon();
         item.description = e.getDescription();
         item.tooltip = e.getTooltip();
-        item.contextValue = e.contextValue.join(",");
-        if('getTarget' in e){
-            item.contextValue += ",linkeable";
-        }
+        item.contextValue = e.contextValue;
         return item;
     }
 }
@@ -70,7 +67,7 @@ export class Field extends TreeElement<JavaField> {
     collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None;
 
     constructor(element:JavaField){
-        super(element, "vscode/field", ["field"]);
+        super(element, "vscode/field", "field");
     }
 
     getIcon(): { dark: string; light: string; } {        
@@ -89,7 +86,7 @@ export class Method extends TreeElement<JavaMethod> implements Linkable {
     srcFile:string;
 
     constructor(element:JavaMethod, parent:JavaClass){
-        super(element, "vscode/method", ["method"]);
+        super(element, "vscode/method", "method");
         this.srcFile = parent.srcFile;
     }
 
@@ -107,7 +104,7 @@ export class EnumItem extends TreeElement<JavaField>{
     collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None;
 
     constructor(element:JavaField){
-        super(element, "vscode/enumItem", ["enumItem"]);
+        super(element, "vscode/enumItem", "enumItem");
     }
 }
 
