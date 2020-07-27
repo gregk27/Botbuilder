@@ -1,16 +1,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { DataProvider } from './dataProvider';
-import { Subsystem, Command, TreeType } from './treeType';
-import * as Loader from './loader';
-import * as fs from 'fs';
-import { Console } from 'console';
-import { systemDefaultPlatform } from 'vscode-test/out/util';
 import { Linkable } from './codeElements';
-import { JavaElement, JavaClass } from './javaParser/interfaces';
+import { DataProvider } from './dataProvider';
+import { Loader } from './loader';
+import { Command, Subsystem } from './treeType';
 
 let providers:DataProvider[] = [];
+let loader = new Loader(vscode.workspace.rootPath);
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -47,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	Loader.load(vscode.workspace.rootPath || "").then(()=>{
+	loader.load().then(()=>{
 		console.log("Registering");
 		let d = new DataProvider(getSubsystems);
 		providers.push(d);
@@ -86,7 +83,7 @@ function refresh(timeout = 0){
 
 	refreshTimer = setTimeout(() => {
 		console.log("Refreshing");
-		Loader.load(vscode.workspace.rootPath).then(()=>{
+		loader.load().then(()=>{
 			for(let p of providers){
 				p.refresh();
 			}
@@ -95,9 +92,9 @@ function refresh(timeout = 0){
 }
 
 function getSubsystems(): Subsystem[]{
-	return Loader.subsystems;
+	return loader.subsystems;
 }
 
 function getCommands(): Command[]{
-	return Loader.commands;
+	return loader.commands;
 }

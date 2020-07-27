@@ -10,7 +10,7 @@ export interface Linkable{
 
 export abstract class TreeElement<T extends JavaBase> {
         
-    children: TreeElement<JavaBase>[];
+    children: TreeElement<JavaBase>[] = [];
     abstract collapsibleState: TreeItemCollapsibleState;
 
     constructor(

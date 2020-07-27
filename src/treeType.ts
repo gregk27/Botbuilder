@@ -1,6 +1,6 @@
 import { TreeItemCollapsibleState } from 'vscode';
 import { EnumItem, Field, Linkable, Method, TreeElement } from './codeElements';
-import { JavaBase } from './javaParser/common';
+import { JavaBase, ClassType, Scope } from './javaParser/common';
 import { JavaClass, JavaInnerClass } from './javaParser/JavaClasses';
 
 
@@ -14,6 +14,40 @@ export class TreeType extends TreeElement<JavaClass> implements Linkable {
         type:string
     ) {
         super(cls, iconName, [type]);
+
+        let inners = [];
+        let enums = [];
+        for(let i of this.element.innerClasses){
+            if(i.type === ClassType.ENUM){
+                enums.push(new Enum(i));
+            } else {
+                inners.push(new InnerClass(i));
+            }
+        }
+        this.children.push(...inners, ...enums);
+
+        console.log(this.children);
+   
+        // Order by properties
+        let psfinal = [];
+        let final = [];
+        let fields = [];
+        for(let f of this.element.fields){
+            if(f.scope === Scope.PUBLIC && f.isStatic && f.isFinal){
+                psfinal.push(new Field(f));
+            } else if(f.isFinal) {
+                final.push(new Field(f));
+            } else {
+                fields.push(new Field(f));
+            }
+        }
+        // Combine into children
+        this.children.push(...psfinal, ...final, ...fields);
+
+        console.log(this.children);
+        for(let m of this.element.methods){
+            this.children.push(new Method(m, this.element));
+        }
     }
 
     getIcon(): { dark: string; light: string; } {
@@ -69,11 +103,12 @@ export class Command extends TreeType {
 }
 
 export class InnerClass extends TreeType{
-
+    constructor(innerClass:JavaInnerClass){
+        super(innerClass, "vscode/class", "class");
+    }
 }
 
-export class Enum extends InnerClass {
-    collapsibleState: TreeItemCollapsibleState;
+export class Enum extends TreeType {
     
     constructor(cls: JavaInnerClass){
         super(cls, "vscode/enum", "enum");
