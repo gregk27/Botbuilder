@@ -13,14 +13,14 @@ let cls = new JavaClass(file, "C:/Users/Greg/Documents/Workspaces/Robocode/LER20
 console.log(`Parsed in: ${new Date().getMilliseconds() - startTime.getMilliseconds()}ms`);
 console.log(cls);
 
-for(let field of cls.fields){
-    console.log("N:\t"+field.getName(false));
-    console.log("NT:\t"+field.getName(true));
-    console.log("PN:\t"+field.getPrettyName(false));
-    console.log("PNT:\t"+field.getPrettyName(true));
-    console.log("FN:\t"+field.getFullName(false));
-    console.log("FNT:\t"+field.getFullName(true));
-    console.log("SIG:\t"+field.getSignature());
-    console.log("DEC:\t"+field.getDeclaration());
+for(let method of cls.methods){
+    console.log("N:\t"+method.getName(false));
+    console.log("NT:\t"+method.getName(true));
+    console.log("PN:\t"+method.getPrettyName(false));
+    console.log("PNT:\t"+method.getPrettyName(true));
+    console.log("FN:\t"+method.getFullName(false));
+    console.log("FNT:\t"+method.getFullName(true));
+    console.log("SIG:\t"+method.getSignature());
+    console.log("DEC:\t"+method.getDeclaration());
     console.log();
 }// console.log(JSON.stringify(cls));

@@ -2,6 +2,7 @@ import { CodeAttributeInfo, ConstantValueAttributeInfo, FieldInfo, LineNumberTab
 import { ClassDetail, DescriptorTypes, JavaBase, MethodParam, Scope, Type } from "./common";
 import { JavaClass } from "./JavaClasses";
 import { getClassDetail, getScope, getStringFromPool, getValueFromPool, parseAttributes } from "./parserFunctions";
+import { DebugConsoleMode } from "vscode";
 
 /**
  * Base class used to represet an element of a {@link JavaClass}
@@ -198,9 +199,17 @@ export class JavaMethod extends JavaElement{
     public readonly isAbstract: boolean;
     
     /**
-     * Pretty-print version of the method signature
+     * Pretty-print version of the method parameter types
      */
-    private prettySiganture: string;
+    private paramString: string;
+    /**
+     * Pretty-print version of the method parameter names
+     */
+    private paramNameString: string;
+    /**
+     * Pretty-print version of the method parameter types and names
+     */
+    private paramCombinedString: string;
     /**
      * Array conaning the method parameters, stored in {@link MethodParam}s
      */
@@ -214,7 +223,7 @@ export class JavaMethod extends JavaElement{
      * The line number the function starts on in the source code
      * @remark If the `LineNumberTable` is not stored in the compiled code, this value will be `-1`
      */
-    public readonly startLine: number = -1;
+    public startLine: number;
     
     /**
      * Create a new JavaMethod from a {@link JavaClass | parent class} and method info
@@ -225,31 +234,20 @@ export class JavaMethod extends JavaElement{
         super(parent, method);
         // Get the return type from the end of the descriptor
         this.returnType = new Type(this.descriptor.substr(this.descriptor.lastIndexOf(")")+1));
-        let startLine = -1;
+        this.startLine = -1;
     
         // Parse parameter types, parameter values comes from code attributes
         let idxMap = this.getParams();
         
-        // Create pretty readable signature
-        let prettySignature = this.name+"(";
-        for(let param of this.params){
-            prettySignature+=param.type.pretty+", ";
-        }
-        if(prettySignature.endsWith(", ")){
-            prettySignature = prettySignature.substring(0,prettySignature.length-2);
-        }
-        prettySignature+= ")";
-        if(this.returnType.type !== DescriptorTypes.VOID){
-            prettySignature += "=>"+this.returnType.pretty;
-        }
-    
+
+
         // Get information from various attributes
         parseAttributes(parent.classFile, method.attributes, {
             "Code": (attr)=>{
                 parseAttributes(parent.classFile, (<CodeAttributeInfo> attr).attributes, {
                     "LineNumberTable": (codeAttr)=>{
                         // The first element in the index is the first instruction, so line before is method declaration
-                        startLine = (<LineNumberTableAttributeInfo> codeAttr).line_number_table[0].line_number-1;
+                        this.startLine = (<LineNumberTableAttributeInfo> codeAttr).line_number_table[0].line_number-1;
                     },
                     "LocalVariableTable": (codeAttr)=>{
                         // Parse local variable table to get method parameters
@@ -266,11 +264,29 @@ export class JavaMethod extends JavaElement{
                             }
                             this.params[idxMap.get(idx)].name = vName;
                         }
+                        console.log(this.params);
                     }
                 });
             },
         });
 
+        // Create arg strings with types and names
+        this.paramString = "(";
+        this.paramNameString = "(";
+        this.paramCombinedString = "(";
+        for(let param of this.params){
+            this.paramString+=param.type.pretty+", ";
+            this.paramNameString+=param.name+", ";
+            this.paramCombinedString+=param.type.pretty+" "+param.name+", ";
+        }
+        if(this.paramString.endsWith(", ")){
+            this.paramString = this.paramString.substring(0,this.paramString.length-2);
+            this.paramNameString = this.paramNameString.substring(0,this.paramNameString.length-2);
+            this.paramCombinedString = this.paramCombinedString.substring(0,this.paramCombinedString.length-2);
+        }
+        this.paramString += ")";
+        this.paramNameString += ")";
+        this.paramCombinedString += ")";
     }
 
     /**
@@ -326,20 +342,31 @@ export class JavaMethod extends JavaElement{
         return idxMap;
     }
 
-    public getPrettyName(): string{
-        return this.prettySiganture;
-    }
-
     public getName(extended: boolean): string {
-        throw new Error("Method not implemented.");
+        if(extended){
+            return this.name+this.paramString+"=>"+this.returnType.pretty;
+        } else {
+            return this.name+this.paramString;
+        }
+    }
+    public getPrettyName(extended: boolean): string {
+        if(extended){
+            return this.name+this.paramNameString+"=>"+this.returnType.pretty;
+        } else {
+            return this.name+this.paramNameString;
+        }
     }
     public getFullName(extended: boolean): string {
-        throw new Error("Method not implemented.");
+        if(extended){
+            return this.name+this.paramCombinedString+"=>"+this.returnType.pretty;
+        } else {
+            return this.name+this.paramCombinedString;
+        }
     }
     public getSignature(): string {
-        throw new Error("Method not implemented.");
+        return this.paramString+"=>"+this.returnType.pretty;
     }
     public getDeclaration(): string {
-        throw new Error("Method not implemented.");
+        return this.getModifiers(false) + (this.isAbstract ? "abstract " : "") + this.returnType.pretty + " " + this.name + this.paramCombinedString;
     }
 }
