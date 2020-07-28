@@ -61,14 +61,13 @@
     align-self: stretch;
 }
 
-input[type=text] {
+input[type=text], select {
     border:none;
     padding:0.2em;
     background-color: var(--vscode-input-background);
     color: var(--vscode-input-foreground)
 }
-
-input[type=text]:disabled{
+input[type=text]:disabled, select:disabled{
     cursor: not-allowed;
     background-color: var(--vscode-input-foreground);
     color: var(--vscode-input-background)
@@ -81,4 +80,13 @@ input[type=checkbox] {
     height:1.2em;
     width:1.2em;
     vertical-align: sub;
+}
+
+button {
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+}
+button:hover {
+    background-color: var(--vscode-button-hoverBackground);
 }

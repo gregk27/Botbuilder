@@ -1,0 +1,34 @@
+/* Stylesheet to hold style information for hardwareSelect module */
+
+
+.hardwareSelect{
+    border: 1px solid var(--vscode-panelTitle-activeBorder);
+    padding: 0 0 1em 0em;
+    width:fit-content
+}
+
+.hardwareSelect>table{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.25em;
+    border-bottom: 1px solid var(--vscode-panelTitle-activeBorder);
+}
+
+.hardwareSelect>table td{
+    padding: 0.1em 1em;
+}
+
+.hardwareSelect>table th{
+    border-bottom: 1px solid var(--vscode-panelTitle-activeBorder);
+    padding: 0.1em 1em;
+}
+
+.hardwareSelect>table tr>td:nth-child(3){
+    text-align: right;
+    padding-right: 0
+}
+.hardwareSelect>table tr>td:nth-child(3) input{
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-right: 0.5em; 
+}
