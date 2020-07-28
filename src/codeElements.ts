@@ -4,6 +4,7 @@ import { JavaBase, Scope } from "./javaParser/common";
 import { JavaClass } from "./javaParser/JavaClasses";
 import { JavaField, JavaMethod } from "./javaParser/JavaElements";
 import { Subsystem } from "./treeType";
+import { Config, ConfigTypes } from "./config";
 
 export interface Linkable{
     getTarget():{file:string, line:number};
@@ -187,6 +188,17 @@ export class ReferencedSubsystem extends BasicTreeElement implements Linkable{
     }
 
 }
+
+export class ReferencedHardware extends BasicTreeElement {
+
+    hardwareType:ConfigTypes.HardwareType;
+
+    constructor(name:string, type:ConfigTypes.HardwareType) {
+        super("hardware/"+type.category, "hardware", name, type.name, "");
+        this.hardwareType = type;
+    }
+}
+
 
 // export class DefaultCommand extends CodeElement {
 //     constructor(label: string, javadoc: string)  {
