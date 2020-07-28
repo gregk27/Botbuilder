@@ -1,22 +1,22 @@
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="dev.css"> 
     <link rel="stylesheet" type="text/css" href="style.css"> 
 
 </head>
 <body>  
     <h1>New Subsystem Wizard</h1>
-    <label>
-        Name:
-        <input type="text" placeholder="Name"/>
-    </label> 
-    <br/>
-    <label>
-        Package:
-        <input type="text" value="${PACKAGE}"/>
-        <label>
-            Override
-            <input type="checkbox" value="checked"/>
-        </label>
-    </label>
+    <div class="inputGroup">
+      <div class="inputLine">
+          <p class="label">Name:</p>
+          <input type="text" placeholder="Name" class="input"/>
+      </div> 
+      
+      <label class="inputLine">
+          Package:
+      </label>
+          <input type="text" value="${PACKAGE}"/>
+    </div>
+    
 </body>
 </html>

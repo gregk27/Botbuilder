@@ -30,6 +30,8 @@ export abstract class WebviewBase {
     show(): vscode.WebviewPanel {
 		const panel = vscode.window.createWebviewPanel(this.name, this.title, vscode.ViewColumn.Active, this.options);
         
+        //Remove Dev css file
+        this.html = this.html.replace(/<link\s*rel=['"]stylesheet['"]\s*type="text\/css"\s*href=['"]dev.css['"]\s*>/g, "")
         this.html = this.html.replace(cssPattern, (substring, filename)=>{
             console.log(substring, filename);
             if(filename !== undefined){

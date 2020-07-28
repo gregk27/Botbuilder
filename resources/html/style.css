@@ -1,3 +1,27 @@
-input {
+.inputLine {
+    display:grid;
+    grid-template:
+      "label input input"
+      "desc desc enable";
+    width: 50%;
+  }
+  
+  .inputLine .label {
+    grid-area:"label"
+  }
+  
+  .inputLine .input {
+    grid-area:"input";
+    justify-self: stretch;
+    margin: 0.5em 0;
+    align-self: stretch;
+    border-radius: 0.5em;
+    background-color: #252526;
+
+  }
+  
+  input {
     border:none;
-}
+    padding:0.2em;
+    
+  }
