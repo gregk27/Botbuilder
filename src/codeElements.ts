@@ -3,22 +3,70 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { JavaBase, Scope } from "./javaParser/common";
 import { JavaClass } from "./javaParser/JavaClasses";
 import { JavaField, JavaMethod } from "./javaParser/JavaElements";
+import { Subsystem } from "./treeType";
 
 export interface Linkable{
     getTarget():{file:string, line:number};
 }
 
-export abstract class TreeElement<T extends JavaBase> {
-        
-    children: TreeElement<JavaBase>[] = [];
+export abstract class TreeElementBase {
+    
+    children: TreeElementBase[] = [];
     abstract collapsibleState: TreeItemCollapsibleState;
 
     constructor(
-        public element:T,
         public iconName:string,
         public contextValue:string
     ) {
 
+    }
+
+    /**
+     * Get the label to be displayed in the menu
+     */
+    abstract getLabel(): string;
+
+    /**
+     * Get the description to show beside the label
+     */
+    abstract getDescription(): string;
+
+    /**
+     * Get the tooltip to show on hover
+     */
+    abstract getTooltip(): string;
+
+    /**
+     * Get the paths to the dark and light icons (preferably .csv)
+     */
+    getIcon(): {dark:string, light:string} {
+        return {
+            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.svg`,
+            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.svg`
+        };
+    }
+}
+
+export namespace TreeElementBase {
+    export const RES_FOLDER = Path.join(__filename, "..", "..", "resources");
+    export function getTreeItem(e:TreeElementBase): TreeItem{
+        let item = new TreeItem(e.getLabel(), e.collapsibleState);
+        item.iconPath = e.getIcon();
+        item.description = e.getDescription();
+        item.tooltip = e.getTooltip();
+        item.contextValue = e.contextValue;
+        return item;
+    }
+}
+
+export abstract class TreeElement<T extends JavaBase> extends TreeElementBase{
+        
+    constructor(
+        public element:T,
+        iconName:string,
+        contextValue:string
+    ) {
+        super(iconName, contextValue);
     }
 
     /**
@@ -50,17 +98,6 @@ export abstract class TreeElement<T extends JavaBase> {
     }
 }
 
-export namespace TreeElement {
-    export const RES_FOLDER = Path.join(__filename, "..", "..", "resources");
-    export function getTreeItem(e:TreeElement<JavaBase>): TreeItem{
-        let item = new TreeItem(e.getLabel(), e.collapsibleState);
-        item.iconPath = e.getIcon();
-        item.description = e.getDescription();
-        item.tooltip = e.getTooltip();
-        item.contextValue = e.contextValue;
-        return item;
-    }
-}
 
 export class Field extends TreeElement<JavaField> {
 
@@ -108,17 +145,48 @@ export class EnumItem extends TreeElement<JavaField>{
     }
 }
 
-// export class ReferencedSubsystem extends CodeElement {
-//     constructor(label: string, javadoc: string, required: boolean)  {
-//         let icon = "";
-//         if(required){
-//             icon = "../requiredSubsystem";
-//         } else {
-//             icon = "../subsystem";
-//         }
-//         super(label, javadoc, icon, TreeItemCollapsibleState.None);
-//     }
-// }
+class BasicTreeElement extends TreeElementBase {
+ 
+    collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None;
+
+
+    constructor(
+        iconName:string,
+        contextValue:string,
+        private label: string,
+        private description: string,
+        private tooltip: string
+    ){
+        super(iconName, contextValue);
+    }
+
+    getLabel(): string {
+        return this.label;
+    }
+    getDescription(): string {
+        return this.description;
+    }
+    getTooltip(): string {
+        return this.tooltip;
+    }
+}
+
+
+export class ReferencedSubsystem extends BasicTreeElement implements Linkable{
+    
+    private subsystem: Subsystem;
+
+    constructor(subsystem:Subsystem, name:string, required:boolean)  {
+        super(required ? "requiredSubsystem" : "subsystem", "subsystem", 
+            name, subsystem.element.getSignature(), subsystem.element.getPrettyName(true));
+            this.subsystem = subsystem;
+    }
+
+    getTarget(): { file: string; line: number; } {
+        return this.subsystem.getTarget();
+    }
+
+}
 
 // export class DefaultCommand extends CodeElement {
 //     constructor(label: string, javadoc: string)  {

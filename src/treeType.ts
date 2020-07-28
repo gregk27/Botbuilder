@@ -1,7 +1,9 @@
 import { TreeItemCollapsibleState } from 'vscode';
-import { EnumItem, Field, Linkable, Method, TreeElement } from './codeElements';
-import { JavaBase, ClassType, Scope } from './javaParser/common';
+import { EnumItem, Field, Linkable, Method, TreeElement, ReferencedSubsystem } from './codeElements';
+import { JavaBase, ClassType, Scope, Type, DescriptorTypes } from './javaParser/common';
 import { JavaClass, JavaInnerClass } from './javaParser/JavaClasses';
+import { JavaMethod } from './javaParser/JavaElements';
+import { Loader } from './loader';
 
 
 export class TreeType extends TreeElement<JavaClass> implements Linkable {
@@ -50,6 +52,12 @@ export class TreeType extends TreeElement<JavaClass> implements Linkable {
         }
     }
 
+    /**
+     * Function to be called after all classes have been loaded
+     * @param l {@link Loader} instance
+     */
+    lateLoad(l:Loader):void {};
+
     getIcon(): { dark: string; light: string; } {
         return {
             dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.svg`,
@@ -71,6 +79,7 @@ export class Subsystem extends TreeType {
     constructor(base:JavaClass){
         super(base, "subsystem", "subsystem");
     }
+
 }
 
 export class Command extends TreeType {
@@ -99,6 +108,28 @@ export class Command extends TreeType {
         }
 
         super(base, icon, "command");
+    }
+
+    lateLoad(l:Loader){
+        let constructor: JavaMethod;
+        for(let i=0; i<this.children.length; i++){
+            let m = this.children[i];
+            if(m instanceof Method && m.element.name === "<init>"){
+                constructor = m.element;
+                this.children.splice(i,1);
+                break;
+            }
+        }
+        for(let p of constructor.params){
+            if(p.type.type !== DescriptorTypes.CLASS){
+                continue;
+            } 
+            for(let s of l.subsystems){
+                if(s.element.pckg +"/"+ s.element.name === p.type.fullClass){
+                    this.children.unshift(new ReferencedSubsystem(s, p.name, false));
+                }
+            }
+        }
     }
 }
 
@@ -129,6 +160,4 @@ export class Enum extends TreeType {
         }
         this.children = tmpChildren;
     }
-
-
 }

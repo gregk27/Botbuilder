@@ -1,25 +1,25 @@
 import * as vscode from 'vscode';
 import { TreeType } from './treeType';
-import { TreeElement } from './codeElements';
+import { TreeElement, TreeElementBase, Field, Method } from './codeElements';
 import { JavaBase, Scope } from './javaParser/common';
 import { JavaField, JavaMethod, JavaElement } from './javaParser/JavaElements';
 
-export class DataProvider implements vscode.TreeDataProvider<TreeElement<JavaBase>> {
+export class DataProvider implements vscode.TreeDataProvider<TreeElementBase> {
     
     constructor(private getter: ()=>TreeType[]){
         
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<TreeElement<JavaBase> | undefined> = new vscode.EventEmitter<TreeElement<JavaBase> | undefined>();
-    onDidChangeTreeData?: vscode.Event<void | TreeElement<JavaBase>>;
+    private _onDidChangeTreeData: vscode.EventEmitter<TreeElementBase | undefined> = new vscode.EventEmitter<TreeElementBase | undefined>();
+    onDidChangeTreeData?: vscode.Event<void | TreeElementBase>;
     
         
     public refresh(){
         this._onDidChangeTreeData.fire(null);
     }
 
-    getTreeItem(element: TreeElement<JavaBase>): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        if(element instanceof JavaField || element instanceof JavaMethod){
+    getTreeItem(element: TreeElementBase): vscode.TreeItem | Thenable<vscode.TreeItem> {
+        if(element instanceof Field || element instanceof Method){
             //Show public and/or static final fields and methods
             if(element.element.scope === Scope.PUBLIC || ((<JavaElement> element.element).isStatic && element.element.isFinal)){
                 return TreeElement.getTreeItem(element);
@@ -31,7 +31,7 @@ export class DataProvider implements vscode.TreeDataProvider<TreeElement<JavaBas
         }    
     }
     
-    getChildren(element?: TreeElement<JavaBase>): vscode.ProviderResult<TreeElement<JavaBase>[]> {
+    getChildren(element?: TreeElementBase): vscode.ProviderResult<TreeElementBase[]> {
         if (element instanceof TreeElement){      
             return element.children;
         } else {
@@ -39,7 +39,7 @@ export class DataProvider implements vscode.TreeDataProvider<TreeElement<JavaBas
         }
     }
 
-    getParent?(element: TreeElement<JavaBase>): vscode.ProviderResult<TreeElement<JavaBase>> {
+    getParent?(element: TreeElementBase): vscode.ProviderResult<TreeElementBase> {
         throw new Error("Method not implemented.");
     }
 

@@ -4,6 +4,7 @@ import { JavaClass } from "./javaParser/JavaClasses";
 
 export class Loader{
 
+    classes:JavaClass[];
     subsystems:Subsystem[];
     commands:Command[];
 
@@ -18,7 +19,7 @@ export class Loader{
         let subsystems:Subsystem[] = [];
         let commands:Command[] = [];
     
-        await parseFolder(this.workspaceRoot+"/build/classes/java/main/", this.workspaceRoot+"/src/main/java/", true, (cls:JavaClass)=>{
+        this.classes = await parseFolder(this.workspaceRoot+"/build/classes/java/main/", this.workspaceRoot+"/src/main/java/", true, (cls:JavaClass)=>{
             if(cls.superClass.full === "edu/wpi/first/wpilibj2/command/SubsystemBase"){
                 subsystems.push(new Subsystem(cls));
             }else if (cls.superClass.full === "edu/wpi/first/wpilibj2/command/CommandBase" && cls.pckg.includes("auto")){
@@ -34,6 +35,13 @@ export class Loader{
 
         this.commands = commands;
         this.subsystems = subsystems;
+        for(let command of this.commands){
+            command.lateLoad(this);
+        }
+        for(let subsystem of this.subsystems){
+            subsystem.lateLoad(this);
+        }
+
         return {subsystems, commands};
     }
 }
