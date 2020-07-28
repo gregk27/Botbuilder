@@ -28,6 +28,11 @@
 				"command": "ler-botbuilder.openFile",
 				"title": "Open",
 				"icon": "$(file-symlink-file)"
+			},
+			{
+				"command": "ler-botbuilder.newSubsystem",
+				"title": "Botbuilder: New Subsystem",
+				"icon": "$(plus)"
 			}
 		],
 		"viewsContainers": {
@@ -60,6 +65,11 @@
 				{
 					"command": "ler-botbuilder.refresh",
 					"when": "view == subsystems || view == commands",
+					"group": "navigation"
+				},				
+				{
+					"command": "ler-botbuilder.newSubsystem",
+					"when": "view == subsystems",
 					"group": "navigation"
 				}
 			],
