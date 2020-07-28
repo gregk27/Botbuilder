@@ -1,10 +1,10 @@
 import { TreeItemCollapsibleState } from 'vscode';
 import { EnumItem, Field, Linkable, Method, TreeElement, ReferencedSubsystem, ReferencedHardware } from './codeElements';
-import { JavaBase, ClassType, Scope, Type, DescriptorTypes } from './javaParser/common';
-import { JavaClass, JavaInnerClass } from './javaParser/JavaClasses';
-import { JavaMethod } from './javaParser/JavaElements';
+import { JavaBase, ClassType, Scope, Type, DescriptorTypes } from '../javaParser/common';
+import { JavaClass, JavaInnerClass } from '../javaParser/JavaClasses';
+import { JavaMethod } from '../javaParser/JavaElements';
 import { Loader } from './loader';
-import { config } from './config';
+import { config } from '../config';
 
 
 export class TreeType extends TreeElement<JavaClass> implements Linkable {

@@ -1,10 +1,10 @@
 import * as Path from "path";
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import { JavaBase, Scope } from "./javaParser/common";
-import { JavaClass } from "./javaParser/JavaClasses";
-import { JavaField, JavaMethod } from "./javaParser/JavaElements";
+import { JavaBase, Scope } from "../javaParser/common";
+import { JavaClass } from "../javaParser/JavaClasses";
+import { JavaField, JavaMethod } from "../javaParser/JavaElements";
 import { Subsystem } from "./treeType";
-import { Config, ConfigTypes } from "./config";
+import { Config, ConfigTypes } from "../config";
 
 export interface Linkable{
     getTarget():{file:string, line:number};
@@ -49,7 +49,7 @@ export abstract class TreeElementBase {
 }
 
 export namespace TreeElementBase {
-    export const RES_FOLDER = Path.join(__filename, "..", "..", "resources");
+    export const RES_FOLDER = Path.join(__filename, "..", "..", "..", "resources");
     export function getTreeItem(e:TreeElementBase): TreeItem{
         let item = new TreeItem(e.getLabel(), e.collapsibleState);
         item.iconPath = e.getIcon();

@@ -1,10 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { Linkable } from './codeElements';
-import { DataProvider } from './dataProvider';
-import { Loader } from './loader';
-import { Command, Subsystem } from './treeType';
+import { Linkable } from './treeView/codeElements';
+import { DataProvider } from './treeView/dataProvider';
+import { Loader } from './treeView/loader';
+import { Command, Subsystem } from './treeView/treeType';
 
 let providers:DataProvider[] = [];
 let loader = new Loader(vscode.workspace.rootPath);

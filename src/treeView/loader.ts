@@ -1,6 +1,6 @@
 import { Subsystem, Command } from "./treeType";
-import { parseFolder } from "./javaParser/javaParser";
-import { JavaClass } from "./javaParser/JavaClasses";
+import { parseFolder } from "../javaParser/javaParser";
+import { JavaClass } from "../javaParser/JavaClasses";
 
 export class Loader{
 

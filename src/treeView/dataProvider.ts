@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { TreeType } from './treeType';
 import { TreeElement, TreeElementBase, Field, Method } from './codeElements';
-import { JavaBase, Scope } from './javaParser/common';
-import { JavaField, JavaMethod, JavaElement } from './javaParser/JavaElements';
+import { JavaBase, Scope } from '../javaParser/common';
+import { JavaField, JavaMethod, JavaElement } from '../javaParser/JavaElements';
 
 export class DataProvider implements vscode.TreeDataProvider<TreeElementBase> {
     
