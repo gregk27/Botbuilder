@@ -43,7 +43,7 @@
     font-size: 1.25em;
 }
 
-.inputLine .label {
+.inputLine>label {
     grid-area:label;
     /* align-self: stretch; */
     font-size: 1.5em;
