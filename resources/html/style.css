@@ -41,8 +41,6 @@
     grid-area:input;
     align-self: stretch;
     font-size: 1.25em;
-    padding: 0.25em 0.25em;
-    border-radius: 0.5em;
 }
 
 .inputLine .label {
@@ -63,9 +61,10 @@
 
 input[type=text], select {
     border:none;
-    padding:0.2em;
+    padding:0.25em;
     background-color: var(--vscode-input-background);
-    color: var(--vscode-input-foreground)
+    color: var(--vscode-input-foreground);
+    border-radius: 0.5em;
 }
 input[type=text]:disabled, select:disabled{
     cursor: not-allowed;
@@ -86,6 +85,8 @@ button {
     background-color: var(--vscode-button-background);
     color: var(--vscode-button-foreground);
     border: none;
+    cursor: pointer;
+    transition: background-color 0.5s;
 }
 button:hover {
     background-color: var(--vscode-button-hoverBackground);

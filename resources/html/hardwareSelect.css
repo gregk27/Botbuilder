@@ -1,34 +1,56 @@
 /* Stylesheet to hold style information for hardwareSelect module */
 
 
-.hardwareSelect{
-    border: 1px solid var(--vscode-panelTitle-activeBorder);
-    padding: 0 0 1em 0em;
-    width:fit-content
+.argumentSelector .arg {
+    display:grid;
+    grid-template-areas: 
+        "grab type pad name del"
+        "none none pad err err";
+    grid-template-columns: 2em 1fr 1em 2fr 2em;
+    margin: 1em 0;
 }
 
-.hardwareSelect>table{
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 0.25em;
-    border-bottom: 1px solid var(--vscode-panelTitle-activeBorder);
+.argumentSelector .arg>* {
+    font-size: 1.25em;
 }
 
-.hardwareSelect>table td{
-    padding: 0.1em 1em;
+.argumentSelector .arg .grabber {
+    grid-area: grab;
+    
+    opacity: 0;
+    transition: opacity 0.5s;
+    cursor: grab;
+    user-select: none;
+    place-self: stretch stretch;
+    text-align: center;
 }
 
-.hardwareSelect>table th{
-    border-bottom: 1px solid var(--vscode-panelTitle-activeBorder);
-    padding: 0.1em 1em;
+.argumentSelector .arg:hover .grabber {
+    opacity: 1;
 }
 
-.hardwareSelect>table tr>td:nth-child(3){
-    text-align: right;
-    padding-right: 0
+.argumentSelector .arg select {
+    grid-area: type;
 }
-.hardwareSelect>table tr>td:nth-child(3) input{
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-right: 0.5em; 
+
+.argumentSelector .arg .argName {
+    grid-area: name;
+    padding-left:1em;
+}
+
+.argumentSelector .arg button {
+    grid-area: del;
+}
+
+.argumentSelector .arg .err {
+    grid-area: err;
+    padding-left:2em;
+    color:var(--vscode-inputValidation-errorBorder);
+    display: none;
+}
+
+.argumentSelector .addArgument {
+    font-size:1.25em;
+    padding: 0.35em;
+    float:right;
 }

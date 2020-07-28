@@ -24,130 +24,58 @@
       </div> 
     </div>
     
-    <h2>Select Hardware</h2>
-    <div class="hardwareSelect">
-        <table>
-            <tr>
-                <th>Type</th>
-                <th>Name</th>
-            </tr>
-            <tr>
-                <td>
-                    <select>
-                        <optgroup label="Motor Controller">
-                            <option>Talon SRX</option>
-                            <option>Victor SPX</option>
-                            <option>Talon FX</option>
-                            <option>SparkMax (CAN)</option>
-                        </optgroup>
-                        <optgroup label="Pneumatic">
-                            <option>Solenoid</option>
-                            <option>Double Solenoid</option>
-                        </optgroup>
-                        <optgroup label="Sensor">
-                            <option>ADXRS450 Gyro</option>
-                        </optgroup>
-                        <optgroup label="Other">
-                            <option>DIO</option>
-                        </optgroup>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" value="leftDriveSpark1" />
-    
-                    <button type="button">↑</button>
-                    <button type="button">↓</button>
-                    <button type="button">-</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <select>
-                        <optgroup label="Motor Controller">
-                            <option>Talon SRX</option>
-                            <option>Victor SPX</option>
-                            <option>Talon FX</option>
-                            <option>SparkMax (CAN)</option>
-                        </optgroup>
-                        <optgroup label="Pneumatic">
-                            <option>Solenoid</option>
-                            <option>Double Solenoid</option>
-                        </optgroup>
-                        <optgroup label="Sensor">
-                            <option>ADXRS450 Gyro</option>
-                        </optgroup>
-                        <optgroup label="Other">
-                            <option>DIO</option>
-                        </optgroup>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" value="intakePiston" />
-    
-                    <button type="button">↑</button>
-                    <button type="button">↓</button>
-                    <button type="button">-</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <select>
-                        <optgroup label="Motor Controller">
-                            <option>Talon SRX</option>
-                            <option>Victor SPX</option>
-                            <option>Talon FX</option>
-                            <option>SparkMax (CAN)</option>
-                        </optgroup>
-                        <optgroup label="Pneumatic">
-                            <option>Solenoid</option>
-                            <option>Double Solenoid</option>
-                        </optgroup>
-                        <optgroup label="Sensor">
-                            <option>ADXRS450 Gyro</option>
-                        </optgroup>
-                        <optgroup label="Other">
-                            <option>DIO</option>
-                        </optgroup>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" value="gyro" />
-    
-                    <button type="button">↑</button>
-                    <button type="button">↓</button>
-                    <button type="button">-</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <select>
-                        <optgroup label="Motor Controller">
-                            <option>Talon SRX</option>
-                            <option>Victor SPX</option>
-                            <option>Talon FX</option>
-                            <option>SparkMax (CAN)</option>
-                        </optgroup>
-                        <optgroup label="Pneumatic">
-                            <option>Solenoid</option>
-                            <option>Double Solenoid</option>
-                        </optgroup>
-                        <optgroup label="Sensor">
-                            <option>ADXRS450 Gyro</option>
-                        </optgroup>
-                        <optgroup label="Other">
-                            <option>DIO</option>
-                        </optgroup>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" value="pin" />
-    
-                    <button type="button">↑</button>
-                    <button type="button">↓</button>
-                    <button type="button">-</button>
-                </td>
-            </tr>
-        </table>
-
+    <h2>Required Hardware</h2>
+    <div class="argumentSelector">
+        <div class="arg">
+            <div class="grabber">☰</div>
+            <select>
+                <optgroup label="Motor Controller">
+                    <option>Talon SRX</option>
+                    <option>Victor SPX</option>
+                    <option>Talon FX</option>
+                    <option>SparkMax (CAN)</option>
+                </optgroup>
+                <optgroup label="Pneumatic">
+                    <option>Solenoid</option>
+                    <option>Double Solenoid</option>
+                </optgroup>
+                <optgroup label="Sensor">
+                    <option>ADXRS450 Gyro</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option>DIO</option>
+                </optgroup>
+            </select>
+            <input class="argName" type="text" value="leftDriveSpark1" />
+            <button type="button">-</button>
+            <div class="err">&#9888; <span class="msg">placeholder</span></div>
+        </div>
+        
+        <div class="arg">
+            <div class="grabber">☰</div>
+            <select>
+                <optgroup label="Motor Controller">
+                    <option>Talon SRX</option>
+                    <option>Victor SPX</option>
+                    <option>Talon FX</option>
+                    <option>SparkMax (CAN)</option>
+                </optgroup>
+                <optgroup label="Pneumatic">
+                    <option>Solenoid</option>
+                    <option>Double Solenoid</option>
+                </optgroup>
+                <optgroup label="Sensor">
+                    <option>ADXRS450 Gyro</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option>DIO</option>
+                </optgroup>
+            </select>
+            <input class="argName" type="text" value="leftDriveSpark2" />
+            <button type="button">-</button>
+            <div class="err">&#9888; <span class="msg">placeholder</span></div>
+        </div>
+        <button class="addArgument">Add Hardware</button>
+    </div>
 </body>
 </html>
