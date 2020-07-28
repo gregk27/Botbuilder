@@ -1,27 +1,84 @@
+.inputGroup {
+    margin-bottom:3em;
+}
+
 .inputLine {
+    min-width: 400px;
     display:grid;
     grid-template:
-      "label input input"
-      "desc desc enable";
-    width: 50%;
-  }
+        "notif notif notif"
+        "label input input"
+        "desc desc enable";
+    grid-template-columns: minmax(100px, 1fr) 3fr 1fr;
+    margin-bottom:1em;
+}
   
-  .inputLine .label {
-    grid-area:"label"
-  }
-  
-  .inputLine .input {
-    grid-area:"input";
-    justify-self: stretch;
-    margin: 0.5em 0;
+.inputLine .notif {
+    grid-area: notif;
     align-self: stretch;
-    border-radius: 0.5em;
-    background-color: #252526;
 
-  }
-  
-  input {
+    text-align: right;
+    font-weight: bold;
+    font-size: 1.25em;
+    display:none;
+}
+
+.inputLine .notif.warn {
+    color:var(--vscode-inputValidation-warningBorder);
+}
+
+.inputLine .notif.err {
+    color:var(--vscode-inputValidation-errorBorder);
+}
+
+.inputLine .label {
+    grid-area:label;
+    align-self: stretch;
+    font-size: 1.5em;
+}
+
+.inputLine .input {
+    grid-area:input;
+    align-self: stretch;
+    font-size: 1.25em;
+    padding: 0.25em 0.25em;
+    border-radius: 0.5em;
+}
+
+.inputLine .label {
+    grid-area:label;
+    /* align-self: stretch; */
+    font-size: 1.5em;
+}
+
+.inputLine .desc {
+    grid-area: desc;
+    align-self: stretch;
+}
+
+.inputLine .enable {
+    grid-area: enable;
+    align-self: stretch;
+}
+
+input[type=text] {
     border:none;
     padding:0.2em;
-    
-  }
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground)
+}
+
+input[type=text]:disabled{
+    cursor: not-allowed;
+    background-color: var(--vscode-input-foreground);
+    color: var(--vscode-input-background)
+}
+
+input[type=checkbox] {
+    background-color: var(--vscode-checkbox-background);
+    border-color: var(--vscode-checkbox-border);
+    color: var(--vscode-checkbox-foreground);
+    height:1.2em;
+    width:1.2em;
+    vertical-align: sub;
+}
