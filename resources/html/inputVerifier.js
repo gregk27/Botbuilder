@@ -99,6 +99,7 @@ class InputManager {
         if(this.input.type !== "text"){ return true;}
         let val = this.input.value;
         if(checkEmpty && this.noEmpty && val.trim() === ""){
+            this.setNotif("Cannot be empty", 20);
             return false;
         }
 
