@@ -57,13 +57,12 @@ class ArgumentSelector{
         
         this.addButton = rootElement.getElementsByClassName("addArgument")[0];
 
-        this.arguments = [];
+        this.arguments = [new ArgumentItem("Talon 1", "TalonSRX", this), new ArgumentItem("Talon 2", "TalonSRX", this), new ArgumentItem("Talon 3", "TalonSRX", this), new ArgumentItem("Talon 4", "TalonSRX", this)];
 
         this.addButton.onclick = () => {
             this.arguments.push(new ArgumentItem("defaultTalon", "TalonSRX", this));
             this.refresh();
         };
-        this.arguments = [];
         this.refresh();
     }
 
@@ -96,16 +95,42 @@ class ArgumentSelector{
     }
 
     onDrag(yPosition, active){
-        for(let i=0; i<this.children.length; i++){
-            console.log(i, yPosition, this.children[i].offsetTop);
-            if(i === 0 && yPosition < this.children[i].offsetTop){
-                this.children[i].style.borderTop = "1px solid white";
-            } else if (i === this.children.length-1 && yPosition > this.children[i].offsetTop){
-                this.children[i].style.borderBottom = "1px solid white";
-            } else {
-                this.children[i].style.border = "none";
+        let tmpChildren = Array.from(this.children);
+        let activeIdx = this.arguments.indexOf(active);
+        tmpChildren.splice(activeIdx, 1);
+        // console.log(tmpChildren);
+        const borderStyle = "2px solid white";
+        let retVal = -1;
+        for(let i=0; i<tmpChildren.length; i++){
+            let c = tmpChildren[i];
+            c.style.border = "none";
+            if(i === 0 && yPosition < c.offsetTop) {
+                c.style.borderTop = borderStyle;
+                retVal = 0;
+            } else if (i === tmpChildren.length-1 && yPosition > c.offsetTop){
+                c.style.borderBottom = borderStyle;
+                // Return the insert index, if this is after the removed item, the increment by one
+                retVal = i + 1;
+            } else if (yPosition > c.offsetTop && yPosition < tmpChildren[i+1]?.offsetTop){
+                c.style.borderBottom = borderStyle;
+                // Return the insert index, if this is after the removed item, the increment by one
+                retVal = i+1;// + (i>=activeIdx ? 1:0);
             }
         }
+        return retVal;
+    }
+
+    onDrop(yPosition, active){
+        let pos = this.onDrag(yPosition, active);
+        console.log(pos);
+
+        let a = this.arguments.splice(this.arguments.indexOf(active), 1);
+        console.log(a);
+        let b = this.arguments.splice(pos);
+        console.log(b);
+
+        this.arguments = [...this.arguments, ...a, ...b];
+        this.refresh();
     }
 
 
@@ -167,34 +192,31 @@ class ArgumentItem {
         console.log(this.dragger);
         this.dragger.onmousedown = (event) => {
             console.log("Drag start");
-            let handler = (evt)=>{
-                this.drag(evt);
+            let movehandler = (event)=>{
+                this.root.style.left = event.clientX;
+                this.root.style.top = event.clientY;
+                this.parent.onDrag(event.clientY, this);
             };
-            document.body.addEventListener("mousemove",handler);
-            document.body.addEventListener("mouseup", ()=>{
-                document.body.removeEventListener("mousemove", handler);
+            let upHandler = (event)=>{
+                document.body.removeEventListener("mousemove", movehandler);
+                document.body.removeEventListener("mouseup", upHandler);
+                this.parent.onDrop(event.clientY, this);
                 this.root.style.position = "initial";
-            });
+                console.log("mouse up");
+            };
+            document.body.addEventListener("mousemove",movehandler);
+            document.body.addEventListener("mouseup", upHandler);
             
             this.root.style.position = "absolute";
             this.root.style.left = event.clientX;
             this.root.style.top = event.clientY;
         };
     }
-
-    drag(event){
-        this.root.style.left = event.clientX;
-        this.root.style.top = event.clientY;
-        this.parent.onDrag(event.clientY, this.index);
-
-    }
 }
 
 var argumentSelectors = [];
 
-console.log("Added listener");
 window.addEventListener("load", (event)=>{
-    console.log("Hello world!");
     for(let e of document.getElementsByClassName("argumentSelector")){
         argumentSelectors.push(new ArgumentSelector(e, argumentSelectors.length));
     }
