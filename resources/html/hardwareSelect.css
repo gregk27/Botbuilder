@@ -1,5 +1,10 @@
 /* Stylesheet to hold style information for hardwareSelect module */
 
+.argumentSelector .args{
+    display: flex;
+    flex-direction: column;
+
+}
 
 .argumentSelector .arg {
     display:grid;
@@ -14,7 +19,7 @@
     font-size: 1.25em;
 }
 
-.argumentSelector .arg .grabber {
+.argumentSelector .arg .dragger {
     grid-area: grab;
     
     opacity: 0;
@@ -25,7 +30,7 @@
     text-align: center;
 }
 
-.argumentSelector .arg:hover .grabber {
+.argumentSelector .arg:hover .dragger {
     opacity: 1;
 }
 
@@ -53,4 +58,5 @@
     font-size:1.25em;
     padding: 0.35em;
     float:right;
+    clear:both;
 }
