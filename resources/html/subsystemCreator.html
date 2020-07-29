@@ -4,18 +4,30 @@
     <link rel="stylesheet" type="text/css" href="style.css"> 
     <link rel="stylesheet" type="text/css" href="hardwareSelect.css"> 
     <script src="argumentSelector.js"></script>
+    <script src="inputVerifier.js"></script>
 </head>
 <body>
     <h1>New Subsystem Wizard</h1>
     <div class="inputGroup" style="width:75%">
-        <div class="inputLine">
+        <div class="inputLine" 
+        data-filter-validchars-regex="^[A-Za-z0-9]*$"
+        data-filter-validchars-message="Name can only have alphanumeric characters"
+        data-filter-validchars-level="29"
+        
+        data-filter-startcap-regex="^[A-Z]|^$"
+        data-filter-startcap-message="First character must be a capital letter"
+        data-filter-startcap-level="29"
+        
+        data-verifier-noempty="true">
             <div class="notif err">&#9888; <span class="msg">placeholder</span></div>
             <label for="name">Name:</label>
             <input type="text" placeholder="MySubystem" class="input" id="name"/>
             <span class="desc">The name of the subsystem, should be representative of the respective hardware</span>
         </div>
 
-        <div class="inputLine">
+        <div class="inputLine"
+
+        data-verifier-noempty="true">
             <div class="notif">&#9888; <span class="msg">placeholder</span></div>
             <label for="package">Package:</label>
             <input type="text" value="${PACKAGE}" class="input" id="package" disabled />
