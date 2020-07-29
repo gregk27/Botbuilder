@@ -53,7 +53,12 @@ class InputManager {
          * @type {HTMLInputElement}
          */
         this.override = e.querySelector(".enable input[type=checkbox]");
-
+        /**
+         * Button to reset input to inital value 
+         * 
+         * @type {HTMLButtonElement}
+         */
+        this.resetButton = e.querySelector("button.reset");
 
         // Map override
         if(this.override !== null){
@@ -68,9 +73,18 @@ class InputManager {
             };
         }
 
+        /** The inital value of the input */
+        this.initialValue = this.input.value;
         this.input.oninput = ()=>{
             this.validate();
         };
+
+        if(this.resetButton !== null){
+            this.resetButton.onclick = ()=>{
+                this.input.value = this.initialValue;
+                this.validate();
+            };
+        }
     }
 
     /**
