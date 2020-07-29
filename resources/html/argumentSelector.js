@@ -53,70 +53,31 @@ class ArgumentSelector{
     
     constructor(rootElement, index){
         this.root = rootElement;
+        this.index = index;
+        
         this.addButton = rootElement.getElementsByClassName("addArgument")[0];
-        let _self = this;
-        this.addButton.onclick = function(){
-            _self.arguments.push({type:"TalonSRX", name:"defaultTalon"});
-            _self.refresh();
+
+        this.arguments = [];
+
+        this.addButton.onclick = () => {
+            this.arguments.push(new ArgumentItem("defaultTalon", "TalonSRX", this));
+            this.refresh();
         };
         this.arguments = [];
-        this.index = index;
         this.refresh();
-
-        this.dragger = rootElement.getElementsByClassName("dragger")[0];
-        this.dragger.onmousedown = function() {
-            console.log("Drag start");
-            // this.root.style.display = "absolute";
-        };
-        this.dragger.ondrag = (event)=>{
-            console.log("Dragging");
-            console.log(event);
-        }
     }
 
     refresh(){
         let html = "";
         for(let i=0; i<this.arguments.length; i++){
-            let a = this.arguments[i];
-            html+=`
-            <div class="arg">
-                <div class="dragger">&#9776;</div>
-                <select onChange="argumentSelectors[${this.index}].setType(${i}, this)">
-                    <optgroup label="Motor Controller">
-                        ${
-                            hardwareTypes.motorControllers.map((val)=> {
-                                return `<option value="${val.name}" ${a.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
-                            }).join("/n")
-                        };
-                    </optgroup>
-                    <optgroup label="Pneumatic">
-                    ${
-                        hardwareTypes.pneumatics.map((val)=> {
-                            return `<option value="${val.name}" ${a.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
-                        }).join("")
-                    };
-                    </optgroup>
-                    <optgroup label="Sensor">
-                    ${
-                        hardwareTypes.sensors.map((val)=> {
-                            return `<option value="${val.name}" ${a.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
-                        }).join("/n")
-                    };
-                    </optgroup>
-                    <optgroup label="Other">
-                    ${
-                        hardwareTypes.other.map((val)=> {
-                            return `<option value="${val.name}" ${a.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
-                        }).join("/n")
-                    };
-                    </optgroup>
-                </select>
-                <input class="argName" type="text" value="${a.name}" onChange="argumentSelectors[${this.index}].setName(${i}, this)" />
-                <button type="button" onclick="argumentSelectors[${this.index}].removeArg(${i})">-</button>
-                <div class="err">&#9888; <span class="msg">placeholder</span></div>
-            </div>`;
+            html += this.arguments[i].getHTML(i);
         }
         this.root.getElementsByClassName("args")[0].innerHTML = html;
+
+        this.children = this.root.getElementsByClassName("arg");
+        for(let i=0; i<this.children.length; i++){
+            this.arguments[i].update(this.children[i]);
+        }
     }
 
     removeArg(index){
@@ -134,9 +95,100 @@ class ArgumentSelector{
         console.log(this.arguments);
     }
 
+    onDrag(yPosition, active){
+        for(let i=0; i<this.children.length; i++){
+            console.log(i, yPosition, this.children[i].offsetTop);
+            if(i === 0 && yPosition < this.children[i].offsetTop){
+                this.children[i].style.borderTop = "1px solid white";
+            } else if (i === this.children.length-1 && yPosition > this.children[i].offsetTop){
+                this.children[i].style.borderBottom = "1px solid white";
+            } else {
+                this.children[i].style.border = "none";
+            }
+        }
+    }
+
 
 }
 
+class ArgumentItem {
+    constructor(name, type, parent){
+        this.name = name;
+        this.type = type;
+        this.parent = parent;
+        this.parentIndex = parent.index;
+    }
+
+    getHTML(index){
+        return `
+        <div class="arg">
+            <div class="dragger">&#9776;</div>
+            <select onChange="argumentSelectors[${this.parentIndex}].setType(${index}, this)">
+                <optgroup label="Motor Controller">
+                    ${
+                        hardwareTypes.motorControllers.map((val)=> {
+                            return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                        }).join("/n")
+                    };
+                </optgroup>
+                <optgroup label="Pneumatic">
+                ${
+                    hardwareTypes.pneumatics.map((val)=> {
+                        return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                    }).join("")
+                };
+                </optgroup>
+                <optgroup label="Sensor">
+                ${
+                    hardwareTypes.sensors.map((val)=> {
+                        return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                    }).join("/n")
+                };
+                </optgroup>
+                <optgroup label="Other">
+                ${
+                    hardwareTypes.other.map((val)=> {
+                        return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                    }).join("/n")
+                };
+                </optgroup>
+            </select>
+            <input class="argName" type="text" value="${this.name}" onChange="argumentSelectors[${this.parentIndex}].setName(${index}, this)" />
+            <button type="button" onclick="argumentSelectors[${this.parentIndex}].removeArg(${index})">-</button>
+            <div class="err">&#9888; <span class="msg">placeholder</span></div>
+        </div>`;
+    }
+
+    update(root){
+        this.root = root;
+        console.log(root);
+
+        this.dragger = root.getElementsByClassName("dragger")[0];
+        console.log(this.dragger);
+        this.dragger.onmousedown = (event) => {
+            console.log("Drag start");
+            let handler = (evt)=>{
+                this.drag(evt);
+            };
+            document.body.addEventListener("mousemove",handler);
+            document.body.addEventListener("mouseup", ()=>{
+                document.body.removeEventListener("mousemove", handler);
+                this.root.style.position = "initial";
+            });
+            
+            this.root.style.position = "absolute";
+            this.root.style.left = event.clientX;
+            this.root.style.top = event.clientY;
+        };
+    }
+
+    drag(event){
+        this.root.style.left = event.clientX;
+        this.root.style.top = event.clientY;
+        this.parent.onDrag(event.clientY, this.index);
+
+    }
+}
 
 var argumentSelectors = [];
 
