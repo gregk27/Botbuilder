@@ -51,12 +51,25 @@ let hardwareTypes = {
 
 class ArgumentSelector{
     
+    /**
+     * Create a new ArgumentSelector from a `.argumentSelector` element
+     * 
+     * @param {Element} rootElement The `.argumentSelector` element
+     * @param {number} index The index in holding array
+     */
     constructor(rootElement, index){
+        /** The `.argumentSelector` element */
         this.root = rootElement;
+        /** The index in holding array */
         this.index = index;
         
+        /** Button used to add new argument */
         this.addButton = rootElement.getElementsByClassName("addArgument")[0];
 
+        /** 
+         * Arguments for construtor, in order
+         * @type {ArgumentItem[]}
+         */
         this.arguments = [new ArgumentItem("Talon 1", "TalonSRX", this), new ArgumentItem("Talon 2", "TalonSRX", this), new ArgumentItem("Talon 3", "TalonSRX", this), new ArgumentItem("Talon 4", "TalonSRX", this)];
 
         this.addButton.onclick = () => {
@@ -66,6 +79,9 @@ class ArgumentSelector{
         this.refresh();
     }
 
+    /**
+     * Update the html
+     */
     refresh(){
         let html = "";
         for(let i=0; i<this.arguments.length; i++){
@@ -79,27 +95,52 @@ class ArgumentSelector{
         }
     }
 
+    /**
+     * Remove an argument
+     * @param {number} index 
+     */
     removeArg(index){
         this.arguments.splice(index, 1);
         this.refresh();
     }
 
+    /**
+     * Set the type of a particular argument
+     * 
+     * @param {number} index 
+     * @param {HTMLInputElement} selector `select` element with type
+     */
     setType(index, selector){
         this.arguments[index].type = selector.value;
         console.log(this.arguments);
     }
 
+    /**
+     * Set the name of a particular argument
+     * 
+     * @param {string} name 
+     * @param {HTMLInputElement} input Text input with name
+     */
     setName(index, input){
         this.arguments[index].name = input.value;
         console.log(this.arguments);
     }
 
+    /**
+     * Called while an argument is being dragged
+     * 
+     * @param {number} yPosition The current y position of the actively dragged argument
+     * @param {number} active The index of the actively dragged argument
+     * @reutrns The position in the array the dragged argument would be dropped in
+     */
     onDrag(yPosition, active){
         let tmpChildren = Array.from(this.children);
         let activeIdx = this.arguments.indexOf(active);
         tmpChildren.splice(activeIdx, 1);
-        // console.log(tmpChildren);
+
+        /** Style to be used for active border */
         const borderStyle = "2px solid white";
+        /** Value to return, the position in the array the dragged argument would be dropped in */
         let retVal = -1;
         for(let i=0; i<tmpChildren.length; i++){
             let c = tmpChildren[i];
@@ -111,7 +152,7 @@ class ArgumentSelector{
                 c.style.borderBottom = borderStyle;
                 // Return the insert index, if this is after the removed item, the increment by one
                 retVal = i + 1;
-            } else if (yPosition > c.offsetTop && yPosition < tmpChildren[i+1]?.offsetTop){
+            } else if (yPosition > c.offsetTop && yPosition < tmpChildren[i+1].offsetTop){
                 c.style.borderBottom = borderStyle;
                 // Return the insert index, if this is after the removed item, the increment by one
                 retVal = i+1;// + (i>=activeIdx ? 1:0);
@@ -120,14 +161,19 @@ class ArgumentSelector{
         return retVal;
     }
 
+    /**
+     * Called when the dragged argument is dropped
+     * This will reorder the arguments to reflect change
+     * 
+     * @param {number} yPosition The current y position of the actively dragged argument
+     * @param {number} active The index of the actively dragged argument
+     */
     onDrop(yPosition, active){
         let pos = this.onDrag(yPosition, active);
         console.log(pos);
 
         let a = this.arguments.splice(this.arguments.indexOf(active), 1);
-        console.log(a);
         let b = this.arguments.splice(pos);
-        console.log(b);
 
         this.arguments = [...this.arguments, ...a, ...b];
         this.refresh();
@@ -137,6 +183,14 @@ class ArgumentSelector{
 }
 
 class ArgumentItem {
+
+    /**
+     * Create a new argument item
+     * 
+     * @param {string} name 
+     * @param {string} type 
+     * @param {ArgumentSelector} parent 
+     */
     constructor(name, type, parent){
         this.name = name;
         this.type = type;
@@ -144,6 +198,12 @@ class ArgumentItem {
         this.parentIndex = parent.index;
     }
 
+    /**
+     * Get the HTML to render
+     * 
+     * @param {number} index The index in the arguments array
+     * @return The string representation of the HTML
+     */
     getHTML(index){
         return `
         <div class="arg">
@@ -184,6 +244,11 @@ class ArgumentItem {
         </div>`;
     }
 
+    /**
+     * Update the various listeners and references used by the argument
+     * 
+     * @param {Element} root The `.arg` element 
+     */
     update(root){
         this.root = root;
         console.log(root);
@@ -214,6 +279,10 @@ class ArgumentItem {
     }
 }
 
+/**
+ * Holding array for argument selectors
+ * @type {ArgumentSelector[]}
+ */
 var argumentSelectors = [];
 
 window.addEventListener("load", (event)=>{
