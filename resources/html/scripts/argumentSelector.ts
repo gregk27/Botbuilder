@@ -302,13 +302,19 @@ class ArgumentItem {
     }
 }
 
+declare global {
+    interface Window {
+        argumentSelectors: ArgumentSelector[];
+    }
+}
+
 /**
  * Holding array for argument selectors
  */
-var argumentSelectors:ArgumentSelector[] = [];
+window.argumentSelectors = [];
 
 window.addEventListener("load", (event)=>{
     for(let e of Array.from(document.getElementsByClassName("argumentSelector"))){
-        argumentSelectors.push(new ArgumentSelector(<HTMLElement> e, argumentSelectors.length));
+        window.argumentSelectors.push(new ArgumentSelector(<HTMLElement> e, window.argumentSelectors.length));
     }
 });

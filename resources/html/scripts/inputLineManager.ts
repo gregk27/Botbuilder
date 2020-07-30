@@ -1,44 +1,40 @@
-import { InputValidator, EmptyTest, RegexTest } from "./inputValidator";
+import { InputValidator, RegexTest, EmptyTest } from "./inputValidator";
 
 const dataPattern = new RegExp(/^data-filter-(\w+)-(\w+)/g);
 
 class InputManager {
 
+    validator:InputValidator;
+
+    /** The `.msg` element containing notification text */
+    notif:HTMLElement;
+    /** The input element */
+    input:HTMLInputElement;
+    /** The `input[type=checkbox]` for overrideing disabled inputs */
+    override:HTMLInputElement;
+    /** Button to reset input to inital value */
+    resetButton:HTMLButtonElement;
+
+    /** The inital value of the input */
+    initialValue:string;
+
+
     /**
      * Create a new input manager, from a `.inputGroup` element
      * 
-     * @param {Element} e 
+     * @param e 
      */
-    constructor(e){
-        this.noEmpty = false;
+    constructor(e:HTMLElement){
         this.validator = new InputValidator(e, null);
 
         // Get DOM elements
-        /**
-         * The `.msg` element containing notification text
-         */
         this.notif = e.querySelector(".notif .msg");
-        /**
-         * The input element 
-         * @type {HTMLInputElement} 
-         */
         this.input = e.querySelector(".input");
-        /**
-         * The `input[type=checkbox]` for overrideing disabled inputs
-         * @type {HTMLInputElement}
-         */
         this.override = e.querySelector(".enable input[type=checkbox]");
-        /**
-         * Button to reset input to inital value 
-         * 
-         * @type {HTMLButtonElement}
-         */
         this.resetButton = e.querySelector("button.reset");
 
-
         // Get filters
-        /** @type {RegExpExecArray} */
-        let match;
+        let match: RegExpExecArray;
         for(let a of Array.from(e.attributes)){
             // If the attribute is a filter attirbute
             dataPattern.lastIndex=0;
@@ -48,16 +44,16 @@ class InputManager {
                     this.validator.tests[match[1]] = new RegexTest(".input", null, null, null);
                 }
                 if(match[2] === "regex"){
-                    this.validator.tests[match[1]].regex = new RegExp(a.value);
+                    (<RegexTest> this.validator.tests[match[1]]).regex = new RegExp(a.value);
                 }
                 if(match[2] === "message"){
                     this.validator.tests[match[1]].message = a.value;
                 }
                 if(match[2] === "level"){
-                    this.validator.tests[match[1]].level = a.value;
+                    this.validator.tests[match[1]].level = Number.parseInt(a.value);
                 }
             } else if(a.name === "data-verifier-noempty"){
-                this.noEmpty = this.validator.emptyTest = new EmptyTest(".input", "");
+                this.validator.emptyTest = new EmptyTest(".input", "");
             }
         }
 
@@ -74,16 +70,15 @@ class InputManager {
             };
         }
 
-        /** The inital value of the input */
         this.initialValue = this.input.value;
         this.input.oninput = ()=>{
-            this.validate();
+            this.validate(false);
         };
 
         if(this.resetButton !== null){
             this.resetButton.onclick = ()=>{
                 this.input.value = this.initialValue;
-                this.validate();
+                this.validate(false);
             };
         }
     }
@@ -92,10 +87,10 @@ class InputManager {
      * Execute all filters and get result
      * Note: Filters with level > 10 will yield true
      * 
-     * @param {boolean} checkEmpty If true, will run empty check (if `this.noEmpty` is true)
+     * @param checkEmpty If true, will run empty check (if `this.noEmpty` is true)
      * @return Boolean if test passed
      */
-    validate(checkEmpty) {
+    validate(checkEmpty:boolean) {
         // Currently validation only works for text inputs
         if(this.input.type !== "text"){ return true;}
 
@@ -103,15 +98,21 @@ class InputManager {
     }
 }
 
+
+declare global {
+    interface Window {
+        inputs: InputManager[];
+    }
+}
+
 /**
  * Holding array for argument selectors
- * @type {InputManager[]}
  */
-var inputs = [];
+window.inputs = [];
 
 console.log("Running ts");
 window.addEventListener("load", (event)=>{
-    for(let e of document.getElementsByClassName("inputLine")){
-        inputs.push(new InputManager(e));
+    for(let e of Array.from(document.getElementsByClassName("inputLine"))){
+        window.inputs.push(new InputManager(<HTMLElement> e));
     }
 });

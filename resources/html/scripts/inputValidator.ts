@@ -1,37 +1,38 @@
 
 export class InputValidator {
+        
+    /** Tests executed on validation */
+    tests:{[name:string]:InputTest};
+    /** Test to execute to check for empty input */
+    emptyTest: InputTest;
+    /** The root element */
+    root:HTMLElement;
+    /** The `.msg` element containing notification text */
+    notif:HTMLElement;
 
     /**
      * Create a new input manager, from an element with the following children:
      * 
      *  - `.notif` The error message element, with a `.msg` child
      * 
-     * @param {Element} e The base element
-     * @param {InputTest} emptyTest Test to execute to check for empty input. If null empty check will be skipped.
+     * @param e The base element
+     * @param emptyTest Test to execute to check for empty input. If null empty check will be skipped.
      */
-    constructor(e, emptyTest){
+    constructor(e:HTMLElement, emptyTest:InputTest){
         this.update(e);
-        /** Tests executed on validation
-         *  @type {{[name:string]:InputFilter}} */
+
         this.tests = {};
-        /** Test to execute to check for empty input */
         this.emptyTest = emptyTest;
     }
 
     /**
      * Update element references
      * 
-     * @param {Element} e The base element
+     * @param e The base element
      */
-    update(e){
-        /**
-         * The root element
-         */
+    update(e: HTMLElement){
+  
         this.root = e;
-
-        /**
-         * The `.msg` element containing notification text
-         */
         this.notif = e.querySelector(".notif .msg");
     }
 
@@ -39,10 +40,10 @@ export class InputValidator {
      * Execute all filters and get result
      * Note: Filters with level > 10 will yield true
      * 
-     * @param {boolean} checkEmpty If true, will run empty check (if `this.noEmpty` is true)
+     * @param checkEmpty If true, will run empty check (if `this.noEmpty` is true)
      * @return Boolean if test passed
      */
-    validate(checkEmpty){
+    validate(checkEmpty:boolean){
         if(checkEmpty && this.emptyTest !== null){
             if(!this.runTest(this.emptyTest)){
                 this.setNotif(this.emptyTest.message, this.emptyTest.level);
@@ -54,8 +55,8 @@ export class InputValidator {
         let notif = "";
         let level = -1;
 
-        for(let t of this.tests){
-            if(!t.exec(val)){
+        for(let t of Object.values(this.tests)){
+            if(!this.runTest(t)){
                 if(t.level >= 20){
                     result = false;
                 }
@@ -77,10 +78,10 @@ export class InputValidator {
 
     /**
      * Execute a test
-     * @param {InputTest} test The test to run 
-     * @returns Error message string. If the test passed return value should be `null`
+     * @param test The test to run 
+     * @returns Boolean indicating if test passed
      */
-    runTest(test){
+    runTest(test:InputTest):boolean{
         if(test.selector === "root"){
             return test.exec(this.root);
         }
@@ -89,10 +90,8 @@ export class InputValidator {
 
     /**
      * Set the notification message and level
-     * @param {string} msg 
-     * @param {number} level 
      */
-    setNotif(msg, level){
+    setNotif(msg:string, level:number){
         this.notif.innerText = msg;
         if(level >= 20){
             this.notif.parentElement.className = "notif err";
@@ -112,56 +111,57 @@ export class InputValidator {
     }
 }
 
-export class InputTest {
+export abstract class InputTest {
 
     /**
      * Create a new input test
-     * @param {string} selector 
-     * @param {number} level 
+     * @param selector 
+     * @param level 
      */
-    constructor(selector, message, level){
+    constructor(
         /**
          * Selector used to pick test element
          * @remarks `root` will pass the root element 
          */
-        this.selector = selector;
-        /**
-         * The error level of the test
-         */
-        this.level = level;
+        public selector: string,
         /**
          * The test's error message
          */
-        this.message = message;
+        public message: string,
+        /**
+         * The error level of the test
+         */
+        public level: number) {
+
     }
 
     /**
      * Execute the test
-     * @param {Element} e Element as specified by `this.selector` 
+     * @param e Element as specified by `this.selector` 
      * @returns Boolean indicating if test passed
      */
-    exec(e){
-        return true;
-    }
+    abstract exec(e: HTMLElement):boolean;
 
 }
 
 export class RegexTest extends InputTest {
     
+    regex:RegExp;
+
     /**
-     * Create a new test build around a regex epression
+     * Create a new test build around a regular epression
      * 
-     * @param {string} selector 
-     * @param {string} message 
-     * @param {number} level 
-     * @param {RegExp} regex 
+     * @param selector Selector used to pick test element, `root` will yeild the root element 
+     * @param message The error message on fail
+     * @param level The error level
+     * @param regex The regular expression to check against
      */
-    constructor(selector, message, level, regex){
+    constructor(selector:string, message:string, level:number, regex:RegExp){
         super(selector, message, level);
         this.regex = regex;
     }
 
-    exec(e){
+    exec(e:HTMLInputElement){
         this.regex.lastIndex = 0;
         return(this.regex.test(e.value));
     }
@@ -169,19 +169,21 @@ export class RegexTest extends InputTest {
 
 export class EmptyTest extends InputTest {
 
+    empty:string;
+
     /**
      * Create a new test to check if element is empty
      * 
-     * @param {string} selector The selector to get the input element
-     * @param {string} empty The empty value
+     * @param selector The selector to get the input element
+     * @param empty The empty value
+     * @param message The error message on fail
      */
-    constructor(selector, empty="", message="Cannot be empty"){
+    constructor(selector:string, empty="", message="Cannot be empty"){
         super(selector, message, 30);
         this.empty = empty;
     }
 
-    exec(e){
-        this.regex.lastIndex = 0;
-        return(e.value === this.empty);
+    exec(e: HTMLInputElement){
+        return(e.value !== this.empty);
     }
 }
