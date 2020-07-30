@@ -253,7 +253,7 @@ class ArgumentItem {
         this.root = root;
         console.log(root);
 
-        this.dragger = root.getElementsByClassName("dragger")[0];
+        this.dragger = root.querySelector(".dragger");
         console.log(this.dragger);
         this.dragger.onmousedown = (event) => {
             console.log("Drag start");
@@ -275,6 +275,12 @@ class ArgumentItem {
             this.root.style.position = "absolute";
             this.root.style.left = event.clientX;
             this.root.style.top = event.clientY;
+        };
+        
+        /** @type  {HTMLInputElement} */
+        this.input = root.querySelector(".argname");
+        this.input.oninput = ()=>{
+            
         };
     }
 }
