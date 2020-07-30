@@ -19,7 +19,9 @@ export class InputValidator {
      * @param emptyTest Test to execute to check for empty input. If null empty check will be skipped.
      */
     constructor(e:HTMLElement, emptyTest:InputTest){
-        this.update(e);
+        if(e !== null){
+            this.update(e);
+        }
 
         this.tests = {};
         this.emptyTest = emptyTest;
@@ -34,6 +36,17 @@ export class InputValidator {
   
         this.root = e;
         this.notif = e.querySelector(".notif .msg");
+    }
+
+    /**
+     * Add a new test
+     * @param name The test name
+     * @param test The test to add
+     * @return This, to allow for chaining statements
+     */
+    addTest(name:string, test: InputTest):InputValidator{
+        this.tests[name] = test;
+        return this;
     }
 
     /**
@@ -68,7 +81,7 @@ export class InputValidator {
                 }
             }
         }
-        if(!result){
+        if(level !== -1){
             this.setNotif(notif, level);
         } else {
             this.clearNotif();

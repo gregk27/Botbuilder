@@ -1,7 +1,5 @@
 /// <reference lib="dom" />
-
-import { EphemeralKeyInfo } from "tls";
-
+import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
 
 let hardwareTypes = {
     motorControllers: [
@@ -80,7 +78,7 @@ class ArgumentSelector{
         /** 
          * Arguments for construtor, in order
          */
-        this.arguments = [new ArgumentItem("Talon 1", "TalonSRX", this), new ArgumentItem("Talon 2", "TalonSRX", this), new ArgumentItem("Talon 3", "TalonSRX", this), new ArgumentItem("Talon 4", "TalonSRX", this)];
+        this.arguments = [new ArgumentItem("talon1", "TalonSRX", this), new ArgumentItem("talon2", "TalonSRX", this), new ArgumentItem("talon3", "TalonSRX", this), new ArgumentItem("talon4", "TalonSRX", this)];
 
         this.addButton.onclick = () => {
             this.arguments.push(new ArgumentItem("defaultTalon", "TalonSRX", this));
@@ -102,6 +100,7 @@ class ArgumentSelector{
         this.children = this.root.getElementsByClassName("arg");
         for(let i=0; i<this.children.length; i++){
             this.arguments[i].update(<HTMLElement> this.children.item(i));
+            this.arguments[i].validator.validate(true);
         }
     }
 
@@ -134,6 +133,17 @@ class ArgumentSelector{
     setName(index:number, input:HTMLInputElement){
         this.arguments[index].name = input.value;
         console.log(this.arguments);
+    }
+
+    /**
+     * Check that arguments are valid
+     */
+    validate():boolean{
+        let res = true;
+        for(let a of this.arguments){
+            res = res && a.validator.validate(true);
+        }
+        return res;
     }
 
     /**
@@ -198,6 +208,9 @@ class ArgumentItem {
     type: string;
     parent: ArgumentSelector;
     parentIndex: number;
+
+    validator:InputValidator;
+
     root: HTMLElement;
     dragger: HTMLElement;
     input: HTMLInputElement;
@@ -214,6 +227,10 @@ class ArgumentItem {
         this.type = type;
         this.parent = parent;
         this.parentIndex = parent.index;
+
+        this.validator = new InputValidator(null, new EmptyTest(".argname"));
+        this.validator.addTest("namechars", new RegexTest(".argName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
+            .addTest("lowercase", new RegexTest(".argName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g));
     }
 
     /**
@@ -258,7 +275,7 @@ class ArgumentItem {
             </select>
             <input class="argName" type="text" value="${this.name}" onChange="argumentSelectors[${this.parentIndex}].setName(${index}, this)" />
             <button type="button" onclick="argumentSelectors[${this.parentIndex}].removeArg(${index})">-</button>
-            <div class="err">&#9888; <span class="msg">placeholder</span></div>
+            <div class="notif">&#9888; <span class="msg">placeholder</span></div>
         </div>`;
     }
 
@@ -269,7 +286,7 @@ class ArgumentItem {
      */
     update(root:HTMLElement){
         this.root = root;
-        console.log(root);
+        this.validator.update(root);
 
         this.dragger = root.querySelector(".dragger");
         console.log(this.dragger);
@@ -297,7 +314,7 @@ class ArgumentItem {
         
         this.input = root.querySelector(".argname");
         this.input.oninput = ()=>{
-            
+            this.validator.validate(false);
         };
     }
 }

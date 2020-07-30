@@ -9,8 +9,8 @@
 .argumentSelector .arg {
     display:grid;
     grid-template-areas: 
-        "grab type pad name del"
-        "none none pad err err";
+    "none none pad notif notif"
+    "grab type pad name del";
     grid-template-columns: 2em 1fr 1em 2fr 2em;
     margin: 1em 0;
 }
@@ -47,12 +47,22 @@
     grid-area: del;
 }
 
-.argumentSelector .arg .err {
-    grid-area: err;
+.argumentSelector .arg .notif {
+    grid-area: notif;
     padding-left:2em;
-    color:var(--vscode-inputValidation-errorBorder);
+    font-weight: bold;
+    text-align: right;
     display: none;
 }
+
+.argumentSelector .arg .notif.warn {
+    color:var(--vscode-inputValidation-warningBorder);
+}
+
+.argumentSelector .arg .notif.err {
+    color:var(--vscode-inputValidation-errorBorder);
+}
+
 
 .argumentSelector .addArgument {
     font-size:1.25em;
