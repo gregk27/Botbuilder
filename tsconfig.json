@@ -7,7 +7,13 @@
 			"es6"
 		],
 		"sourceMap": true,
-		"rootDir": "src",
+		"rootDir": ".",
+		"baseUrl": ".",
+		"paths": {
+			"extension":["src/"],
+			"webview": ["resources/html/scripts"]
+		},
+
 		"strict": true,   /* enable all strict type-checking options */
 		"strictNullChecks": false
 		/* Additional Checks */
