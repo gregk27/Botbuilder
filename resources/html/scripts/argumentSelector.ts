@@ -228,7 +228,7 @@ class ArgumentItem {
         this.parent = parent;
         this.parentIndex = parent.index;
 
-        this.validator = new InputValidator(null, new EmptyTest(".argname"));
+        this.validator = new InputValidator(null, new EmptyTest(".argName"));
         this.validator.addTest("namechars", new RegexTest(".argName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
             .addTest("lowercase", new RegexTest(".argName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g));
     }
@@ -293,8 +293,8 @@ class ArgumentItem {
         this.dragger.onmousedown = (event) => {
             console.log("Drag start");
             let movehandler = (event:MouseEvent)=>{
-                this.root.style.left = event.clientX.toString();
-                this.root.style.top = event.clientY.toString();
+                this.root.style.left = event.clientX.toString()+"px";
+                this.root.style.top = event.clientY.toString()+"px";
                 this.parent.onDrag(event.clientY, this);
             };
             let upHandler = (event:MouseEvent)=>{
@@ -308,11 +308,11 @@ class ArgumentItem {
             document.body.addEventListener("mouseup", upHandler);
             
             this.root.style.position = "absolute";
-            this.root.style.left = event.clientX.toString();
-            this.root.style.top = event.clientY.toString();
+            this.root.style.left = event.clientX.toString()+"px";
+            this.root.style.top = event.clientY.toString()+"px";
         };
         
-        this.input = root.querySelector(".argname");
+        this.input = root.querySelector(".argName");
         this.input.oninput = ()=>{
             this.validator.validate(false);
         };
@@ -330,8 +330,11 @@ declare global {
  */
 window.argumentSelectors = [];
 
+console.log("Adding onload");
 window.addEventListener("load", (event)=>{
     for(let e of Array.from(document.getElementsByClassName("argumentSelector"))){
         window.argumentSelectors.push(new ArgumentSelector(<HTMLElement> e, window.argumentSelectors.length));
+        console.log("Added argument");
+        console.log(window.argumentSelectors);
     }
 });

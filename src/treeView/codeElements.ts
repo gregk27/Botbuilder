@@ -49,7 +49,7 @@ export abstract class TreeElementBase {
 }
 
 export namespace TreeElementBase {
-    export const RES_FOLDER = Path.join(__filename, "..", "..", "..", "resources");
+    export const RES_FOLDER = Path.join(__filename, "..", "..", "..", "..", "resources");
     export function getTreeItem(e:TreeElementBase): TreeItem{
         let item = new TreeItem(e.getLabel(), e.collapsibleState);
         item.iconPath = e.getIcon();
