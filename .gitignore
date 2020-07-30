@@ -2,3 +2,6 @@ out
 node_modules
 .vscode-test/
 *.vsix
+
+# Webpacked frontend scripts
+resources/html/bundle.js
