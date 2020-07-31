@@ -5,7 +5,7 @@ import { Linkable } from './treeView/codeElements';
 import { DataProvider } from './treeView/dataProvider';
 import { Loader } from './treeView/loader';
 import { Command, Subsystem } from './treeView/treeType';
-import { SubsystemCreator } from './creators/webView';
+import { SubsystemCreator } from './webviews/subsystemCreator';
 
 let providers:DataProvider[] = [];
 let loader = new Loader(vscode.workspace.rootPath);

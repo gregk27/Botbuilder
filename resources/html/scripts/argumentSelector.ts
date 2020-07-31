@@ -1,57 +1,6 @@
 /// <reference lib="dom" />
 import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
 
-let hardwareTypes = {
-    motorControllers: [
-        {
-            name: "TalonSRX",
-            prettyName: "Talon SRX",
-            descriptor: "com/ctre/phoenix/motorcontrol/can/TalonSRX",
-        },
-        {
-            name: "VictorSPX",
-            prettyName: "Victor SPX",
-            descriptor: "com/ctre/phoenix/motorcontrol/can/VictorSPX",
-        },
-        {
-            name: "TalonFX",
-            prettyName: "Talon FX",
-            descriptor: "com/ctre/phoenix/motorcontrol/can/TalonFX",
-        },
-        {
-            name: "CANSparkMax",
-            prettyName: "SparkMax (CAN)",
-            descriptor: "com/revrobotics/CANSparkMax",
-        }
-    ],
-    pneumatics: [
-        {
-            name: "Solenoid",
-            prettyName: "Solenoid",
-            descriptor:"edu/wpi/first/wpilibj/Solenoid",
-        },
-        {
-            name: "DoubleSolenoid",
-            prettyName: "Double Solenoid",
-            descriptor: "edu/wpi/first/wpilibj/DoubleSolenoid",
-        }
-    ],
-    sensors: [
-        {
-            name: "ADXRS450_Gyro",
-            prettyName: "ADXRS450 Gyro",
-            descriptor: "edu/wpi/first/wpilibj/ADXRS450_Gyro",
-        }
-    ],
-    other: [
-        {
-            name: "DIO",
-            prettyName: "DIO",
-            descriptor: "DIO",
-        }
-    ]
-};
-
 class ArgumentSelector{
 
     root: HTMLElement;
@@ -246,28 +195,28 @@ class ArgumentItem {
             <select onChange="argumentSelectors[${this.parentIndex}].setType(${index}, this)">
                 <optgroup label="Motor Controller">
                     ${
-                        hardwareTypes.motorControllers.map((val)=> {
+                        window.hardwareTypes.motorControllers.map((val)=> {
                             return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
                         }).join("/n")
                     };
                 </optgroup>
                 <optgroup label="Pneumatic">
                 ${
-                    hardwareTypes.pneumatics.map((val)=> {
+                    window.hardwareTypes.pneumatics.map((val)=> {
                         return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
                     }).join("")
                 };
                 </optgroup>
                 <optgroup label="Sensor">
                 ${
-                    hardwareTypes.sensors.map((val)=> {
+                    window.hardwareTypes.sensors.map((val)=> {
                         return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
                     }).join("/n")
                 };
                 </optgroup>
                 <optgroup label="Other">
                 ${
-                    hardwareTypes.other.map((val)=> {
+                    window.hardwareTypes.other.map((val)=> {
                         return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
                     }).join("/n")
                 };
@@ -322,6 +271,12 @@ class ArgumentItem {
 declare global {
     interface Window {
         argumentSelectors: ArgumentSelector[];
+        hardwareTypes:{
+            motorControllers: {name:string;prettyName:string;descriptor:string;}[],
+            pneumatics: {name:string;prettyName:string;descriptor:string;}[],
+            sensors: {name:string;prettyName:string;descriptor:string;}[],
+            other: {name:string;prettyName:string;descriptor:string;}[]
+        };
     }
 }
 

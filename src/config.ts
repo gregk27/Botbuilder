@@ -2,6 +2,7 @@
 export namespace ConfigTypes {
     export interface HardwareType {
         name:string;
+        prettyName:string;
         descriptor:string;
         category: HardwareCategory;
     }
@@ -38,21 +39,25 @@ export let config:Config = {
         motorControllers: [
             {
                 name: "TalonSRX",
+                prettyName: "Talon SRX",
                 descriptor: "com/ctre/phoenix/motorcontrol/can/TalonSRX",
                 category: ConfigTypes.HardwareCategory.MOTOR_CONTROLLER
             },
             {
                 name: "VictorSPX",
+                prettyName: "Victor SPX",
                 descriptor: "com/ctre/phoenix/motorcontrol/can/VictorSPX",
                 category: ConfigTypes.HardwareCategory.MOTOR_CONTROLLER
             },
             {
                 name: "TalonFX",
+                prettyName: "Talon FX",
                 descriptor: "com/ctre/phoenix/motorcontrol/can/TalonFX",
                 category: ConfigTypes.HardwareCategory.MOTOR_CONTROLLER
             },
             {
                 name: "CANSparkMax",
+                prettyName: "SparkMax (CAN)",
                 descriptor: "com/revrobotics/CANSparkMax",
                 category: ConfigTypes.HardwareCategory.MOTOR_CONTROLLER
             }
@@ -60,18 +65,21 @@ export let config:Config = {
         pneumatics: [
             {
                 name: "Solenoid",
+                prettyName: "Solenoid",
                 descriptor:"edu/wpi/first/wpilibj/Solenoid",
                 category: ConfigTypes.HardwareCategory.PNEUMATIC
             },
             {
                 name: "DoubleSolenoid",
+                prettyName: "Double Solenoid",
                 descriptor: "edu/wpi/first/wpilibj/DoubleSolenoid",
                 category: ConfigTypes.HardwareCategory.PNEUMATIC
             }
         ],
         sensors: [
             {
-                name: "ADXRS450 Gyro",
+                name: "ADXRS450_Gyro",
+                prettyName: "ADXRS450 Gyro",
                 descriptor: "edu/wpi/first/wpilibj/ADXRS450_Gyro",
                 category: ConfigTypes.HardwareCategory.SENSOR
             }

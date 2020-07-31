@@ -10,7 +10,7 @@ export abstract class WebviewBase {
     options: vscode.WebviewPanelOptions & vscode.WebviewOptions = {
         enableScripts:true
     };
-    private html:string;
+    protected html:string;
 
     constructor(
         context: vscode.ExtensionContext,
@@ -68,13 +68,4 @@ export abstract class WebviewBase {
         this.html = this.html.replace(oldPath, this.getResource(oldPath, view));
     }
 
-}
-
-export class SubsystemCreator extends WebviewBase {
-
-    constructor(context:vscode.ExtensionContext){
-        super(context, "newSubsystem", "New Subsystem", "subsystemCreator.html");
-    }
-
-    
 }
