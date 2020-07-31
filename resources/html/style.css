@@ -79,7 +79,7 @@ h1 {
 
 input[type=text], select {
     border:none;
-    padding:0.25em;
+    padding:0.25em 0.5em;
     background-color: var(--vscode-input-background);
     color: var(--vscode-input-foreground);
     border-radius: 0.5em;

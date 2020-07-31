@@ -1,4 +1,5 @@
 import { InputValidator, RegexTest, EmptyTest } from "./inputValidator";
+import { DataVal, DataType } from "./common";
 
 const dataPattern = new RegExp(/^data-filter-(\w+)-(\w+)/g);
 
@@ -95,6 +96,19 @@ class InputManager {
         if(this.input.type !== "text"){ return true;}
 
         return this.validator.validate(checkEmpty);
+    }
+
+    /**
+     * Called to export aguments to JSON object on submission
+     */
+    getData():DataVal {
+        let data:any;
+        if(this.input.type === "checkbox"){
+            data=this.input.checked;
+        } else {
+            data = this.input.value;
+        }
+        return {id:this.input.id, dataType:DataType.INPUT_LINE, data};
     }
 }
 

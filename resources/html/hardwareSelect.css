@@ -40,7 +40,6 @@
 
 .argumentSelector .arg .argName {
     grid-area: name;
-    padding-left:1em;
 }
 
 .argumentSelector .arg button {

@@ -20,6 +20,19 @@
                 return;
             }
             console.log("Submitting");
+            console.log(getData());
+        }
+
+        // Collect data from inputs into a JSON object
+        function getData(){
+            let data = [];
+            for(let i of inputs){
+                data.push(i.getData());
+            }
+            for(let a of argumentSelectors){
+                data.push(a.getData());
+            }
+            return data;
         }
 
     </script>

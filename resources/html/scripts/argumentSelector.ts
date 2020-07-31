@@ -1,5 +1,8 @@
 /// <reference lib="dom" />
 import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
+import { Type } from "src/javaParser/common";
+import { DataVal, DataType } from "./common";
+import { cachedDataVersionTag } from "v8";
 
 class ArgumentSelector{
 
@@ -30,7 +33,7 @@ class ArgumentSelector{
         this.arguments = [];
 
         this.addButton.onclick = () => {
-            this.arguments.push(new ArgumentItem("defaultTalon", "TalonSRX", this));
+            this.arguments.push(new ArgumentItem("", window.hardwareTypes.motorControllers[0].descriptor, this));
             this.refresh();
         };
         this.refresh();
@@ -148,6 +151,23 @@ class ArgumentSelector{
         this.refresh();
     }
 
+    /**
+     * Called to export aguments to JSON object on submission
+     */
+    getData():DataVal {
+        let out:DataVal = {
+            id:this.root.id,
+            dataType:DataType.ARGUMENT_SELECTOR,
+            data:[]
+        };
+        for(let a of this.arguments){
+            out.data.push({
+                type:a.type,
+                name:a.name
+            });
+        }
+        return out;
+    }
 
 }
 
@@ -196,28 +216,28 @@ class ArgumentItem {
                 <optgroup label="Motor Controller">
                     ${
                         window.hardwareTypes.motorControllers.map((val)=> {
-                            return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                            return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
                         }).join("/n")
                     };
                 </optgroup>
                 <optgroup label="Pneumatic">
                 ${
                     window.hardwareTypes.pneumatics.map((val)=> {
-                        return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                        return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
                     }).join("")
                 };
                 </optgroup>
                 <optgroup label="Sensor">
                 ${
                     window.hardwareTypes.sensors.map((val)=> {
-                        return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                        return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
                     }).join("/n")
                 };
                 </optgroup>
                 <optgroup label="Other">
                 ${
                     window.hardwareTypes.other.map((val)=> {
-                        return `<option value="${val.name}" ${this.type === val.name ? "selected" : ""}>${val.prettyName}</option>`;
+                        return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
                     }).join("/n")
                 };
                 </optgroup>
