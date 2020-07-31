@@ -64,14 +64,33 @@ let saveState = ()=>{
     });
 };
 window.addEventListener("keyup", saveState);
-window.addEventListener("mouseup", saveState);
+//Put timeout after mouseup so event can register before saving
+window.addEventListener("mouseup", ()=>setTimeout(saveState, 50));
 
 
 window.addEventListener('message', message=>{
     let data = <webview.Message> message.data;
     if(data.id === "setState"){
+        console.log("Setting state:");
         let payload = <webview.InputState[]> data.payload;
         console.log(payload);
+        for(let p of payload){
+            if(p.dataType === webview.InputType.INPUT_LINE){
+                for(let i of window.inputs){
+                    if(p.id === i.input.id){
+                        i.fromState(p);
+                        break;
+                    }
+                }
+            } else if (p.dataType === webview.InputType.ARGUMENT_SELECTOR){
+                for(let a of window.argumentSelectors){
+                    if(p.id === a.root.id){
+                        a.fromState(p);
+                        break;
+                    }
+                }
+            }
+        }
     }
 });
 

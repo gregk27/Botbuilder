@@ -107,6 +107,7 @@ export class InputLine implements webview.Persistent{
             }
             if(data.data !== this.initialValue && this.override !== null){
                 this.override.checked = true;
+                this.input.disabled = false;
             }
         }
     }

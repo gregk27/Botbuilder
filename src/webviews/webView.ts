@@ -38,6 +38,7 @@ export abstract class WebviewBase {
      */
     private preOnMessage(message:webview.Message){
         if(message.id === "update"){
+            console.log(<webview.InputState[]> message.payload);
             this.state = <webview.InputState[]> message.payload;
         }
         this.onMessage(message);
@@ -52,9 +53,10 @@ export abstract class WebviewBase {
     /**
      * Send a message to the webview, can only be called after show();
      * @param message Message to send
+     * @returns False if the function has not been bound
      */
-    public sendMessage(message:any):void{
-
+    public sendMessage(message:webview.Message):boolean{
+        return false;
     }
 
     show(): vscode.WebviewPanel {
@@ -81,7 +83,16 @@ export abstract class WebviewBase {
         console.log(this.html);
         panel.webview.html = this.getHTML();
         panel.webview.onDidReceiveMessage(this.preOnMessage, this);
-
+        panel.onDidChangeViewState((event)=>{
+            this.sendMessage({
+                id:"setState",
+                payload: this.state
+            })
+        });
+        this.sendMessage = (message:webview.Message)=>{
+            panel.webview.postMessage(message);
+            return true;
+        };
         return panel;
     }
     
