@@ -23,8 +23,8 @@ export namespace webview {
     export enum InputType {
         /** Data is from an input line */
         INPUT_LINE = "InputLine",
-        /** Data is from an argument selector */
-        ARGUMENT_SELECTOR = "ArgumentSelector"
+        /** Data is from an parameter selector */
+        PARAMETER_SELECTOR = "ParameterSelector"
     }
 
     /**

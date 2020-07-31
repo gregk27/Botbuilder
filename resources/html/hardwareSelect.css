@@ -1,12 +1,12 @@
 /* Stylesheet to hold style information for hardwareSelect module */
 
-.argumentSelector .args{
+.parameterSelector .params{
     display: flex;
     flex-direction: column;
 
 }
 
-.argumentSelector .arg {
+.parameterSelector .param {
     display:grid;
     grid-template-areas: 
     "none notif notif notif notif"
@@ -15,11 +15,11 @@
     margin: 1em 0;
 }
 
-.argumentSelector .arg>* {
+.parameterSelector .param>* {
     font-size: 1.25em;
 }
 
-.argumentSelector .arg .dragger {
+.parameterSelector .param .dragger {
     grid-area: grab;
     
     opacity: 0;
@@ -30,23 +30,23 @@
     text-align: center;
 }
 
-.argumentSelector .arg:hover .dragger {
+.parameterSelector .param:hover .dragger {
     opacity: 1;
 }
 
-.argumentSelector .arg select {
+.parameterSelector .param select {
     grid-area: type;
 }
 
-.argumentSelector .arg .argName {
+.parameterSelector .param .paramName {
     grid-area: name;
 }
 
-.argumentSelector .arg button {
+.parameterSelector .param button {
     grid-area: del;
 }
 
-.argumentSelector .arg .notif {
+.parameterSelector .param .notif {
     grid-area: notif;
     padding-left:2em;
     font-weight: bold;
@@ -54,16 +54,16 @@
     display: none;
 }
 
-.argumentSelector .arg .notif.warn {
+.parameterSelector .param .notif.warn {
     color:var(--vscode-inputValidation-warningBorder);
 }
 
-.argumentSelector .arg .notif.err {
+.parameterSelector .param .notif.err {
     color:var(--vscode-inputValidation-errorBorder);
 }
 
 
-.argumentSelector .addArgument {
+.parameterSelector .addParameter {
     font-size:1.25em;
     padding: 0.35em;
     float:right;

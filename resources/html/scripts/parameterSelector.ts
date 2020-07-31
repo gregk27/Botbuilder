@@ -2,36 +2,36 @@
 import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
 import { webview } from "./common";
 
-export class ArgumentSelector implements webview.Persistent{
+export class ParameterSelector implements webview.Persistent{
 
     root: HTMLElement;
     index: number;
     addButton: HTMLButtonElement;
-    arguments: ArgumentItem[];
+    parameters: ParameterItem[];
     children: HTMLCollection;
 
     /**
-     * Create a new ArgumentSelector from a `.argumentSelector` element
+     * Create a new ParameterSelector from a `.parameterSelector` element
      * 
-     * @param rootElement The `.argumentSelector` element
+     * @param rootElement The `.parameterSelector` element
      * @param index The index in holding array
      */
     constructor(rootElement:HTMLElement, index:number){
-        /** The `.argumentSelector` element */
+        /** The `.parameterSelector` element */
         this.root = rootElement;
         /** The index in holding array */
         this.index = index;
         
-        /** Button used to add new argument */
-        this.addButton = <HTMLButtonElement> rootElement.getElementsByClassName("addArgument")[0];
+        /** Button used to add new parameter */
+        this.addButton = <HTMLButtonElement> rootElement.getElementsByClassName("addParameter")[0];
 
         /** 
-         * Arguments for construtor, in order
+         * Parameters for construtor, in order
          */
-        this.arguments = [];
+        this.parameters = [];
 
         this.addButton.onclick = () => {
-            this.arguments.push(new ArgumentItem("", window.hardwareTypes.motorControllers[0].descriptor, this));
+            this.parameters.push(new ParameterItem("", window.hardwareTypes.motorControllers[0].descriptor, this));
             this.refresh();
         };
         this.refresh();
@@ -42,75 +42,75 @@ export class ArgumentSelector implements webview.Persistent{
      */
     refresh(){
         let html = "";
-        for(let i=0; i<this.arguments.length; i++){
-            html += this.arguments[i].getHTML(i);
+        for(let i=0; i<this.parameters.length; i++){
+            html += this.parameters[i].getHTML(i);
         }
-        this.root.getElementsByClassName("args")[0].innerHTML = html;
+        this.root.getElementsByClassName("params")[0].innerHTML = html;
 
-        this.children = this.root.getElementsByClassName("arg");
+        this.children = this.root.getElementsByClassName("param");
         for(let i=0; i<this.children.length; i++){
-            this.arguments[i].update(<HTMLElement> this.children.item(i));
-            this.arguments[i].validator.validate(false);
+            this.parameters[i].update(<HTMLElement> this.children.item(i));
+            this.parameters[i].validator.validate(false);
         }
     }
 
     /**
-     * Remove an argument
-     * @param index The index of the argument 
+     * Remove an parameter
+     * @param index The index of the parameter 
      */
-    removeArg(index: number){
-        this.arguments.splice(index, 1);
+    removeParam(index: number){
+        this.parameters.splice(index, 1);
         this.refresh();
     }
 
     /**
-     * Set the type of a particular argument
+     * Set the type of a particular parameter
      * 
-     * @param index The index of the argument
+     * @param index The index of the parameter
      * @param selector `select` element with type
      */
     setType(index:number, selector:HTMLInputElement){
-        this.arguments[index].type = selector.value;
-        console.log(this.arguments);
+        this.parameters[index].type = selector.value;
+        console.log(this.parameters);
     }
 
     /**
-     * Set the name of a particular argument
+     * Set the name of a particular parameter
      * 
-     * @param index The index of the argument 
+     * @param index The index of the parameter 
      * @param input Text input with name
      */
     setName(index:number, input:HTMLInputElement){
-        this.arguments[index].name = input.value;
-        console.log(this.arguments);
+        this.parameters[index].name = input.value;
+        console.log(this.parameters);
     }
 
     /**
-     * Check that arguments are valid
+     * Check that parameters are valid
      */
     validate():boolean{
         let res = true;
-        for(let a of this.arguments){
-            res = res && a.validator.validate(true);
+        for(let p of this.parameters){
+            res = res && p.validator.validate(true);
         }
         return res;
     }
 
     /**
-     * Called while an argument is being dragged
+     * Called while an parameter is being dragged
      * 
-     * @param yPosition The current y position of the actively dragged argument
-     * @param active Actively dragged argument
-     * @reutrns The position in the array the dragged argument would be dropped in
+     * @param yPosition The current y position of the actively dragged parameter
+     * @param active Actively dragged parameter
+     * @reutrns The position in the array the dragged parameter would be dropped in
      */
-    onDrag(yPosition:number, active:ArgumentItem){
+    onDrag(yPosition:number, active:ParameterItem){
         let tmpChildren = <HTMLElement[]> Array.from(this.children);
-        let activeIdx = this.arguments.indexOf(active);
+        let activeIdx = this.parameters.indexOf(active);
         tmpChildren.splice(activeIdx, 1);
 
         /** Style to be used for active border */
         const borderStyle = "2px solid white";
-        /** Value to return, the position in the array the dragged argument would be dropped in */
+        /** Value to return, the position in the array the dragged parameter would be dropped in */
         let retVal = -1;
         for(let i=0; i<tmpChildren.length; i++){
             let c = tmpChildren[i];
@@ -132,31 +132,31 @@ export class ArgumentSelector implements webview.Persistent{
     }
 
     /**
-     * Called when the dragged argument is dropped
-     * This will reorder the arguments to reflect change
+     * Called when the dragged parameter is dropped
+     * This will reorder the parameters to reflect change
      * 
-     * @param yPosition The current y position of the actively dragged argument
-     * @param active The actively dragged argument
+     * @param yPosition The current y position of the actively dragged parameter
+     * @param active The actively dragged parameter
      */
-    onDrop(yPosition:number, active:ArgumentItem){
+    onDrop(yPosition:number, active:ParameterItem){
         let pos = this.onDrag(yPosition, active);
         console.log(pos);
 
-        let a = this.arguments.splice(this.arguments.indexOf(active), 1);
-        let b = this.arguments.splice(pos);
+        let a = this.parameters.splice(this.parameters.indexOf(active), 1);
+        let b = this.parameters.splice(pos);
 
-        this.arguments = [...this.arguments, ...a, ...b];
+        this.parameters = [...this.parameters, ...a, ...b];
         this.refresh();
     }
 
     
     fromState(data: webview.InputState): void {
         console.log(data);
-        if(data.dataType === webview.InputType.ARGUMENT_SELECTOR && this.root.id === data.id){
+        if(data.dataType === webview.InputType.PARAMETER_SELECTOR && this.root.id === data.id){
             let payload = <{type:string, name:string}[]>data.data;
-            this.arguments = [];
+            this.parameters = [];
             for(let p of payload){
-                this.arguments.push(new ArgumentItem(p.name, p.type, this));
+                this.parameters.push(new ParameterItem(p.name, p.type, this));
             }
             this.refresh();
         }
@@ -165,13 +165,13 @@ export class ArgumentSelector implements webview.Persistent{
     getState():webview.InputState {
         let out:webview.InputState = {
             id:this.root.id,
-            dataType:webview.InputType.ARGUMENT_SELECTOR,
+            dataType:webview.InputType.PARAMETER_SELECTOR,
             data:[]
         };
-        for(let a of this.arguments){
+        for(let p of this.parameters){
             out.data.push({
-                type:a.type,
-                name:a.name
+                type:p.type,
+                name:p.name
             });
         }
         return out;
@@ -179,11 +179,11 @@ export class ArgumentSelector implements webview.Persistent{
 
 }
 
-class ArgumentItem {
+class ParameterItem {
 
     name: string;
     type: string;
-    parent: ArgumentSelector;
+    parent: ParameterSelector;
     parentIndex: number;
 
     validator:InputValidator;
@@ -193,34 +193,34 @@ class ArgumentItem {
     input: HTMLInputElement;
 
     /**
-     * Create a new argument item
+     * Create a new parameter item
      * 
      * @param {string} name 
      * @param {string} type 
-     * @param {ArgumentSelector} parent 
+     * @param {ParameterSelector} parent 
      */
-    constructor(name:string, type:string, parent:ArgumentSelector){
+    constructor(name:string, type:string, parent:ParameterSelector){
         this.name = name;
         this.type = type;
         this.parent = parent;
         this.parentIndex = parent.index;
 
-        this.validator = new InputValidator(null, new EmptyTest(".argName"));
-        this.validator.addTest("namechars", new RegexTest(".argName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
-            .addTest("lowercase", new RegexTest(".argName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g));
+        this.validator = new InputValidator(null, new EmptyTest(".paramName"));
+        this.validator.addTest("namechars", new RegexTest(".paramName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
+            .addTest("lowercase", new RegexTest(".paramName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g));
     }
 
     /**
      * Get the HTML to render
      * 
-     * @param index The index in the arguments array
+     * @param index The index in the parameters array
      * @return The string representation of the HTML
      */
     getHTML(index:number){
         return `
-        <div class="arg">
+        <div class="param">
             <div class="dragger">&#9776;</div>
-            <select onChange="argumentSelectors[${this.parentIndex}].setType(${index}, this)">
+            <select onChange="parameterSelectors[${this.parentIndex}].setType(${index}, this)">
                 <optgroup label="Motor Controller">
                     ${
                         window.hardwareTypes.motorControllers.map((val)=> {
@@ -250,16 +250,16 @@ class ArgumentItem {
                 };
                 </optgroup>
             </select>
-            <input class="argName" type="text" value="${this.name}" onChange="argumentSelectors[${this.parentIndex}].setName(${index}, this)" />
-            <button type="button" onclick="argumentSelectors[${this.parentIndex}].removeArg(${index})">-</button>
+            <input class="paramName" type="text" value="${this.name}" onChange="parameterSelectors[${this.parentIndex}].setName(${index}, this)" />
+            <button type="button" onclick="parameterSelectors[${this.parentIndex}].removeParam(${index})">-</button>
             <div class="notif">&#9888; <span class="msg">placeholder</span></div>
         </div>`;
     }
 
     /**
-     * Update the various listeners and references used by the argument
+     * Update the various listeners and references used by the parameter
      * 
-     * @param root The `.arg` element 
+     * @param root The `.param` element 
      */
     update(root:HTMLElement){
         this.root = root;
@@ -289,7 +289,7 @@ class ArgumentItem {
             this.root.style.top = "calc("+event.pageY.toString()+"px - 2em)";
         };
         
-        this.input = root.querySelector(".argName");
+        this.input = root.querySelector(".paramName");
         this.input.oninput = ()=>{
             this.validator.validate(false);
         };

@@ -1,17 +1,17 @@
 import { InputLine } from "./inputLine";
-import { ArgumentSelector } from "./argumentSelector";
+import { ParameterSelector } from "./parameterSelector";
 import { webview } from "./common";
 
 declare global {
     interface Window {
         /**
-         * Holding array for argument selectors
+         * Holding array for parameter selectors
          */
         inputs: InputLine[];
         /**
-         * Holding array for argument selectors
+         * Holding array for parameter selectors
          */
-        argumentSelectors: ArgumentSelector[];
+        parameterSelectors: ParameterSelector[];
         /**
          * Function to validate inputs
          */
@@ -28,17 +28,17 @@ declare global {
 }
 
 window.inputs = [];
-window.argumentSelectors = [];
+window.parameterSelectors = [];
 
 // Load inputs
 window.addEventListener("load", (event)=>{
     for(let e of Array.from(document.getElementsByClassName("inputLine"))){
         window.inputs.push(new InputLine(<HTMLElement> e));
     }
-    for(let e of Array.from(document.getElementsByClassName("argumentSelector"))){
-        window.argumentSelectors.push(new ArgumentSelector(<HTMLElement> e, window.argumentSelectors.length));
-        console.log("Added argument");
-        console.log(window.argumentSelectors);
+    for(let e of Array.from(document.getElementsByClassName("parameterSelector"))){
+        window.parameterSelectors.push(new ParameterSelector(<HTMLElement> e, window.parameterSelectors.length));
+        console.log("Added parameter");
+        console.log(window.parameterSelectors);
     }
 });
 
@@ -82,8 +82,8 @@ window.addEventListener('message', message=>{
                         break;
                     }
                 }
-            } else if (p.dataType === webview.InputType.ARGUMENT_SELECTOR){
-                for(let a of window.argumentSelectors){
+            } else if (p.dataType === webview.InputType.PARAMETER_SELECTOR){
+                for(let a of window.parameterSelectors){
                     if(p.id === a.root.id){
                         a.fromState(p);
                         break;
@@ -100,7 +100,7 @@ window.validate = ()=>{
     for(let i of window.inputs){
         valid = i.validate(true) && valid;
     }
-    for(let a of window.argumentSelectors){
+    for(let a of window.parameterSelectors){
         valid = a.validate() && valid;
     }
     return valid;
@@ -112,7 +112,7 @@ window.getData = ()=>{
     for(let i of window.inputs){
         data.push(i.getState());
     }
-    for(let a of window.argumentSelectors){
+    for(let a of window.parameterSelectors){
         data.push(a.getState());
     }
     return data;
