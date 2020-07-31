@@ -1,9 +1,9 @@
 import { InputValidator, RegexTest, EmptyTest } from "./inputValidator";
-import { DataVal, DataType } from "./common";
+import { webview } from "./common";
 
 const dataPattern = new RegExp(/^data-filter-(\w+)-(\w+)/g);
 
-class InputManager {
+class InputManager implements webview.Persistent{
 
     validator:InputValidator;
 
@@ -98,17 +98,17 @@ class InputManager {
         return this.validator.validate(checkEmpty);
     }
 
-    /**
-     * Called to export aguments to JSON object on submission
-     */
-    getData():DataVal {
+    fromState(data: webview.InputState): void {
+    }
+
+    getState():webview.InputState {
         let data:any;
         if(this.input.type === "checkbox"){
             data=this.input.checked;
         } else {
             data = this.input.value;
         }
-        return {id:this.input.id, dataType:DataType.INPUT_LINE, data};
+        return {id:this.input.id, dataType:webview.InputType.INPUT_LINE, data};
     }
 }
 

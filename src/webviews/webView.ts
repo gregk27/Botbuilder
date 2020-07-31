@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { getServers } from 'dns';
+import { webview } from 'resources/html/scripts/common';
 
 const cssPattern = /<link\s*rel=['"]stylesheet['"]\s*type="text\/css"\s*href=['"](\w*\.css)['"]\s*>/g;
 const scriptPattern = /<script\s*src=['"](\w*\.js)['"]\s*>/g;
@@ -11,6 +12,7 @@ export abstract class WebviewBase {
         enableScripts:true
     };
     protected html:string;
+    protected state:webview.InputState[];
 
     constructor(
         context: vscode.ExtensionContext,
@@ -30,11 +32,36 @@ export abstract class WebviewBase {
         return this.html;
     }
 
+    /**
+     * Called internally when a message is recieved, calls onMessage
+     * @param message 
+     */
+    private preOnMessage(message:webview.Message){
+        if(message.id === "update"){
+            this.state = <webview.InputState[]> message.payload;
+        }
+        this.onMessage(message);
+    }
+
+    /**
+     * Function called when a message is recieved from the webview
+     * @param message 
+     */
+    abstract onMessage(message:webview.Message):void;
+
+    /**
+     * Send a message to the webview, can only be called after show();
+     * @param message Message to send
+     */
+    public sendMessage(message:any):void{
+
+    }
+
     show(): vscode.WebviewPanel {
 		const panel = vscode.window.createWebviewPanel(this.name, this.title, vscode.ViewColumn.Active, this.options);
         
         //Remove Dev css file
-        this.html = this.html.replace(/<link\s*rel=['"]stylesheet['"]\s*type="text\/css"\s*href=['"]dev.css['"]\s*>/g, "")
+        this.html = this.html.replace(/<link\s*rel=['"]stylesheet['"]\s*type="text\/css"\s*href=['"]dev.css['"]\s*>/g, "");
         this.html = this.html.replace(cssPattern, (substring, filename)=>{
             console.log(substring, filename);
             if(filename !== undefined){
@@ -53,6 +80,7 @@ export abstract class WebviewBase {
 
         console.log(this.html);
         panel.webview.html = this.getHTML();
+        panel.webview.onDidReceiveMessage(this.preOnMessage, this);
 
         return panel;
     }

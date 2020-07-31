@@ -27,14 +27,30 @@
         function getData(){
             let data = [];
             for(let i of inputs){
-                data.push(i.getData());
+                data.push(i.getState());
             }
             for(let a of argumentSelectors){
-                data.push(a.getData());
+                data.push(a.getState());
             }
             return data;
         }
 
+        // This setup is used to keep vscode api private for security
+        (function(){
+            const vscode = acquireVsCodeApi();
+
+            let saveState = ()=>{
+                console.log("Saving state");
+                vscode.postMessage({
+                    id:'update',
+                    payload: getData()
+                })
+            }
+
+            console.log("Binding listeners")
+            window.addEventListener("keyup", saveState);
+            window.addEventListener("mouseup", saveState);
+        }());
     </script>
 </head>
 <body>

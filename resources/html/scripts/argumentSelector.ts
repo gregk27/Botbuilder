@@ -1,10 +1,8 @@
 /// <reference lib="dom" />
 import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
-import { Type } from "src/javaParser/common";
-import { DataVal, DataType } from "./common";
-import { cachedDataVersionTag } from "v8";
+import { webview } from "./common";
 
-class ArgumentSelector{
+class ArgumentSelector implements webview.Persistent{
 
     root: HTMLElement;
     index: number;
@@ -151,13 +149,14 @@ class ArgumentSelector{
         this.refresh();
     }
 
-    /**
-     * Called to export aguments to JSON object on submission
-     */
-    getData():DataVal {
-        let out:DataVal = {
+    
+    fromState(data: webview.InputState): void {
+    }
+
+    getState():webview.InputState {
+        let out:webview.InputState = {
             id:this.root.id,
-            dataType:DataType.ARGUMENT_SELECTOR,
+            dataType:webview.InputType.ARGUMENT_SELECTOR,
             data:[]
         };
         for(let a of this.arguments){
