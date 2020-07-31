@@ -50,7 +50,7 @@ export class ArgumentSelector implements webview.Persistent{
         this.children = this.root.getElementsByClassName("arg");
         for(let i=0; i<this.children.length; i++){
             this.arguments[i].update(<HTMLElement> this.children.item(i));
-            this.arguments[i].validator.validate(true);
+            this.arguments[i].validator.validate(false);
         }
     }
 
@@ -151,6 +151,15 @@ export class ArgumentSelector implements webview.Persistent{
 
     
     fromState(data: webview.InputState): void {
+        console.log(data);
+        if(data.dataType === webview.InputType.ARGUMENT_SELECTOR && this.root.id === data.id){
+            let payload = <{type:string, name:string}[]>data.data;
+            this.arguments = [];
+            for(let p of payload){
+                this.arguments.push(new ArgumentItem(p.name, p.type, this));
+            }
+            this.refresh();
+        }
     }
 
     getState():webview.InputState {
