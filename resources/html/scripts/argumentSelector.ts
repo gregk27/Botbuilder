@@ -27,7 +27,7 @@ class ArgumentSelector{
         /** 
          * Arguments for construtor, in order
          */
-        this.arguments = [new ArgumentItem("talon1", "TalonSRX", this), new ArgumentItem("talon2", "TalonSRX", this), new ArgumentItem("talon3", "TalonSRX", this), new ArgumentItem("talon4", "TalonSRX", this)];
+        this.arguments = [];
 
         this.addButton.onclick = () => {
             this.arguments.push(new ArgumentItem("defaultTalon", "TalonSRX", this));
@@ -242,14 +242,14 @@ class ArgumentItem {
         this.dragger.onmousedown = (event) => {
             console.log("Drag start");
             let movehandler = (event:MouseEvent)=>{
-                this.root.style.left = event.clientX.toString()+"px";
-                this.root.style.top = event.clientY.toString()+"px";
-                this.parent.onDrag(event.clientY, this);
+                this.root.style.left = event.pageX.toString()+"px";
+                this.root.style.top = "calc("+event.pageY.toString()+"px - 2em)";
+                this.parent.onDrag(event.pageY, this);
             };
             let upHandler = (event:MouseEvent)=>{
                 document.body.removeEventListener("mousemove", movehandler);
                 document.body.removeEventListener("mouseup", upHandler);
-                this.parent.onDrop(event.clientY, this);
+                this.parent.onDrop(event.pageY, this);
                 this.root.style.position = "initial";
                 console.log("mouse up");
             };
@@ -257,8 +257,8 @@ class ArgumentItem {
             document.body.addEventListener("mouseup", upHandler);
             
             this.root.style.position = "absolute";
-            this.root.style.left = event.clientX.toString()+"px";
-            this.root.style.top = event.clientY.toString()+"px";
+            this.root.style.left = event.pageX.toString()+"px";
+            this.root.style.top = "calc("+event.pageY.toString()+"px - 2em)";
         };
         
         this.input = root.querySelector(".argName");
