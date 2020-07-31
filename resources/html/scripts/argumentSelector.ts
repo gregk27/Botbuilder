@@ -2,7 +2,7 @@
 import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
 import { webview } from "./common";
 
-class ArgumentSelector implements webview.Persistent{
+export class ArgumentSelector implements webview.Persistent{
 
     root: HTMLElement;
     index: number;
@@ -289,7 +289,6 @@ class ArgumentItem {
 
 declare global {
     interface Window {
-        argumentSelectors: ArgumentSelector[];
         hardwareTypes:{
             motorControllers: {name:string;prettyName:string;descriptor:string;}[],
             pneumatics: {name:string;prettyName:string;descriptor:string;}[],
@@ -298,17 +297,3 @@ declare global {
         };
     }
 }
-
-/**
- * Holding array for argument selectors
- */
-window.argumentSelectors = [];
-
-console.log("Adding onload");
-window.addEventListener("load", (event)=>{
-    for(let e of Array.from(document.getElementsByClassName("argumentSelector"))){
-        window.argumentSelectors.push(new ArgumentSelector(<HTMLElement> e, window.argumentSelectors.length));
-        console.log("Added argument");
-        console.log(window.argumentSelectors);
-    }
-});

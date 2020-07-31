@@ -3,7 +3,7 @@ import { webview } from "./common";
 
 const dataPattern = new RegExp(/^data-filter-(\w+)-(\w+)/g);
 
-class InputManager implements webview.Persistent{
+export class InputLine implements webview.Persistent{
 
     validator:InputValidator;
 
@@ -99,6 +99,16 @@ class InputManager implements webview.Persistent{
     }
 
     fromState(data: webview.InputState): void {
+        if(data.dataType === webview.InputType.INPUT_LINE && this.input.id === data.id){
+            if(typeof(data.data) === "boolean"){
+                this.input.checked = data.data;
+            } else {
+                this.input.value = data.data;
+            }
+            if(data.data !== this.initialValue && this.override !== null){
+                this.override.checked = true;
+            }
+        }
     }
 
     getState():webview.InputState {
@@ -111,22 +121,3 @@ class InputManager implements webview.Persistent{
         return {id:this.input.id, dataType:webview.InputType.INPUT_LINE, data};
     }
 }
-
-
-declare global {
-    interface Window {
-        inputs: InputManager[];
-    }
-}
-
-/**
- * Holding array for argument selectors
- */
-window.inputs = [];
-
-console.log("Running ts");
-window.addEventListener("load", (event)=>{
-    for(let e of Array.from(document.getElementsByClassName("inputLine"))){
-        window.inputs.push(new InputManager(<HTMLElement> e));
-    }
-});

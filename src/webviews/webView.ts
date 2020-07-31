@@ -47,7 +47,7 @@ export abstract class WebviewBase {
      * Function called when a message is recieved from the webview
      * @param message 
      */
-    abstract onMessage(message:webview.Message):void;
+    onMessage(message:webview.Message):void {};
 
     /**
      * Send a message to the webview, can only be called after show();

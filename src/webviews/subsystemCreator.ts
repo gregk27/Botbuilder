@@ -1,8 +1,10 @@
 import { WebviewBase } from "./webView";
 import * as vscode from "vscode";
 import { config } from "../config";
+import { webview } from "resources/html/scripts/common";
 
 export class SubsystemCreator extends WebviewBase {
+
 
     constructor(context:vscode.ExtensionContext){
         super(context, "newSubsystem", "New Subsystem", "subsystemCreator.html");

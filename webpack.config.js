@@ -10,8 +10,7 @@ module.exports = {
     },
     entry:{
         webviews: [
-            "./resources/html/scripts/argumentSelector.ts",
-            "./resources/html/scripts/inputLineManager.ts"
+            "./resources/html/scripts/inputManager.ts"
         ]
     },
     output:{
