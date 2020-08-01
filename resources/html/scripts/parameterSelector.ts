@@ -2,36 +2,44 @@
 import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
 import { webview } from "./common";
 
-export class ParameterSelector implements webview.Persistent{
+const JAVA_PRIMITIVES:ParameterItem.Type[] = [];
 
+export class ParameterSelector implements webview.Persistent{
+    
+    /** The `.parameterSelector` element */
     root: HTMLElement;
+   
+    /** The index in holding array */
     index: number;
+    /** Button used to add new parameter */
     addButton: HTMLButtonElement;
+    /** Parameters for construtor, in order */
     parameters: ParameterItem[];
+    /** Child HTML elements */
     children: HTMLCollection;
+
+    /** The constructor used to create parameters */
+    paramType: new (parent:ParameterSelector) => ParameterItem;
 
     /**
      * Create a new ParameterSelector from a `.parameterSelector` element
      * 
      * @param rootElement The `.parameterSelector` element
      * @param index The index in holding array
+     * @param paramType The type used for parameters
      */
-    constructor(rootElement:HTMLElement, index:number){
-        /** The `.parameterSelector` element */
+    constructor(rootElement:HTMLElement, index:number, paramType: new (parent:ParameterSelector) => ParameterItem){
         this.root = rootElement;
-        /** The index in holding array */
         this.index = index;
+        this.paramType = paramType;
         
-        /** Button used to add new parameter */
         this.addButton = <HTMLButtonElement> rootElement.getElementsByClassName("addParameter")[0];
 
-        /** 
-         * Parameters for construtor, in order
-         */
+
         this.parameters = [];
 
         this.addButton.onclick = () => {
-            this.parameters.push(new ParameterItem("", window.hardwareTypes.motorControllers[0].descriptor, this));
+            this.parameters.push(new paramType(this));
             this.refresh();
         };
         this.refresh();
@@ -75,14 +83,14 @@ export class ParameterSelector implements webview.Persistent{
     }
 
     /**
-     * Set the name of a particular parameter
+     * Set a property of a particular parameter
      * 
      * @param index The index of the parameter 
-     * @param input Text input with name
+     * @param id The ID for the property
+     * @param value The value for the property
      */
-    setName(index:number, input:HTMLInputElement){
-        this.parameters[index].name = input.value;
-        console.log(this.parameters);
+    setProperty(index:number, id:string, value:any){
+        this.parameters[index].setProperty(id, value);
     }
 
     /**
@@ -153,10 +161,11 @@ export class ParameterSelector implements webview.Persistent{
     fromState(data: webview.InputState): void {
         console.log(data);
         if(data.dataType === webview.InputType.PARAMETER_SELECTOR && this.root.id === data.id){
-            let payload = <{type:string, name:string}[]>data.data;
             this.parameters = [];
-            for(let p of payload){
-                this.parameters.push(new ParameterItem(p.name, p.type, this));
+            for(let d of data.data){
+                let p = new this.paramType(this);
+                p.fromState(d);
+                this.parameters.push(p);
             }
             this.refresh();
         }
@@ -169,45 +178,64 @@ export class ParameterSelector implements webview.Persistent{
             data:[]
         };
         for(let p of this.parameters){
-            out.data.push({
-                type:p.type,
-                name:p.name
-            });
+            out.data.push(p.getState());
         }
         return out;
     }
 
 }
 
-class ParameterItem {
-
-    name: string;
-    type: string;
+abstract class ParameterItem {
+    
     parent: ParameterSelector;
     parentIndex: number;
+    typeData: ParameterItem.TypeData;
+
+    type: string;
+    includePrimitives:boolean = false;
 
     validator:InputValidator;
 
     root: HTMLElement;
     dragger: HTMLElement;
-    input: HTMLInputElement;
 
     /**
      * Create a new parameter item
      * 
-     * @param {string} name 
-     * @param {string} type 
-     * @param {ParameterSelector} parent 
+     * @param parent The parent ParameterSelector
+     * @param validator The input validator to be used 
+     * 
      */
-    constructor(name:string, type:string, parent:ParameterSelector){
-        this.name = name;
-        this.type = type;
+    constructor(parent:ParameterSelector, validator:InputValidator=null, typeData: ParameterItem.TypeData){
         this.parent = parent;
         this.parentIndex = parent.index;
+        this.validator = validator;
+        this.typeData = typeData;
 
-        this.validator = new InputValidator(null, new EmptyTest(".paramName"));
-        this.validator.addTest("namechars", new RegexTest(".paramName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
-            .addTest("lowercase", new RegexTest(".paramName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g));
+        this.type = this.typeData[Object.keys(this.typeData)[0]][0].descriptor;
+    }
+
+    /**
+     * Get the HTML string for the selector object
+     * 
+     * @param index The index in the parameters array
+     * @param data The data used in constructing the selector, in the format {groupName1:[items2], groupname2:[items2]}
+     * @param addPrimitives If true, java primitives (int, double, char, etc) will be added, as well as `java.lang.String`
+     */
+    getTypeSelectorHTML(index: number, data: ParameterItem.TypeData, addPrimitives: boolean = false): string {
+        if (addPrimitives) {
+            data["Primitives"] = JAVA_PRIMITIVES;
+        }
+        let out = `<select onChange="${this.parentDescriptor}.setType(${index}, this)">\n`;
+        for (let group of Object.keys(data)) {
+            out += `<optgroup label="${group}">\n`;
+            for (let element of data[group]) {
+                out += `<option value="${element.descriptor}" ${this.type === element.descriptor ? "selected" : ""}>${element.name}</option>\n`;
+            }
+            out += `</optgroup>\n`;
+        }
+        out += "</selector>";
+        return out;
     }
 
     /**
@@ -216,55 +244,36 @@ class ParameterItem {
      * @param index The index in the parameters array
      * @return The string representation of the HTML
      */
-    getHTML(index:number){
+    getHTML(index:number): string{
         return `
         <div class="param">
             <div class="dragger">&#9776;</div>
-            <select onChange="parameterSelectors[${this.parentIndex}].setType(${index}, this)">
-                <optgroup label="Motor Controller">
-                    ${
-                        window.hardwareTypes.motorControllers.map((val)=> {
-                            return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
-                        }).join("/n")
-                    };
-                </optgroup>
-                <optgroup label="Pneumatic">
-                ${
-                    window.hardwareTypes.pneumatics.map((val)=> {
-                        return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
-                    }).join("")
-                };
-                </optgroup>
-                <optgroup label="Sensor">
-                ${
-                    window.hardwareTypes.sensors.map((val)=> {
-                        return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
-                    }).join("/n")
-                };
-                </optgroup>
-                <optgroup label="Other">
-                ${
-                    window.hardwareTypes.other.map((val)=> {
-                        return `<option value="${val.descriptor}" ${this.type === val.descriptor ? "selected" : ""}>${val.prettyName}</option>`;
-                    }).join("/n")
-                };
-                </optgroup>
-            </select>
-            <input class="paramName" type="text" value="${this.name}" onChange="parameterSelectors[${this.parentIndex}].setName(${index}, this)" />
+            ${this.getTypeSelectorHTML(index, this.typeData)}
+            ${this.getInputHTML(index)}
             <button type="button" onclick="parameterSelectors[${this.parentIndex}].removeParam(${index})">-</button>
             <div class="notif">&#9888; <span class="msg">placeholder</span></div>
         </div>`;
     }
 
     /**
+     * Get the HTML for the variable input section
+     * 
+     * @param index The index in the parameters array
+     * @return The string representation of the HTML
+     */
+    abstract getInputHTML(index:number):string;
+    
+    /**
      * Update the various listeners and references used by the parameter
      * 
      * @param root The `.param` element 
+     * @remark This function SHOULD NOT be overriden, instead use `onUpdate`, which is called by this function
      */
-    update(root:HTMLElement){
+    update(root:HTMLElement):void {
         this.root = root;
         this.validator.update(root);
 
+        // Setup drag behaviour
         this.dragger = root.querySelector(".dragger");
         console.log(this.dragger);
         this.dragger.onmousedown = (event) => {
@@ -288,21 +297,96 @@ class ParameterItem {
             this.root.style.left = event.pageX.toString()+"px";
             this.root.style.top = "calc("+event.pageY.toString()+"px - 2em)";
         };
-        
-        this.input = root.querySelector(".paramName");
-        this.input.oninput = ()=>{
+        this.onUpdate(root);
+    }
+
+    /**
+     * Set a propery on the parameter, should be called by `onchange`/`oninput` functions
+     * @param id The ID of the property
+     * @param value 
+     */
+    abstract setProperty(id:string, value:any):void;
+
+    /**
+     * Update the various listeners and references used by the parameter, called by `update`
+     * 
+     * @param root The `.param` element 
+     */
+    abstract onUpdate(root:HTMLElement):void;
+
+    /**
+     * Get a descriptor for the parent element for the HTML
+     */
+    protected get parentDescriptor():string {
+        return `parameterSelectors[${this.parentIndex}]`;
+    }
+
+    abstract fromState(data: any): void;
+    abstract getState(): any;
+}
+
+export namespace ParameterItem {
+    export interface TypeData {
+        [group:string]:Type[]
+    }
+    export interface Type {
+        descriptor:string, 
+        name:string
+    }
+}
+
+export class HardwareParameter extends ParameterItem {
+
+    name:string = "";
+    
+    input: HTMLInputElement;
+
+    constructor(parent:ParameterSelector){
+        super(parent, 
+            new InputValidator(null, new EmptyTest(".input"))
+            .addTest("namechars", new RegexTest(".input", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
+            .addTest("lowercase", new RegexTest(".input", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g)),
+            window.hardwareTypes);
+    }
+
+    getInputHTML(index: number): string {
+        return `<input class="input" type="text" value="${this.name}" onChange="${this.parentDescriptor}.setProperty(${index}, 'name', this)" />`;
+    }
+
+    setProperty(id: string, value: any): void {
+        if(id === "name"){
+            this.name = (<HTMLInputElement>value).value;
+        }
+    }
+
+    onUpdate(root: HTMLElement): void {        
+        this.input = root.querySelector(".input");
+        this.input.oninput = () => {
             this.validator.validate(false);
         };
     }
+
+
+    fromState(data: {type:string, name:string}): void {
+        this.type = data.type;
+        this.name = data.name;
+    }
+
+    getState(): {type:string, name:string} {
+        return {
+            type:this.type,
+            name:this.name
+        };    
+    }
+
 }
 
 declare global {
     interface Window {
-        hardwareTypes:{
-            motorControllers: {name:string;prettyName:string;descriptor:string;}[],
-            pneumatics: {name:string;prettyName:string;descriptor:string;}[],
-            sensors: {name:string;prettyName:string;descriptor:string;}[],
-            other: {name:string;prettyName:string;descriptor:string;}[]
-        };
+        hardwareTypes:ParameterItem.TypeData;
+        HardwareParameter: any;
     }
 }
+
+// Parameter types need to be added to the window so they can be instantiated at runtime
+window.HardwareParameter = HardwareParameter;

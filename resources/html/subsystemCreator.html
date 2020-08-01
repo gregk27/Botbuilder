@@ -2,7 +2,7 @@
 <head>
     <link rel="stylesheet" type="text/css" href="dev.css"> 
     <link rel="stylesheet" type="text/css" href="style.css"> 
-    <link rel="stylesheet" type="text/css" href="hardwareSelect.css"> 
+    <link rel="stylesheet" type="text/css" href="parameterSelector.css"> 
     <script>
         var hardwareTypes = JSON.parse('${HARDWARE_TYPES}');
     </script>
@@ -55,7 +55,7 @@
         </div>
     </div>
     
-    <div class="parameterSelector" id="hardware">
+    <div class="parameterSelector" id="hardware" data-param-class="HardwareParameter">
         <button class="addParameter" id="addButton">Add Hardware</button>
         <h2>Hardware</h2>
         <div class="params">

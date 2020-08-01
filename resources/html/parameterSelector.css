@@ -10,7 +10,7 @@
     display:grid;
     grid-template-areas: 
     "none notif notif notif notif"
-    "grab type pad name del";
+    "grab type  pad   input del";
     grid-template-columns: 2em 1fr 2em 2fr 2em;
     margin: 1em 0;
 }
@@ -38,8 +38,8 @@
     grid-area: type;
 }
 
-.parameterSelector .param .paramName {
-    grid-area: name;
+.parameterSelector .param .input {
+    grid-area: input;
 }
 
 .parameterSelector .param button {

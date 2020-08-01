@@ -1,5 +1,5 @@
 import { InputLine } from "./inputLine";
-import { ParameterSelector } from "./parameterSelector";
+import { ParameterSelector, HardwareParameter } from "./parameterSelector";
 import { webview } from "./common";
 
 declare global {
@@ -24,6 +24,8 @@ declare global {
          * Function to send a message to the backend
          */
         sendMessage: (message:webview.Message)=>void;
+
+        [key:string]: any;
     }
 }
 
@@ -36,7 +38,8 @@ window.addEventListener("load", (event)=>{
         window.inputs.push(new InputLine(<HTMLElement> e));
     }
     for(let e of Array.from(document.getElementsByClassName("parameterSelector"))){
-        window.parameterSelectors.push(new ParameterSelector(<HTMLElement> e, window.parameterSelectors.length));
+        // Instantiate ParameterSelector using a type attached to the window
+        window.parameterSelectors.push(new ParameterSelector(<HTMLElement> e, window.parameterSelectors.length, window[e.getAttribute("data-param-class")].prototype.constructor));
         console.log("Added parameter");
         console.log(window.parameterSelectors);
     }
