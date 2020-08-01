@@ -2,7 +2,17 @@
 import { InputValidator, EmptyTest, InputTest, RegexTest } from "./inputValidator";
 import { webview } from "./common";
 
-const JAVA_PRIMITIVES:ParameterItem.Type[] = [];
+const JAVA_PRIMITIVES:ParameterItem.Type[] = [
+    {descriptor:"B",name:"byte"},
+    {descriptor:"Z",name:"boolean"},
+    {descriptor:"C",name:"char"},
+    {descriptor:"S",name:"short"},
+    {descriptor:"I",name:"int"},
+    {descriptor:"F",name:"float"},
+    {descriptor:"L",name:"long"},
+    {descriptor:"D",name:"double"},
+    {descriptor:"java.lang.String",name:"String"}
+];
 
 export class ParameterSelector implements webview.Persistent{
     
@@ -219,7 +229,7 @@ abstract class ParameterItem {
      * Get the HTML string for the selector object
      * 
      * @param index The index in the parameters array
-     * @param data The data used in constructing the selector, in the format {groupName1:[items2], groupname2:[items2]}
+     * @param data The data used in constructing the selector, in the format {groupName1:[items2], groupname2:[items2]}. **NOTE:** If a groupName is `""`, that group will be listed at the top-level first.
      * @param addPrimitives If true, java primitives (int, double, char, etc) will be added, as well as `java.lang.String`
      */
     getTypeSelectorHTML(index: number, data: ParameterItem.TypeData, addPrimitives: boolean = false): string {
@@ -227,14 +237,20 @@ abstract class ParameterItem {
             data["Primitives"] = JAVA_PRIMITIVES;
         }
         let out = `<select onChange="${this.parentDescriptor}.setType(${index}, this)">\n`;
+        if("" in data){
+            for (let element of data[""]) {
+                out += `<option value="${element.descriptor}" ${this.type === element.descriptor ? "selected" : ""}>${element.name}</option>\n`;
+            }
+        }
         for (let group of Object.keys(data)) {
+            if(group === ""){continue;} // This group has already been handled
             out += `<optgroup label="${group}">\n`;
             for (let element of data[group]) {
                 out += `<option value="${element.descriptor}" ${this.type === element.descriptor ? "selected" : ""}>${element.name}</option>\n`;
             }
             out += `</optgroup>\n`;
         }
-        out += "</selector>";
+        out += "</select>";
         return out;
     }
 
@@ -248,7 +264,7 @@ abstract class ParameterItem {
         return `
         <div class="param">
             <div class="dragger">&#9776;</div>
-            ${this.getTypeSelectorHTML(index, this.typeData)}
+            ${this.getTypeSelectorHTML(index, this.typeData, this.includePrimitives)}
             ${this.getInputHTML(index)}
             <button type="button" onclick="parameterSelectors[${this.parentIndex}].removeParam(${index})">-</button>
             <div class="notif">&#9888; <span class="msg">placeholder</span></div>
