@@ -452,7 +452,7 @@ export class SubsystemParameter extends ParameterItem {
             type:this.type,
             name:this.name,
             required:this.required
-        }
+        };
     }
 
 }
