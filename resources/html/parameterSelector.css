@@ -13,6 +13,7 @@
     "grab type  pad   input del";
     grid-template-columns: 2em 1fr 2em 2fr 2em;
     margin: 1em 0;
+    min-width: 400px;
 }
 
 .parameterSelector .param * {

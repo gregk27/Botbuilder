@@ -421,7 +421,7 @@ export class SubsystemParameter extends ParameterItem {
         return `
         <div class="input" style="display:table">
             <input style="display:table-cell;width:100%" class="paramName" type="text" value="${this.name}" onChange="${this.parentDescriptor}.setProperty(${index}, 'name', this)"/>
-            <div style="display:table-cell;width:1px;padding-right:0.5em;user-select:none">
+            <div style="display:table-cell;width:1px;padding-left:1em;user-select:none">
                 <nobr>
                 <input type="checkbox" id="${this.parentDescriptor}[${index}]">
                 <label for="${this.parentDescriptor}[${index}]">Required</label>
