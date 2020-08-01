@@ -23,6 +23,14 @@ h1 {
     grid-template-columns: minmax(100px, 1fr) 3fr 1fr 2em;
     margin-bottom:1em;
 }
+
+.comboLine {
+    display:flex;
+}
+
+.comboLine>.inputLine {
+    min-width: 0;
+}
   
 .inputLine .notif {
     grid-area: notif;

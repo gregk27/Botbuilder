@@ -1,5 +1,6 @@
 import { InputValidator, RegexTest, EmptyTest } from "./inputValidator";
 import { webview } from "./common";
+import { rootCertificates } from "tls";
 
 const dataPattern = new RegExp(/^data-filter-(\w+)-(\w+)/g);
 
@@ -66,19 +67,22 @@ export class InputLine implements webview.Persistent{
                 this.override.checked = true;
             }
 
-            this.override.onchange = ()=>{
+            this.override.addEventListener("change", ()=>{
                 this.input.disabled = !this.override.checked;
-            };
+            });
         }
 
         this.initialValue = this.input.value;
-        this.input.oninput = ()=>{
+        this.input.addEventListener("input", ()=>{
             this.validate(false);
-        };
+        });
 
         if(this.resetButton !== null){
             this.resetButton.onclick = ()=>{
                 this.input.value = this.initialValue;
+                if(e.hasAttribute("data-onreset")){
+                    eval(e.getAttribute("data-onreset"));
+                }
                 this.validate(false);
             };
         }

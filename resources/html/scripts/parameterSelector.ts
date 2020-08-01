@@ -48,10 +48,10 @@ export class ParameterSelector implements webview.Persistent{
 
         this.parameters = [];
 
-        this.addButton.onclick = () => {
+        this.addButton.addEventListener("click", () => {
             this.parameters.push(new paramType(this));
             this.refresh();
-        };
+        });
         this.refresh();
     }
 

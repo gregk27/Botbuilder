@@ -13,6 +13,35 @@
                 console.log(getData());
             }
         }
+
+        const BASE_PACKAGE = "${PACKAGE}";
+        const AUTO_PACKAGE = "${PACKAGE_AUTO}";
+        const INSTANT_PACKAGE = "${PACKAGE_INSTANT}";
+        const AUTO_INSTANT_PACKAGE = "${PACKAGE_AUTO_INSTANT}";
+        function setPackage(){
+            let isAuto = document.getElementById("auto").checked;
+            let isInstant = document.getElementById("instant").checked;
+            let pckgInput = document.getElementById("package");
+
+            if(isAuto && isInstant){
+                pckgInput.value = pckgInput.value.replace(BASE_PACKAGE, AUTO_INSTANT_PACKAGE)
+                        .replace(AUTO_PACKAGE, AUTO_INSTANT_PACKAGE)
+                        .replace(INSTANT_PACKAGE, AUTO_INSTANT_PACKAGE)
+            } else if (isAuto){
+                pckgInput.value = pckgInput.value.replace(BASE_PACKAGE, AUTO_PACKAGE)
+                        .replace(INSTANT_PACKAGE, AUTO_PACKAGE)
+                        .replace(AUTO_INSTANT_PACKAGE, AUTO_PACKAGE);
+            } else if (isInstant){
+                pckgInput.value = pckgInput.value.replace(BASE_PACKAGE, INSTANT_PACKAGE)
+                        .replace(AUTO_PACKAGE, INSTANT_PACKAGE)
+                        .replace(AUTO_INSTANT_PACKAGE, INSTANT_PACKAGE);
+            } else {
+                pckgInput.value = pckgInput.value.replace(AUTO_PACKAGE, BASE_PACKAGE)
+                        .replace(INSTANT_PACKAGE, BASE_PACKAGE)
+                        .replace(AUTO_INSTANT_PACKAGE, BASE_PACKAGE);
+            }
+            
+        }
     </script>
 </head>
 <body>
@@ -40,7 +69,8 @@
         </div>
 
         <div class="inputLine"
-
+        
+        data-onreset="setPackage()"
         data-verifier-noempty="true">
             <div class="notif">&#9888; <span class="msg">placeholder</span></div>
             <label for="package">Package:</label>
@@ -51,12 +81,29 @@
                     for="overridePackage">Override</label></div>
         </div>
         
+        <div class="comboLine">
+            <div class="inputLine">
+                <div class="notif err">&#9888; <span class="msg">placeholder</span></div>
+                <label for="auto">Auto:</label>
+                <input type="checkbox" class="input" id="auto" style="margin-top: 0.3em;" onchange="setPackage()"/>
+                <span class="desc">Make the command autonomous</span>
+            </div>
+
+            <div class="inputLine">
+                <div class="notif err">&#9888; <span class="msg">placeholder</span></div>
+                <label for="instant">Instant:</label>
+                <input type="checkbox" class="input" id="instant" style="margin-top: 0.3em;" onchange="setPackage()"/>
+                <span class="desc">Make the command instant</span>
+            </div>
+        </div>
+
         <div class="inputLine">
             <div class="notif err">&#9888; <span class="msg">placeholder</span></div>
             <label for="createTest">Create Test:</label>
             <input type="checkbox" class="input" id="createTest" style="margin-top: 0.3em;" checked/>
             <span class="desc">If checked, a test class will be created automatically</span>
         </div>
+
     </div>
     
     <div class="parameterSelector" id="hardware" data-param-class="SubsystemParameter">
