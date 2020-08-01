@@ -64,6 +64,8 @@ export class ParameterSelector implements webview.Persistent{
             html += this.parameters[i].getHTML(i);
         }
         this.root.getElementsByClassName("params")[0].innerHTML = html;
+        console.log(html);
+        console.log(this.root.innerHTML);
 
         this.children = this.root.getElementsByClassName("param");
         for(let i=0; i<this.children.length; i++){
@@ -222,7 +224,9 @@ abstract class ParameterItem {
         this.validator = validator;
         this.typeData = typeData;
 
-        this.type = this.typeData[Object.keys(this.typeData)[0]][0].descriptor;
+        let a = Object.keys(this.typeData)[0];
+        let b = this.typeData[a][0];
+        this.type = b.descriptor;
     }
 
     /**
@@ -397,12 +401,72 @@ export class HardwareParameter extends ParameterItem {
 
 }
 
+export class SubsystemParameter extends ParameterItem {
+
+    name:string = "";
+    required:boolean = false;
+
+    nameInput:HTMLInputElement;
+    requiredCheck:HTMLInputElement;
+
+    constructor(parent:ParameterSelector){
+        super(parent, 
+            new InputValidator(null, new EmptyTest(".input .paramName", ""))
+            .addTest("namechars", new RegexTest(".input .paramName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
+            .addTest("lowercase", new RegexTest(".input .paramName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g)), 
+            window.subsystems);
+    }
+
+    getInputHTML(index: number): string {
+        return `
+        <div class="input" style="display:table">
+            <input style="display:table-cell;width:100%" class="paramName" type="text" value="${this.name}" onChange="${this.parentDescriptor}.setProperty(${index}, 'name', this)"/>
+            <div style="display:table-cell;width:1px;padding-right:0.5em;user-select:none">
+                <nobr>
+                <input type="checkbox" id="${this.parentDescriptor}[${index}]">
+                <label for="${this.parentDescriptor}[${index}]">Required</label>
+                </nobr>
+            </div>
+        </div>`;
+    }
+    setProperty(id: string, value: any): void {
+        if(id === "name"){
+            this.name = value.value;
+        } else if(id==="requried"){
+            this.required = value.checked;
+        }
+    }
+    onUpdate(root: HTMLElement): void {
+        this.nameInput = root.querySelector(".input .paramName");
+        this.nameInput.oninput = () => {
+            this.validator.validate(false);
+        };
+    }
+    fromState(data: {type:string, name:string, required:boolean}): void {
+        this.type = data.type;
+        this.name = data.name;
+        this.required = data.required;
+    }
+    getState(): {type:string, name:string, required:boolean} {
+        return {
+            type:this.type,
+            name:this.name,
+            required:this.required
+        }
+    }
+
+}
+
 declare global {
     interface Window {
         hardwareTypes:ParameterItem.TypeData;
         HardwareParameter: any;
+
+        subsystems:ParameterItem.TypeData;
+        SubsystemParameter: any;
     }
 }
 
 // Parameter types need to be added to the window so they can be instantiated at runtime
 window.HardwareParameter = HardwareParameter;
+window.SubsystemParameter = SubsystemParameter;
