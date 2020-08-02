@@ -11,7 +11,8 @@ export class DataProvider implements vscode.TreeDataProvider<TreeElementBase> {
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<TreeElementBase | undefined> = new vscode.EventEmitter<TreeElementBase | undefined>();
-    onDidChangeTreeData?: vscode.Event<void | TreeElementBase>;
+    readonly onDidChangeTreeData: vscode.Event<TreeElementBase | undefined> = this._onDidChangeTreeData.event;
+
     
         
     public refresh(){

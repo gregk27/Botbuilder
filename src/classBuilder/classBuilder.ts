@@ -1,4 +1,5 @@
 import { Scope } from "../javaParser/common";
+import * as fs from "fs";
 
 export class ClassBuilder {
 
@@ -55,7 +56,7 @@ export class ClassBuilder {
     this.imports = [];
 
     // Package declaration + imports
-    let out = `package ${this.pckg.replace(/\//g, ".")}\n\n`;
+    let out = `package ${this.pckg.replace(/\//g, ".")};\n\n`;
     out += `{IMPORTS}\n`;
     // Class declaration
     out += getDocString(this.doc)+"\n";
@@ -80,6 +81,11 @@ export class ClassBuilder {
 
     out += "}";
     return out.replace("{IMPORTS}", this.getImports()).trim();
+  }
+
+  writeFile(basePath:string){
+    let path = basePath+"/"+this.pckg.replace(/\./g, "/")+"/"+this.name+".java";
+    fs.writeFileSync(path, this.getCode());
   }
 
 
@@ -237,8 +243,12 @@ export namespace ClassBuilder {
       out += this.scope === Scope.DEFAULT ? "" : this.scope+" ";
       out += this.isStatic ? "static " : "";
       out += this.isFinal ? "final ": "";
-      out += (this.returnType?.type || "void") + " ";
-      out += (this.name || className);
+      if(this.name === null || this.name === className){
+        out += className;
+      } else {
+        out += (this.returnType?.type || "void") + " ";
+        out += this.name;
+      }
       out += "(";
       if(this.params !== null && this.params.length > 0){
         for(let p of this.params){

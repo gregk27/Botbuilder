@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 	let newSubsystemCommand = vscode.commands.registerCommand('ler-botbuilder.newSubsystem', ()=>{
-		new SubsystemCreator(context).show();
+		new SubsystemCreator(context, vscode.workspace.rootPath+"/src/main/java").show();
 	});
 	let newCommandCommand = vscode.commands.registerCommand('ler-botbuilder.newCommand', ()=>{
 		new CommandCreator(context).show();

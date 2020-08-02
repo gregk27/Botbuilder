@@ -8,14 +8,13 @@ import { getClassDetail } from "../javaParser/parserFunctions";
 
 export class SubsystemCreator extends WebviewBase {
 
-
-    constructor(context:vscode.ExtensionContext){
+    constructor(context:vscode.ExtensionContext, private basepath:string){
         super(context, "newSubsystem", "New Subsystem", "subsystemCreator.html");
     }
 
     public getHTML():string{
         return this.html
-            .replace(/\${PACKAGE}/g, "ca.ler.robot.subsystems")
+            .replace(/\${PACKAGE}/g, "ler.robot.subsystems")
             .replace(/\${HARDWARE_TYPES}/g, JSON.stringify(config.hardwareTypes));
     }
 
@@ -42,6 +41,7 @@ export class SubsystemCreator extends WebviewBase {
 
         let builder = new ClassBuilder(payload["package"].data, payload["name"].data, Scope.PUBLIC, {import:"edu.wpi.first.wpilibj2.command.SubsystemBase", type:"SubsystemBase"}, [], fields, [constructor], "TODO:Add doc");
         console.log(builder.getCode());
+        builder.writeFile(this.basepath);
     }
 
     
