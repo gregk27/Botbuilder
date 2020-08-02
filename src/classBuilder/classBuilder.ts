@@ -86,6 +86,7 @@ export class ClassBuilder {
   writeFile(basePath:string){
     let path = basePath+"/"+this.pckg.replace(/\./g, "/")+"/"+this.name+".java";
     fs.writeFileSync(path, this.getCode());
+    return path;
   }
 
 

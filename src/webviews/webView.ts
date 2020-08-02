@@ -36,19 +36,19 @@ export abstract class WebviewBase {
      * Called internally when a message is recieved, calls onMessage
      * @param message 
      */
-    private preOnMessage(message:webview.Message){
+    private preOnMessage(message:webview.Message, panel:vscode.WebviewPanel){
         if(message.id === "update"){
             console.log(<webview.InputState[]> message.payload);
             this.state = <webview.InputState[]> message.payload;
         }
-        this.onMessage(message);
+        this.onMessage(message, panel);
     }
 
     /**
      * Function called when a message is recieved from the webview
      * @param message 
      */
-    onMessage(message:webview.Message):void {};
+    onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {};
 
     /**
      * Send a message to the webview, can only be called after show();
@@ -82,12 +82,14 @@ export abstract class WebviewBase {
 
         console.log(this.html);
         panel.webview.html = this.getHTML();
-        panel.webview.onDidReceiveMessage(this.preOnMessage, this);
+        panel.webview.onDidReceiveMessage((message:any)=>{
+            this.preOnMessage(message, panel);
+        });
         panel.onDidChangeViewState((event)=>{
             this.sendMessage({
                 id:"setState",
                 payload: this.state
-            })
+            });
         });
         this.sendMessage = (message:webview.Message)=>{
             panel.webview.postMessage(message);

@@ -5,6 +5,7 @@ import { webview } from "resources/html/scripts/common";
 import { ClassBuilder } from "../classBuilder/classBuilder";
 import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
+import { Linkable } from "src/treeView/codeElements";
 
 export class SubsystemCreator extends WebviewBase {
 
@@ -18,13 +19,22 @@ export class SubsystemCreator extends WebviewBase {
             .replace(/\${HARDWARE_TYPES}/g, JSON.stringify(config.hardwareTypes));
     }
 
-    onMessage(message:webview.Message):void {
+    onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {
         if(message.id === "submit"){
-            this.buildClass(message.payload);
+            let file = this.buildClass(message.payload);
+            panel.dispose();
+            vscode.commands.executeCommand("ler-botbuilder.openFile", <Linkable>{
+                getTarget(){
+                    return{
+                        file,
+                        line:-1
+                    };
+                }
+            });
         }
     }
 
-    buildClass(payload: {[key:string]: webview.InputState}){
+    buildClass(payload: {[key:string]: webview.InputState}):string{
         let fields:ClassBuilder.Field[] = [];
         let constructorParams:ClassBuilder.MethodParam[] = [];
         let constructorBody = "";
@@ -41,7 +51,7 @@ export class SubsystemCreator extends WebviewBase {
 
         let builder = new ClassBuilder(payload["package"].data, payload["name"].data, Scope.PUBLIC, {import:"edu.wpi.first.wpilibj2.command.SubsystemBase", type:"SubsystemBase"}, [], fields, [constructor], "TODO:Add doc");
         console.log(builder.getCode());
-        builder.writeFile(this.basepath);
+        return builder.writeFile(this.basepath);
     }
 
     
