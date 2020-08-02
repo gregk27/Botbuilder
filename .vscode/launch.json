@@ -6,6 +6,16 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "ClassBuilder test",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/src/test/classBuilderTest.ts",
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "${defaultBuildTask}"
+		},
+		{
 			"name":"Parser test",
 			"type": "node",
 			"request": "launch",
