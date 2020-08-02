@@ -11,15 +11,17 @@ export class ClassBuilder {
     public superclass: ClassBuilder.Class,
     public interfaces: ClassBuilder.Class[],
     public fields: ClassBuilder.Field[],
-    // public method: ClassBuilder.Method[],
+    public methods: ClassBuilder.Method[],
     public doc: string
   ) {
 
   }
 
   addImport(imp: string): void {
-    if(!this.imports.includes(imp)){
-      this.imports.push(imp);
+    if(imp !== null){
+      if(!this.imports.includes(imp)){
+        this.imports.push(imp);
+      }
     }
   }
 
@@ -34,13 +36,13 @@ export class ClassBuilder {
   getSupers(): string {
     let out = "";
     if(this.superclass !== null){
-      out += `extends ${this.superclass.name} `;
+      out += `extends ${this.superclass.type} `;
       this.addImport(this.superclass.import);
     }
     if(this.interfaces.length !== 0){
       out += "implements ";
       for(let i of this.interfaces){
-        out += i.name+", ";
+        out += i.type+", ";
         this.addImport(i.import);
       }
       out = out.slice(0, -2);
@@ -62,6 +64,16 @@ export class ClassBuilder {
       for(let f of this.fields){
         out += "\t"+f.getCode().replace(/\n/g, "\n\t")+"\n";
         this.addImport(f.type.import);
+      }
+    }
+    out += "\n\n";
+    // Methods
+    if(this.methods !== null){
+      for(let m of this.methods){
+        out += "\t"+m.getCode(this.name).replace(/\n/g, "\n\t")+"\n\n";
+        if(m.returnType !== null){
+          this.addImport(m.returnType.import);
+        }
       }
     }
 
@@ -90,7 +102,7 @@ export namespace ClassBuilder {
     /**
      * The name of the class, will be used in delcarations
      */
-    name: string,
+    type: string,
     /**
      * The import needed for this class
      * @remark This value should be `null` if no import is needed (E.g. primitives)
@@ -104,6 +116,17 @@ export namespace ClassBuilder {
      */
     isArray: boolean
 
+  }
+
+  export interface MethodParam extends Type {
+    /**
+     * The type of the parameter
+     */
+    name:string;
+    /**
+     * The doc for `@param`
+     */
+    doc:string;
   }
 
   /**
@@ -152,12 +175,83 @@ export namespace ClassBuilder {
       out += this.scope === Scope.DEFAULT ? "" : this.scope+" ";
       out += this.isStatic ? "static " : "";
       out += this.isFinal ? "final ": "";
-      out += this.type.name + " ";
+      out += this.type.type + " ";
       out += this.name;
       out += this.initVal !== null ? " = "+this.initVal : "";
       return out+";";
     }
   }
 
+  
+  /**
+   * Interface used to pass information about methods
+   */
+  export class Method {
+    constructor(
+      /**
+       * The return type of the method
+       * @remark To return void, make this value `null`
+       */
+      public returnType: Type,
+      /**
+       * The name of the method
+       * @remark If the value is `CONSTRUCTOR`, the method will be a constructor
+       */
+      public name: string,
+      /**
+       * The method parameters
+       */
+      public params: MethodParam[],
+      /**
+       * Scope of the method
+       */
+      public scope: Scope = Scope.DEFAULT,
+      /**
+       * The method documentation (note: `@param` values will be taken from args' doc)
+       */
+      public doc: string = null,
+      /**
+       * Boolean indicating if the method is final
+       */
+      public isFinal: boolean = false,
+      /**
+       * Boolean indicating if the method is static
+       */
+      public isStatic: boolean = false,
+      /**
+       * The method body, as a string
+       */
+      public body: string = null
+    ) {
+    }
+
+    
+    getCode(className:string){
+      let out = "";
+      let doc = "";
+      if(this.doc !== null){
+        doc = getDocString(this.doc);
+        doc = doc.slice(0,doc.lastIndexOf(" */"));
+      }
+      out += this.scope === Scope.DEFAULT ? "" : this.scope+" ";
+      out += this.isStatic ? "static " : "";
+      out += this.isFinal ? "final ": "";
+      out += (this.returnType?.type || "void") + " ";
+      out += (this.name || className);
+      out += "(";
+      if(this.params !== null && this.params.length > 0){
+        for(let p of this.params){
+          out += p.type + " " + p.name+", ";
+          if(p.doc !== null){
+            doc += ` * @param ${p.name} ${p.doc.substring(0, p.doc.indexOf("\n"))}\n`;
+          }
+        }
+        out = out.slice(0, -2);
+      }
+      out += ") {\n";
+      out += "\t"+this.body.replace(/\n/g, "\n\t") || "//TODO: Auto generated method stub";
+      return doc+" */\n"+out+"\n}";
+    }
+  }
 
 }
