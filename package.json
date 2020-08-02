@@ -33,6 +33,11 @@
 				"command": "ler-botbuilder.newSubsystem",
 				"title": "Botbuilder: New Subsystem",
 				"icon": "$(plus)"
+			},
+			{
+				"command": "ler-botbuilder.newCommand",
+				"title": "Botbuilder: New Command",
+				"icon": "$(plus)"
 			}
 		],
 		"viewsContainers": {
@@ -70,6 +75,11 @@
 				{
 					"command": "ler-botbuilder.newSubsystem",
 					"when": "view == subsystems",
+					"group": "navigation"
+				},
+				{
+					"command": "ler-botbuilder.newCommand",
+					"when": "view == commands",
 					"group": "navigation"
 				}
 			],

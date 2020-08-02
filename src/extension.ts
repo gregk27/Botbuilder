@@ -6,6 +6,7 @@ import { DataProvider } from './treeView/dataProvider';
 import { Loader } from './treeView/loader';
 import { Command, Subsystem } from './treeView/treeType';
 import { SubsystemCreator } from './webviews/subsystemCreator';
+import { CommandCreator } from './webviews/commandCreator';
 
 let providers:DataProvider[] = [];
 let loader = new Loader(vscode.workspace.rootPath);
@@ -47,6 +48,9 @@ export function activate(context: vscode.ExtensionContext) {
 	let newSubsystemCommand = vscode.commands.registerCommand('ler-botbuilder.newSubsystem', ()=>{
 		new SubsystemCreator(context).show();
 	});
+	let newCommandCommand = vscode.commands.registerCommand('ler-botbuilder.newCommand', ()=>{
+		new CommandCreator(context).show();
+	});
 
 	loader.load().then(()=>{
 		console.log("Registering");
@@ -66,6 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(refreshCommand);
 	context.subscriptions.push(openCommand);
 	context.subscriptions.push(newSubsystemCommand);
+	context.subscriptions.push(newCommandCommand);
 }
 
 
@@ -96,10 +101,10 @@ function refresh(timeout = 0){
 	}, timeout);
 }
 
-function getSubsystems(): Subsystem[]{
+export function getSubsystems(): Subsystem[]{
 	return loader.subsystems;
 }
 
-function getCommands(): Command[]{
+export function getCommands(): Command[]{
 	return loader.commands;
 }
