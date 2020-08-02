@@ -10,7 +10,10 @@
     <script>
         function submit(){
             if(validate()){
-                console.log(getData());
+                sendMessage({
+                    id:"submit",
+                    payload:getNamedData()
+                })
             }
         }
     </script>

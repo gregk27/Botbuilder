@@ -21,6 +21,10 @@ declare global {
          */
         getData: ()=>webview.InputState[];
         /**
+         * Function to get data from inputs
+         */
+        getNamedData: ()=>{[key:string]: webview.InputState};
+        /**
          * Function to send a message to the backend
          */
         sendMessage: (message:webview.Message)=>void;
@@ -118,5 +122,17 @@ window.getData = ()=>{
     for(let a of window.parameterSelectors){
         data.push(a.getState());
     }
+    return data;
+};
+
+window.getNamedData = ()=>{
+    let data: {[key:string]: webview.InputState} = {};
+    for(let i of window.inputs){
+        data[i.input.id] = i.getState();
+    }
+    for(let a of window.parameterSelectors){
+        data[a.root.id] = a.getState();
+    }
+
     return data;
 };

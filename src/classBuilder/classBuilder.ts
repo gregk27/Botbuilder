@@ -12,7 +12,8 @@ export class ClassBuilder {
     public interfaces: ClassBuilder.Class[],
     public fields: ClassBuilder.Field[],
     public methods: ClassBuilder.Method[],
-    public doc: string
+    public doc: string=null,
+    public body:string=null
   ) {
 
   }
@@ -243,13 +244,20 @@ export namespace ClassBuilder {
         for(let p of this.params){
           out += p.type + " " + p.name+", ";
           if(p.doc !== null){
-            doc += ` * @param ${p.name} ${p.doc.substring(0, p.doc.indexOf("\n"))}\n`;
+            if(p.doc.includes("\n")){
+              p.doc = p.doc.substring(0, p.doc.lastIndexOf("\n"));
+            }
+            doc += ` * @param ${p.name} ${p.doc}\n`;
           }
         }
         out = out.slice(0, -2);
       }
       out += ") {\n";
-      out += "\t"+this.body.replace(/\n/g, "\n\t") || "//TODO: Auto generated method stub";
+      if(this.body === null){
+        out +=  "\t//TODO: Auto generated method stub";
+      } else {
+        out += "\t"+this.body.replace(/\n/g, "\n\t");
+      }
       return doc+" */\n"+out+"\n}";
     }
   }
