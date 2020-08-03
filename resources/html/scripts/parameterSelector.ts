@@ -267,7 +267,7 @@ abstract class ParameterItem {
     getHTML(index:number): string{
         return `
         <div class="param">
-            <div class="dragger">&#9776;</div>
+            <div class="dragger"><span style="display:block;margin-top:55%">&#9776;</span></div>
             ${this.getTypeSelectorHTML(index, this.typeData, this.includePrimitives)}
             ${this.getInputHTML(index)}
             <button type="button" onclick="parameterSelectors[${this.parentIndex}].removeParam(${index})">-</button>
@@ -358,44 +358,60 @@ export namespace ParameterItem {
 export class HardwareParameter extends ParameterItem {
 
     name:string = "";
+    doc:string = "";
     
-    input: HTMLInputElement;
+    nameInput: HTMLInputElement;
+    docInput: HTMLInputElement;
 
     constructor(parent:ParameterSelector){
         super(parent, 
             new InputValidator(null, new EmptyTest(".input"))
-            .addTest("namechars", new RegexTest(".input", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
-            .addTest("lowercase", new RegexTest(".input", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g)),
+            .addTest("namechars", new RegexTest(".input .argName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
+            .addTest("lowercase", new RegexTest(".input .argName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g))
+            .addTest("docescape", new RegexTest(".input .argDoc", "Javadoc cannot contain sequence \"*/\"", 25, /^((?!\*\/).)*$/g)),
             window.hardwareTypes);
     }
 
     getInputHTML(index: number): string {
-        return `<input class="input" type="text" value="${this.name}" onChange="${this.parentDescriptor}.setProperty(${index}, 'name', this)" />`;
+        return `
+        <div class="input">
+            <input class="argName" placeholder="name" type="text" value="${this.name}" oninput="${this.parentDescriptor}.setProperty(${index}, 'name', this)" /><br/>
+            <input style="margin-top:5px" class="argDoc" placeholder="Javadoc" type="text" value="${this.doc}" oninput="${this.parentDescriptor}.setProperty(${index}, 'doc', this)" />
+        </div>`;
     }
 
     setProperty(id: string, value: any): void {
         if(id === "name"){
             this.name = (<HTMLInputElement>value).value;
+        } else if(id === "doc"){
+            this.doc = (<HTMLInputElement>value).value;
         }
     }
 
     onUpdate(root: HTMLElement): void {        
-        this.input = root.querySelector(".input");
-        this.input.oninput = () => {
+        this.nameInput = root.querySelector(".input .argName");
+        this.docInput = root.querySelector(".input .argDoc");
+        this.validator.update(root);
+        this.nameInput.addEventListener("input", () => {
             this.validator.validate(false);
-        };
+        });
+        this.docInput.addEventListener("input", () => {
+            this.validator.validate(false);
+        });
     }
 
 
-    fromState(data: {type:string, name:string}): void {
+    fromState(data: {type:string, name:string, doc:string}): void {
         this.type = data.type;
         this.name = data.name;
+        this.doc = data.doc;
     }
 
-    getState(): {type:string, name:string} {
+    getState(): {type:string, name:string, doc:string} {
         return {
             type:this.type,
-            name:this.name
+            name:this.name,
+            doc:this.doc
         };    
     }
 
@@ -405,9 +421,11 @@ export class SubsystemParameter extends ParameterItem {
 
     name:string = "";
     required:boolean = false;
+    doc:string = "";
 
     nameInput:HTMLInputElement;
     requiredCheck:HTMLInputElement;
+    docInput:HTMLInputElement;
 
     constructor(parent:ParameterSelector){
         super(parent, 
@@ -419,14 +437,17 @@ export class SubsystemParameter extends ParameterItem {
 
     getInputHTML(index: number): string {
         return `
-        <div class="input" style="display:table">
-            <input style="display:table-cell;width:100%" class="paramName" type="text" value="${this.name}" onChange="${this.parentDescriptor}.setProperty(${index}, 'name', this)"/>
-            <div style="display:table-cell;width:1px;padding-left:1em;user-select:none">
-                <nobr>
-                <input type="checkbox" id="${this.parentDescriptor}[${index}]">
-                <label for="${this.parentDescriptor}[${index}]">Required</label>
-                </nobr>
+        <div class="input">
+            <div style="display:table;width:-webkit-fill-available">
+                <input style="display:table-cell;width:100%" class="paramName" placeholder="name" type="text" value="${this.name}" onChange="${this.parentDescriptor}.setProperty(${index}, 'name', this)"/>
+                <div style="display:table-cell;width:1px;padding-left:1em;user-select:none">
+                    <nobr>
+                    <input type="checkbox" id="${this.parentDescriptor}[${index}]">
+                    <label for="${this.parentDescriptor}[${index}]">Required</label>
+                    </nobr>
+                </div> 
             </div>
+            <input style="margin-top:5px" class="argDoc" placeholder="Javadoc" type="text" value="${this.doc}" oninput="${this.parentDescriptor}.setProperty(${index}, 'doc', this)" />
         </div>`;
     }
     setProperty(id: string, value: any): void {
@@ -434,24 +455,33 @@ export class SubsystemParameter extends ParameterItem {
             this.name = value.value;
         } else if(id==="requried"){
             this.required = value.checked;
+        } else if(id === "doc"){
+            this.doc = (<HTMLInputElement>value).value;
         }
     }
     onUpdate(root: HTMLElement): void {
         this.nameInput = root.querySelector(".input .paramName");
-        this.nameInput.oninput = () => {
+        this.docInput = root.querySelector(".input .argDoc");
+        this.validator.update(root);
+        this.nameInput.addEventListener("input", () => {
             this.validator.validate(false);
-        };
+        });
+        this.docInput.addEventListener("input", () => {
+            this.validator.validate(false);
+        });
     }
-    fromState(data: {type:string, name:string, required:boolean}): void {
+    fromState(data: {type:string, name:string, required:boolean, doc:string}): void {
         this.type = data.type;
         this.name = data.name;
         this.required = data.required;
+        this.doc = data.doc;
     }
-    getState(): {type:string, name:string, required:boolean} {
+    getState(): {type:string, name:string, required:boolean, doc:string} {
         return {
             type:this.type,
             name:this.name,
-            required:this.required
+            required:this.required,
+            doc:this.doc
         };
     }
 

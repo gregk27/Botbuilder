@@ -73,12 +73,20 @@
             <div class="notif err">&#9888; <span class="msg">placeholder</span></div>
             <label for="name">Name:</label>
             <input type="text" placeholder="MyCommand" class="input" id="name"/>
-            <button class="reset">&circlearrowleft;</button>
             <span class="desc">The name of the command, should be representative of the intended action</span>
         </div>
 
         <div class="inputLine"
-        
+        data-filter-noescape-regex="^((?!\*\/).)*$"
+        data-filter-noescape-message='Javadoc cannot contain sequence "*/"'
+        data-filter-noescape-level="29">
+            <div class="notif err">&#9888; <span class="msg">placeholder</span></div>
+            <label for="doc">Description:</label>
+            <input type="text" placeholder="Command that ..." class="input" id="doc"/>
+            <span class="desc">The description to be used as Javadoc</span>
+        </div>
+
+        <div class="inputLine"
         data-onreset="setPackage()"
         data-verifier-noempty="true">
             <div class="notif">&#9888; <span class="msg">placeholder</span></div>

@@ -37,10 +37,16 @@
 
 .parameterSelector .param select {
     grid-area: type;
+    align-self: start;
 }
 
 .parameterSelector .param .input {
     grid-area: input;
+}
+
+.parameterSelector .param .input input {
+    width:-webkit-fill-available;
+    margin-right: 5px;
 }
 
 .parameterSelector .param button {
