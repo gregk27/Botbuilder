@@ -94,8 +94,9 @@ export class ClassBuilder {
 
 function getDocString(doc: string): string {
   let out = "/**\n";
-  for(let l of doc.split("\n")){
-    out += " * " + l +"\n";
+  let lines = doc.split("\n");
+  for(let i = 0; i<lines.length; i++){
+    out += " * " + lines[i] + (i===0?".":"") +"\n";
   }
   out += " */";
   return out;
