@@ -73,13 +73,21 @@ export class CommandCreator extends WebviewBase {
         let methods: ClassBuilder.Method[] = [];
         methods.push(new ClassBuilder.Method(null, null, constructorParams, Scope.PUBLIC, `Create a new ${payload["package"].data}.\n`, false, false, constructorBody));
 
-        // Create overridden methods
+        // Create initialization method
         methods.push(new ClassBuilder.Method(null, "initialize", [], Scope.PUBLIC, "Called when the command is initially scheduled.<br/>\nMay be triggered by a button/command group or as a default command", false, false, "//TODO: Initialize subsystems\n", ["Override"]));
-        methods.push(new ClassBuilder.Method(null, "execute", [], Scope.PUBLIC, "Called once every 20ms (nominally)", false, false, null, ["Override"]));
-        methods.push(new ClassBuilder.Method(null, "end", [{doc:"Flag indicating if the command was interrupted", import:null, isArray:false, name:"interrupted", type:"string"}], Scope.PUBLIC, "Called when the command ends", false, false, "//TODO: Initialize subsystems\n", ["Override"]));
-        methods.push(new ClassBuilder.Method({import:null, isArray:false, type:"boolean"}, "isFinished", [], Scope.PUBLIC, "Called to check command status, command will end if this returns true.", false, false, "//TODO: Auto generated method stub\nreturn false;", ["Override"]));
 
-        let builder = new ClassBuilder(payload["package"].data, payload["name"].data, Scope.PUBLIC, {import:"edu.wpi.first.wpilibj2.command.CommandBase", type:"CommandBase"}, [], fields, methods, payload["doc"].data);
+        let superclass:any;
+        if(payload["instant"].data){
+            superclass = {import:"edu.wpi.first.wpilibj2.command.InstantCommand", type:"InstantCommand"};
+        } else {
+            superclass = {import:"edu.wpi.first.wpilibj2.command.CommandBase", type:"CommandBase"};
+            // Create other command methods
+            methods.push(new ClassBuilder.Method(null, "execute", [], Scope.PUBLIC, "Called once every 20ms (nominally)", false, false, null, ["Override"]));
+            methods.push(new ClassBuilder.Method(null, "end", [{doc:"Flag indicating if the command was interrupted", import:null, isArray:false, name:"interrupted", type:"string"}], Scope.PUBLIC, "Called when the command ends", false, false, "//TODO: Initialize subsystems\n", ["Override"]));
+            methods.push(new ClassBuilder.Method({import:null, isArray:false, type:"boolean"}, "isFinished", [], Scope.PUBLIC, "Called to check command status, command will end if this returns true.", false, false, "//TODO: Auto generated method stub\nreturn false;", ["Override"]));
+        }
+
+        let builder = new ClassBuilder(payload["package"].data, payload["name"].data, Scope.PUBLIC, superclass, [], fields, methods, payload["doc"].data);
         console.log(builder.getCode());
         return builder.writeFile(this.basepath);
     }
