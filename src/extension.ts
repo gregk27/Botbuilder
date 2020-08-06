@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 		new SubsystemCreator(context, vscode.workspace.rootPath+"/src/main/java").show();
 	});
 	let newCommandCommand = vscode.commands.registerCommand('ler-botbuilder.newCommand', ()=>{
-		new CommandCreator(context).show();
+		new CommandCreator(context, vscode.workspace.rootPath+"/src/main/java").show();
 	});
 
 	loader.load().then(()=>{

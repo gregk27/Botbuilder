@@ -230,7 +230,11 @@ export namespace ClassBuilder {
       /**
        * The method body, as a string
        */
-      public body: string = null
+      public body: string = null,
+      /**
+       * Annotations to be included, do not inlude `@` sign
+       */
+      public annotations: string[]  = null
     ) {
     }
 
@@ -241,6 +245,11 @@ export namespace ClassBuilder {
       if(this.doc !== null){
         doc = getDocString(this.doc);
         doc = doc.slice(0,doc.lastIndexOf(" */"));
+      }
+      if(this.annotations !== null){
+        for(let a of this.annotations){
+          out += `@${a}\n`;
+        }
       }
       out += this.scope === Scope.DEFAULT ? "" : this.scope+" ";
       out += this.isStatic ? "static " : "";

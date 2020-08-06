@@ -439,10 +439,10 @@ export class SubsystemParameter extends ParameterItem {
         return `
         <div class="input">
             <div style="display:table;width:-webkit-fill-available">
-                <input style="display:table-cell;width:100%" class="paramName" placeholder="name" type="text" value="${this.name}" onChange="${this.parentDescriptor}.setProperty(${index}, 'name', this)"/>
+                <input style="display:table-cell;width:100%" class="paramName" placeholder="name" type="text" value="${this.name}" oninput="${this.parentDescriptor}.setProperty(${index}, 'name', this)"/>
                 <div style="display:table-cell;width:1px;padding-left:1em;user-select:none">
                     <nobr>
-                    <input type="checkbox" id="${this.parentDescriptor}[${index}]">
+                    <input type="checkbox" id="${this.parentDescriptor}[${index}]" oninput="${this.parentDescriptor}.setProperty(${index}, 'required', this)">
                     <label for="${this.parentDescriptor}[${index}]">Required</label>
                     </nobr>
                 </div> 
@@ -453,7 +453,7 @@ export class SubsystemParameter extends ParameterItem {
     setProperty(id: string, value: any): void {
         if(id === "name"){
             this.name = value.value;
-        } else if(id==="requried"){
+        } else if(id==="required"){
             this.required = value.checked;
         } else if(id === "doc"){
             this.doc = (<HTMLInputElement>value).value;
