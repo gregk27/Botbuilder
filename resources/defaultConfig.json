@@ -1,0 +1,53 @@
+{
+    "subsystemPackage": "{BASE_PACKAGE}/subsystems",
+    "commandPackage":"{BASE_PACKAGE}/commands",
+    "instantCommandPackage":"{BASE_PACKAGE}/commands/instant",
+    "autoCommandPackage":"{BASE_PACKAGE}/commands/autonomous",
+    "instantAutoCommandPackage":"{BASE_PACKAGE}/commands/instant",
+
+    "hardware":{
+        "motorControllers": [
+            {
+                "name": "TalonSRX",
+                "prettyName": "Talon SRX",
+                "descriptor": "com/ctre/phoenix/motorcontrol/can/TalonSRX"
+            },
+            {
+                "name": "VictorSPX",
+                "prettyName": "Victor SPX",
+                "descriptor": "com/ctre/phoenix/motorcontrol/can/VictorSPX"
+            },
+            {
+                "name": "TalonFX",
+                "prettyName": "Talon FX",
+                "descriptor": "com/ctre/phoenix/motorcontrol/can/TalonFX"
+            },
+            {
+                "name": "CANSparkMax",
+                "prettyName": "SparkMax (CAN)",
+                "descriptor": "com/revrobotics/CANSparkMax"
+            }
+        ],
+        "pneumatics": [
+            {
+                "name": "Solenoid",
+                "prettyName": "Solenoid",
+                "descriptor":"edu/wpi/first/wpilibj/Solenoid"
+            },
+            {
+                "name": "DoubleSolenoid",
+                "prettyName": "Double Solenoid",
+                "descriptor": "edu/wpi/first/wpilibj/DoubleSolenoid"
+            }
+        ],
+        "sensors": [
+            {
+                "name": "ADXRS450_Gyro",
+                "prettyName": "ADXRS450 Gyro",
+                "descriptor": "edu/wpi/first/wpilibj/ADXRS450_Gyro"
+            }
+        ],
+        "other": [
+        ]
+    }
+}
