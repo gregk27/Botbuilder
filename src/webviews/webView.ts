@@ -22,7 +22,6 @@ export abstract class WebviewBase {
     ) {
         this.filePath = context.extensionPath+"/resources/html/"+filePath;
         this.html = fs.readFileSync(this.filePath).toString();
-        console.log(this.html);
         cssPattern.exec(filePath);
         
 
@@ -38,7 +37,6 @@ export abstract class WebviewBase {
      */
     private preOnMessage(message:webview.Message, panel:vscode.WebviewPanel){
         if(message.id === "update"){
-            console.log(<webview.InputState[]> message.payload);
             this.state = <webview.InputState[]> message.payload;
         }
         this.onMessage(message, panel);
@@ -65,7 +63,6 @@ export abstract class WebviewBase {
         //Remove Dev css file
         this.html = this.html.replace(/<link\s*rel=['"]stylesheet['"]\s*type="text\/css"\s*href=['"]dev.css['"]\s*>/g, "");
         this.html = this.html.replace(cssPattern, (substring, filename)=>{
-            console.log(substring, filename);
             if(filename !== undefined){
                 return substring.replace(filename, this.getResource(filename, panel.webview));
                 // return "<style>\n"+fs.readFileSync(this.filePath.substring(0, this.filePath.lastIndexOf('/')+1)+filename)+"\n</style>";
@@ -73,14 +70,12 @@ export abstract class WebviewBase {
             return substring;
         });
         this.html = this.html.replace(scriptPattern, (substring, filename)=>{
-            console.log(substring, filename);
             if(filename !== undefined){
                 return substring.replace(filename, this.getResource(filename, panel.webview));
             }
             return substring;
         });
 
-        console.log(this.html);
         panel.webview.html = this.getHTML();
         panel.webview.onDidReceiveMessage((message:any)=>{
             this.preOnMessage(message, panel);

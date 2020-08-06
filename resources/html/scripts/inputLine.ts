@@ -41,7 +41,6 @@ export class InputLine implements webview.Persistent{
             // If the attribute is a filter attirbute
             dataPattern.lastIndex=0;
             if((match=dataPattern.exec(a.name))!==null){
-                console.log(match);
                 if(this.validator.tests[match[1]] === undefined){
                     this.validator.tests[match[1]] = new RegexTest(".input", null, null, null);
                 }

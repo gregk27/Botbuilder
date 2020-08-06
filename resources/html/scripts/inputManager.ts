@@ -44,8 +44,6 @@ window.addEventListener("load", (event)=>{
     for(let e of Array.from(document.getElementsByClassName("parameterSelector"))){
         // Instantiate ParameterSelector using a type attached to the window
         window.parameterSelectors.push(new ParameterSelector(<HTMLElement> e, window.parameterSelectors.length, window[e.getAttribute("data-param-class")].prototype.constructor));
-        console.log("Added parameter");
-        console.log(window.parameterSelectors);
     }
 });
 
@@ -64,7 +62,6 @@ declare var acquireVsCodeApi: any;
 }());
 
 let saveState = ()=>{
-    console.log("Saving state");
     window.sendMessage({
         id:'update',
         payload: window.getData()

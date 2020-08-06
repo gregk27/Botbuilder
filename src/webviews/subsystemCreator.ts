@@ -50,7 +50,6 @@ export class SubsystemCreator extends WebviewBase {
         let constructor = new ClassBuilder.Method(null, null, constructorParams, Scope.PUBLIC, `Create a new ${payload["name"].data}.\n`, false, false, constructorBody);
 
         let builder = new ClassBuilder(payload["package"].data, payload["name"].data, Scope.PUBLIC, {import:"edu.wpi.first.wpilibj2.command.SubsystemBase", type:"SubsystemBase"}, [], fields, [constructor], payload["doc"].data);
-        console.log(builder.getCode());
         return builder.writeFile(this.basepath);
     }
 

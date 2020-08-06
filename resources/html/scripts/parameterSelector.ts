@@ -64,8 +64,6 @@ export class ParameterSelector implements webview.Persistent{
             html += this.parameters[i].getHTML(i);
         }
         this.root.getElementsByClassName("params")[0].innerHTML = html;
-        console.log(html);
-        console.log(this.root.innerHTML);
 
         this.children = this.root.getElementsByClassName("param");
         for(let i=0; i<this.children.length; i++){
@@ -91,7 +89,6 @@ export class ParameterSelector implements webview.Persistent{
      */
     setType(index:number, selector:HTMLInputElement){
         this.parameters[index].type = selector.value;
-        console.log(this.parameters);
     }
 
     /**
@@ -160,7 +157,6 @@ export class ParameterSelector implements webview.Persistent{
      */
     onDrop(yPosition:number, active:ParameterItem){
         let pos = this.onDrag(yPosition, active);
-        console.log(pos);
 
         let a = this.parameters.splice(this.parameters.indexOf(active), 1);
         let b = this.parameters.splice(pos);
@@ -171,7 +167,6 @@ export class ParameterSelector implements webview.Persistent{
 
     
     fromState(data: webview.InputState): void {
-        console.log(data);
         if(data.dataType === webview.InputType.PARAMETER_SELECTOR && this.root.id === data.id){
             this.parameters = [];
             for(let d of data.data){
@@ -295,9 +290,7 @@ abstract class ParameterItem {
 
         // Setup drag behaviour
         this.dragger = root.querySelector(".dragger");
-        console.log(this.dragger);
         this.dragger.onmousedown = (event) => {
-            console.log("Drag start");
             let movehandler = (event:MouseEvent)=>{
                 this.root.style.left = event.pageX.toString()+"px";
                 this.root.style.top = "calc("+event.pageY.toString()+"px - 2em)";
@@ -308,7 +301,6 @@ abstract class ParameterItem {
                 document.body.removeEventListener("mouseup", upHandler);
                 this.parent.onDrop(event.pageY, this);
                 this.root.style.position = "initial";
-                console.log("mouse up");
             };
             document.body.addEventListener("mousemove",movehandler);
             document.body.addEventListener("mouseup", upHandler);

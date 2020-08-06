@@ -88,7 +88,6 @@ export class CommandCreator extends WebviewBase {
         }
 
         let builder = new ClassBuilder(payload["package"].data, payload["name"].data, Scope.PUBLIC, superclass, [], fields, methods, payload["doc"].data);
-        console.log(builder.getCode());
         return builder.writeFile(this.basepath);
     }
 
