@@ -96,7 +96,7 @@ function getDocString(doc: string): string {
   let out = "/**\n";
   let lines = doc.split("\n");
   for(let i = 0; i<lines.length; i++){
-    out += " * " + lines[i] + (i===0?".":"") +"\n";
+    out += " * " + lines[i] + (i===0&&!lines[i].endsWith(".")?".":"") +"\n";
   }
   out += " */";
   return out;
@@ -178,7 +178,7 @@ export namespace ClassBuilder {
 
     getCode(){
       let out = "";
-      if(this.doc !== null){
+      if(this.doc !== null && this.doc !== ""){
         out += getDocString(this.doc)+"\n";
       }
       out += this.scope === Scope.DEFAULT ? "" : this.scope+" ";
@@ -260,6 +260,8 @@ export namespace ClassBuilder {
               p.doc = p.doc.substring(0, p.doc.lastIndexOf("\n"));
             }
             doc += ` * @param ${p.name} ${p.doc}\n`;
+          } else {
+            doc += ` * @param ${p.name}\n`;
           }
         }
         out = out.slice(0, -2);
