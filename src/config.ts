@@ -6,6 +6,10 @@ import * as vscode from "vscode";
 interface ConfigData extends BotbuilderConfigSchema {
     workspaceRoot:string;
     resourcePath:string;
+    /**
+     * The package containing the base class as defined in the config file
+     */
+    basePackage:string;
 }
 
 
@@ -45,3 +49,41 @@ export function loadConfig(workspaceRoot:string, resPath:string){
         });
     }
 }
+
+/**
+ * Set the base package
+ * @param pckg The package containg the base class
+ */
+export function setBasePackage(pckg:string):void {
+    config.basePackage = pckg;
+}
+
+/**
+ * Get a formatted version of a config package entry
+ * @param raw The raw config entry
+ */
+export function getPackage(raw:string):string {
+    return raw.replace("{BASE_PACKAGE}", config.basePackage)
+            .replace(/\//g, ".");
+}
+
+export function getSubsystemPackage():string {
+    return getPackage(config.subsystemPackage);
+}
+
+export function getCommandPackage():string {
+    return getPackage(config.commandPackage);
+}
+
+export function getInstantCommandPackage():string {
+    return getPackage(config.instantCommandPackage);
+}
+
+export function getAutoCommandPackage():string {
+    return getPackage(config.autoCommandPackage);
+}
+
+export function getInstantAutoCommandPackage():string {
+    return getPackage(config.instantAutoCommandPackage);
+}
+

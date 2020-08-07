@@ -31,6 +31,10 @@ export type TheAutonomousCommandPackage = string;
  */
 export type TheAutonomousAndInstantCommandPackage = string;
 /**
+ * The name of the class considered to at the base of the code
+ */
+export type TheNameOfTheBaseClass = string;
+/**
  * The path to the folder containing source code, relative to the workspace root
  */
 export type TheSourceFolder = string;
@@ -68,6 +72,7 @@ export interface BotbuilderConfigSchema {
   instantCommandPackage: TheInstantCommandPackage;
   autoCommandPackage: TheAutonomousCommandPackage;
   instantAutoCommandPackage: TheAutonomousAndInstantCommandPackage;
+  baseClassName: TheNameOfTheBaseClass;
   srcFolder: TheSourceFolder;
   buildFolder: TheBuildFolder;
   testFolder?: TheTestFolder;

@@ -47,6 +47,7 @@
         "instantCommandPackage",
         "autoCommandPackage",
         "instantAutoCommandPackage",
+        "baseClassName",
         "srcFolder",
         "buildFolder",
         "hardware"
@@ -91,6 +92,13 @@
             "description": "The path to the folder where auto and instant commands should be placed, rooted at the source folder.\n`{BASE_PACKAGE}` is the package containing Main.java",
             "default": "{BASE_PACKAGE}/commands/instant",
             "examples": []
+        },
+        "baseClassName": {
+            "$id": "#/properties/baseClassName",
+            "type": "string",
+            "title": "The name of the base class",
+            "description": "The name of the class considered to at the base of the code",
+            "default": "Robot"
         },
         "srcFolder": {
             "$id": "#/properties/srcFolder",

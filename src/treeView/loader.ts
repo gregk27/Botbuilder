@@ -1,7 +1,7 @@
 import { Subsystem, Command } from "./treeType";
 import { parseFolder } from "../javaParser/javaParser";
 import { JavaClass } from "../javaParser/JavaClasses";
-import getConfig from "src/config";
+import getConfig from "../config";
 
 export class Loader{
 

@@ -7,7 +7,7 @@ import { Loader } from './treeView/loader';
 import { Command, Subsystem } from './treeView/treeType';
 import { SubsystemCreator } from './webviews/subsystemCreator';
 import { CommandCreator } from './webviews/commandCreator';
-import getConfig, { loadConfig } from './config';
+import getConfig, { loadConfig, setBasePackage } from './config';
 import * as Path from 'path';
 
 let providers:DataProvider[] = [];
@@ -58,6 +58,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	loader.load().then(()=>{
+		for(let c of loader.classes){
+			if(c.name === getConfig().baseClassName){
+				setBasePackage(c.pckg);
+			}
+		}
 		console.log("Registering");
 		let d = new DataProvider(getSubsystems);
 		providers.push(d);

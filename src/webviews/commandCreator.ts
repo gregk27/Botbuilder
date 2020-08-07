@@ -8,6 +8,7 @@ import { getClassDetail } from "../javaParser/parserFunctions";
 import { Scope } from "../javaParser/common";
 import { InnerClassesAttributeInfo } from "java-class-tools";
 import { Linkable } from "src/treeView/codeElements";
+import { getSubsystemPackage, getCommandPackage, getAutoCommandPackage, getInstantCommandPackage, getInstantAutoCommandPackage } from "../config";
 
 export class CommandCreator extends WebviewBase {
     
@@ -19,7 +20,7 @@ export class CommandCreator extends WebviewBase {
         let subsystems:ParameterItem.TypeData = {
         };
         for(let subsystem of getSubsystems()){
-            let group = subsystem.element.pckg.replace("ler/robot/subsystems", "");
+            let group = subsystem.element.pckg.replace(getSubsystemPackage().replace(/\./g, "/"), "");
             if(!(group in subsystems)){
                 subsystems[group] = [];
             }
@@ -30,10 +31,10 @@ export class CommandCreator extends WebviewBase {
         }
 
         return this.html
-            .replace(/\${PACKAGE}/g, "ler.robot.commands")
-            .replace(/\${PACKAGE_AUTO}/g, "ler.robot.commands.autonomous")
-            .replace(/\${PACKAGE_INSTANT}/g, "ler.robot.commands.instant")
-            .replace(/\${PACKAGE_AUTO_INSTANT}/g, "ler.robot.commands.autonomous")
+            .replace(/\${PACKAGE}/g, getCommandPackage())
+            .replace(/\${PACKAGE_AUTO}/g, getAutoCommandPackage())
+            .replace(/\${PACKAGE_INSTANT}/g, getInstantCommandPackage())
+            .replace(/\${PACKAGE_AUTO_INSTANT}/g, getInstantAutoCommandPackage())
             .replace(/\${SUBSYSTEMS}/g, JSON.stringify(subsystems));
     }
 
