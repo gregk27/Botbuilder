@@ -1,6 +1,6 @@
 import { WebviewBase } from "./webView";
 import * as vscode from "vscode";
-import { config } from "../config";
+import getConfig from "../config";
 import { webview } from "resources/html/scripts/common";
 import { ClassBuilder } from "../classBuilder/classBuilder";
 import { Scope } from "../javaParser/common";
@@ -16,7 +16,7 @@ export class SubsystemCreator extends WebviewBase {
     public getHTML():string{
         return this.html
             .replace(/\${PACKAGE}/g, "ler.robot.subsystems")
-            .replace(/\${HARDWARE_TYPES}/g, JSON.stringify(config.hardwareTypes));
+            .replace(/\${HARDWARE_TYPES}/g, JSON.stringify(getConfig().hardware));
     }
 
     onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {

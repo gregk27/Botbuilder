@@ -7,6 +7,8 @@ import { Loader } from './treeView/loader';
 import { Command, Subsystem } from './treeView/treeType';
 import { SubsystemCreator } from './webviews/subsystemCreator';
 import { CommandCreator } from './webviews/commandCreator';
+import getConfig, { loadConfig } from './config';
+import * as Path from 'path';
 
 let providers:DataProvider[] = [];
 let loader = new Loader(vscode.workspace.rootPath);
@@ -18,6 +20,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "ler-botbuilder" is now active!');
+
+	loadConfig(vscode.workspace.rootPath, Path.join(__dirname, "..", "..", "resources"));
+	console.log(JSON.stringify(getConfig()));
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand

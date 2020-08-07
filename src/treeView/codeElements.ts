@@ -4,7 +4,7 @@ import { JavaBase, Scope } from "../javaParser/common";
 import { JavaClass } from "../javaParser/JavaClasses";
 import { JavaField, JavaMethod } from "../javaParser/JavaElements";
 import { Subsystem } from "./treeType";
-import { Config, ConfigTypes } from "../config";
+import { HardwareType } from "../.types/config";
 
 export interface Linkable{
     getTarget():{file:string, line:number};
@@ -191,10 +191,11 @@ export class ReferencedSubsystem extends BasicTreeElement implements Linkable{
 
 export class ReferencedHardware extends BasicTreeElement {
 
-    hardwareType:ConfigTypes.HardwareType;
+    hardwareType:HardwareType;
 
-    constructor(name:string, type:ConfigTypes.HardwareType) {
-        super("hardware/"+type.category, "hardware", name, type.name, "");
+    constructor(name:string, type:HardwareType, category:string) {
+        // Regex is to strip plurals to get icon names
+        super("hardware/"+category.replace(/s$/g, ""), "hardware", name, type.name, "");
         this.hardwareType = type;
     }
 }

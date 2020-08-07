@@ -4,7 +4,7 @@ import { JavaBase, ClassType, Scope, Type, DescriptorTypes } from '../javaParser
 import { JavaClass, JavaInnerClass } from '../javaParser/JavaClasses';
 import { JavaMethod } from '../javaParser/JavaElements';
 import { Loader } from './loader';
-import { config } from '../config';
+import getConfig from '../config';
 
 
 export class TreeType extends TreeElement<JavaClass> implements Linkable {
@@ -95,10 +95,12 @@ export class Subsystem extends TreeType {
             if(p.type.type !== DescriptorTypes.CLASS){
                 continue;
             }
-            for(let h of [ ...config.hardwareTypes.motorControllers, ...config.hardwareTypes.pneumatics, ...config.hardwareTypes.sensors, ...config.hardwareTypes.other]){
-                if(p.type.fullClass === h.descriptor){
-                    this.children.unshift(new ReferencedHardware(p.name, h));
-                    break;
+            for(let [key, items] of Object.entries(getConfig().hardware)){
+                for(let h of items){
+                    if(p.type.fullClass === h.descriptor){
+                        this.children.unshift(new ReferencedHardware(p.name, h, key));
+                        break;
+                    }
                 }
             }
             
