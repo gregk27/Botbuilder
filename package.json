@@ -101,6 +101,16 @@
 				}
 			]
 		},
+		"configuration": {
+			"title": "Botbuilder",
+			"properties": {
+				"ler-botbuilder.configPath":{
+					"type": "string",
+					"default": "/botbuilder.json",
+					"markdownDescription": "The path to the `botbuilder.json` configuration file, relative to the workspace root"
+				}
+			}
+		},
 		"jsonValidation": [
 			{
 				"fileMatch": "botbuilder.json",

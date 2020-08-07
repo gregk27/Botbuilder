@@ -1,6 +1,7 @@
 // To update the type declaration, run the command "json2ts ./resources/config.schema.json > ./src/.types/config.d.ts" from the project root
 import { BotbuilderConfigSchema } from "src/.types/config";
 import * as fs from "fs";
+import * as vscode from "vscode";
 
 interface ConfigData extends BotbuilderConfigSchema {
     workspaceRoot:string;
@@ -27,7 +28,7 @@ export default getConfig;
  * @param resPath The path to the extension resource folder
  */
 export function loadConfig(workspaceRoot:string, resPath:string){
-    let configPath = workspaceRoot + "/botbuilder.json";
+    let configPath = workspaceRoot + "/" + vscode.workspace.getConfiguration("ler-botbuilder").get("configPath");
     if(!fs.existsSync(configPath)){
         fs.copyFileSync(resPath+"/defaultConfig.json", configPath);
     }
