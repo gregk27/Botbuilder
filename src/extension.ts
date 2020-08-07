@@ -51,10 +51,10 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 	let newSubsystemCommand = vscode.commands.registerCommand('ler-botbuilder.newSubsystem', ()=>{
-		new SubsystemCreator(context, vscode.workspace.rootPath+"/src/main/java").show();
+		new SubsystemCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
 	});
 	let newCommandCommand = vscode.commands.registerCommand('ler-botbuilder.newCommand', ()=>{
-		new CommandCreator(context, vscode.workspace.rootPath+"/src/main/java").show();
+		new CommandCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
 	});
 
 	loader.load().then(()=>{
@@ -67,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerTreeDataProvider('commands', d);
 	});
 
-	// fs.watch(vscode.workspace.rootPath +"/build/classes", {persistent:false, recursive:true}, (event, filename)=>{
+	// fs.watch(vscode.workspace.rootPath+"/"+getConfig().buildFolder, {persistent:false, recursive:true}, (event, filename)=>{
 	// 	console.log(event+":"+filename);
 	// 	refresh(1000);
 	// });

@@ -47,12 +47,11 @@
         "instantCommandPackage",
         "autoCommandPackage",
         "instantAutoCommandPackage",
+        "srcFolder",
+        "buildFolder",
         "hardware"
     ],
     "properties": {
-        "$schema": {
-
-        },
         "subsystemPackage": {
             "$id": "#/properties/subsystemPackage",
             "type": "string",
@@ -92,6 +91,27 @@
             "description": "The path to the folder where auto and instant commands should be placed, rooted at the source folder.\n`{BASE_PACKAGE}` is the package containing Main.java",
             "default": "{BASE_PACKAGE}/commands/instant",
             "examples": []
+        },
+        "srcFolder": {
+            "$id": "#/properties/srcFolder",
+            "type": "string",
+            "title": "The source folder",
+            "description": "The path to the folder containing source code, relative to the workspace root",
+            "default": "src/main/java"
+        },
+        "buildFolder": {
+            "$id": "#/properties/buildFolder",
+            "type": "string",
+            "title": "The build folder",
+            "description": "The path to the folder containing built source code, relative to the workspace root",
+            "default": "build/classes/java/main"
+        },
+        "testFolder": {
+            "$id": "#/properties/testFolder",
+            "type": "string",
+            "title": "The test folder",
+            "description": "The path to the folder containing test code`, relative to the workspace root",
+            "default": "src/test/java"
         },
         "hardware": {
             "$id": "#/properties/hardware",

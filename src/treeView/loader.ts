@@ -1,6 +1,7 @@
 import { Subsystem, Command } from "./treeType";
 import { parseFolder } from "../javaParser/javaParser";
 import { JavaClass } from "../javaParser/JavaClasses";
+import getConfig from "src/config";
 
 export class Loader{
 
@@ -19,7 +20,7 @@ export class Loader{
         let subsystems:Subsystem[] = [];
         let commands:Command[] = [];
     
-        this.classes = await parseFolder(this.workspaceRoot+"/build/classes/java/main/", this.workspaceRoot+"/src/main/java/", true, (cls:JavaClass)=>{
+        this.classes = await parseFolder(this.workspaceRoot+"/"+getConfig().buildFolder, this.workspaceRoot+"/"+getConfig().srcFolder, true, (cls:JavaClass)=>{
             if(cls.superClass.full === "edu/wpi/first/wpilibj2/command/SubsystemBase"){
                 subsystems.push(new Subsystem(cls));
             }else if (cls.superClass.full === "edu/wpi/first/wpilibj2/command/CommandBase" && cls.pckg.includes("auto")){

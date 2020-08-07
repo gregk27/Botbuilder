@@ -31,6 +31,18 @@ export type TheAutonomousCommandPackage = string;
  */
 export type TheAutonomousAndInstantCommandPackage = string;
 /**
+ * The path to the folder containing source code, relative to the workspace root
+ */
+export type TheSourceFolder = string;
+/**
+ * The path to the folder containing built source code, relative to the workspace root
+ */
+export type TheBuildFolder = string;
+/**
+ * The path to the folder containing test code`, relative to the workspace root
+ */
+export type TheTestFolder = string;
+/**
  * Types that represent motor controllers
  */
 export type MotorControllerTypes = HardwareType[];
@@ -51,12 +63,14 @@ export type OtherHardwareTypes = HardwareType[];
  * The schema for botbuilder configuration file
  */
 export interface BotbuilderConfigSchema {
-  $schema?: unknown;
   subsystemPackage: TheSubsystemPackage;
   commandPackage: TheNormalCommandPackage;
   instantCommandPackage: TheInstantCommandPackage;
   autoCommandPackage: TheAutonomousCommandPackage;
   instantAutoCommandPackage: TheAutonomousAndInstantCommandPackage;
+  srcFolder: TheSourceFolder;
+  buildFolder: TheBuildFolder;
+  testFolder?: TheTestFolder;
   hardware: HardwareTypes;
 }
 /**

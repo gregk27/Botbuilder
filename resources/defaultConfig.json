@@ -5,6 +5,9 @@
     "autoCommandPackage":"{BASE_PACKAGE}/commands/autonomous",
     "instantAutoCommandPackage":"{BASE_PACKAGE}/commands/instant",
 
+    "srcFolder": "src/main/java",
+    "buildFolder": "build/classes/java/main",
+
     "hardware":{
         "motorControllers": [
             {
