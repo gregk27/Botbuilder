@@ -100,7 +100,13 @@
 					"when": "never"
 				}
 			]
-		}
+		},
+		"jsonValidation": [
+			{
+				"fileMatch": "botbuilder.json",
+				"url": "./resources/config.schema.json"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
