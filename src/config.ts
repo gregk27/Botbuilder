@@ -12,7 +12,8 @@ interface ConfigData extends BotbuilderConfigSchema {
 /**
  * Configuration file
  */
-var config:ConfigData=null;
+let config:ConfigData = null;
+let watcher:fs.FSWatcher = null;
 
 /**
  * Get the configuration data
@@ -36,4 +37,11 @@ export function loadConfig(workspaceRoot:string, resPath:string){
     config = JSON.parse(fs.readFileSync(configPath).toString());
     config.workspaceRoot = workspaceRoot;
     config.resourcePath = resPath;
+
+    if(watcher === null){
+        //Create watcher to reload on changes
+        watcher = fs.watch(configPath, { persistent:false }, ()=>{
+            loadConfig(workspaceRoot, resPath);
+        });
+    }
 }
