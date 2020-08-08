@@ -1,7 +1,7 @@
 import { WebviewBase } from "./webView";
 import * as vscode from 'vscode';
 import { ParameterItem } from "resources/html/scripts/parameterSelector";
-import { getSubsystems } from "../extension";
+import { getSubsystems, buildCode } from "../extension";
 import { webview } from "../../resources/html/scripts/common";
 import { ClassBuilder } from "../classBuilder/classBuilder";
 import { getClassDetail } from "../javaParser/parserFunctions";
@@ -50,6 +50,7 @@ export class CommandCreator extends WebviewBase {
                     };
                 }
             });
+            buildCode();
         }
     }
 

@@ -6,6 +6,7 @@ import { ClassBuilder } from "../classBuilder/classBuilder";
 import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
 import { Linkable } from "../treeView/codeElements";
+import { buildCode } from "../extension";
 
 export class SubsystemCreator extends WebviewBase {
 
@@ -31,6 +32,7 @@ export class SubsystemCreator extends WebviewBase {
                     };
                 }
             });
+            buildCode();
         }
     }
 

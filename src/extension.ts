@@ -9,6 +9,8 @@ import { SubsystemCreator } from './webviews/subsystemCreator';
 import { CommandCreator } from './webviews/commandCreator';
 import getConfig, { loadConfig, setBasePackage } from './config';
 import * as Path from 'path';
+import * as fs from 'fs';
+import * as cp from 'child_process';
 
 let providers:DataProvider[] = [];
 let loader = new Loader(vscode.workspace.rootPath);
@@ -117,4 +119,16 @@ export function getSubsystems(): Subsystem[]{
 
 export function getCommands(): Command[]{
 	return loader.commands;
+}
+
+export function buildCode(){
+	cp.exec("gradlew build -x test", { cwd:getConfig().workspaceRoot }, (err, stdout, stderr) => {
+		if(err !== null){
+			console.log(err);
+		} else {
+			console.log(stdout);
+			console.log(stderr);
+			refresh();
+		}
+	});
 }
