@@ -30,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	let refreshCommand = vscode.commands.registerCommand('ler-botbuilder.refresh', () => {
-		refresh();
+		buildCode();
 	});
 	let openCommand = vscode.commands.registerCommand('ler-botbuilder.openFile', (file) => {
 		console.log(file);
@@ -121,14 +121,20 @@ export function getCommands(): Command[]{
 	return loader.commands;
 }
 
-export function buildCode(){
+/**
+ * Run `gradlew build -x test`
+ * @param ref If true, the refresh function will be called automatically
+ */
+export function buildCode(ref:boolean = true){
 	cp.exec("gradlew build -x test", { cwd:getConfig().workspaceRoot }, (err, stdout, stderr) => {
 		if(err !== null){
 			console.log(err);
 		} else {
 			console.log(stdout);
 			console.log(stderr);
-			refresh();
+			if(ref){
+				refresh();
+			}
 		}
 	});
 }
