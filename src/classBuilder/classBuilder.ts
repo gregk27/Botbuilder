@@ -84,7 +84,11 @@ export class ClassBuilder {
   }
 
   writeFile(basePath:string){
-    let path = basePath+"/"+this.pckg.replace(/\./g, "/")+"/"+this.name+".java";
+    let folder = basePath+"/"+this.pckg.replace(/\./g, "/");
+    if(!fs.existsSync(folder)){
+      fs.mkdirSync(folder, {recursive:true});
+    }
+    let path = folder+"/"+this.name+".java";
     fs.writeFileSync(path, this.getCode());
     return path;
   }

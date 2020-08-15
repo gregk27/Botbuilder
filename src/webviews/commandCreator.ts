@@ -65,7 +65,7 @@ export class CommandCreator extends WebviewBase {
             fields.push(new ClassBuilder.Field({import:t.full, type:t.name, isArray:false}, h.name, Scope.DEFAULT, h.doc));
             constructorParams.push({import:t.full, type:t.name, name:h.name, doc:h.doc, isArray:false});
             if(h.required){
-                constructorBody = `addRequirements(${h.name});\n`;
+                constructorBody += `addRequirements(${h.name});\n`;
             }
             assignments += `this.${h.name} = ${h.name};\n`;
         }
@@ -85,7 +85,7 @@ export class CommandCreator extends WebviewBase {
             superclass = {import:"edu.wpi.first.wpilibj2.command.CommandBase", type:"CommandBase"};
             // Create other command methods
             methods.push(new ClassBuilder.Method(null, "execute", [], Scope.PUBLIC, "Called once every 20ms (nominally)", false, false, null, ["Override"]));
-            methods.push(new ClassBuilder.Method(null, "end", [{doc:"Flag indicating if the command was interrupted", import:null, isArray:false, name:"interrupted", type:"string"}], Scope.PUBLIC, "Called when the command ends", false, false, "//TODO: Initialize subsystems\n", ["Override"]));
+            methods.push(new ClassBuilder.Method(null, "end", [{doc:"Flag indicating if the command was interrupted", import:null, isArray:false, name:"interrupted", type:"boolean"}], Scope.PUBLIC, "Called when the command ends", false, false, "//TODO: Initialize subsystems\n", ["Override"]));
             methods.push(new ClassBuilder.Method({import:null, isArray:false, type:"boolean"}, "isFinished", [], Scope.PUBLIC, "Called to check command status, command will end if this returns true.", false, false, "//TODO: Auto generated method stub\nreturn false;", ["Override"]));
         }
 
