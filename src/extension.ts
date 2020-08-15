@@ -59,6 +59,10 @@ export function activate(context: vscode.ExtensionContext) {
 		new CommandCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
 	});
 
+	vscode.workspace.onDidSaveTextDocument(()=>{
+		buildCode();
+	});
+
 	loader.load().then(()=>{
 		for(let c of loader.classes){
 			if(c.name === getConfig().baseClassName){
@@ -122,19 +126,27 @@ export function getCommands(): Command[]{
 }
 
 /**
- * Run `gradlew build -x test`
+ * Run `gradlew compileJava` and if it passes, run `gradlew build -x test`
  * @param ref If true, the refresh function will be called automatically
  */
 export function buildCode(ref:boolean = true){
-	cp.exec("gradlew build -x test", { cwd:getConfig().workspaceRoot }, (err, stdout, stderr) => {
+	cp.exec("gradlew compileJava", { cwd:getConfig().workspaceRoot }, (err, stdout, stderr) => {
 		if(err !== null){
 			console.log(err);
 		} else {
 			console.log(stdout);
 			console.log(stderr);
-			if(ref){
-				refresh();
-			}
+			cp.exec("gradlew build -x test", { cwd:getConfig().workspaceRoot }, (err, stdout, stderr) => {
+				if(err !== null){
+					console.log(err);
+				} else {
+					console.log(stdout);
+					console.log(stderr);
+					if(ref){
+						refresh();
+					}
+				}
+			});
 		}
 	});
 }
