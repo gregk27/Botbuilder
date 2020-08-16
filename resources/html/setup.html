@@ -7,7 +7,18 @@
 </head>
 <body>
     <h1>Initialize Botbuilder</h1>
+    <div id="packages" class="inputGroup">
+        <h2>Packages</h2>
+    </div>
+    <br/>
+    <div id="folders" class="inputGroup">
+        <h2>Folders</h2>
+    </div>
     <br/><br/>
     <button id="submit" style="font-size:2em;float:right;" onclick="submit()">Create</button>
+    <script>
+        var config = JSON.parse('${CONFIG_SCHEMA}');
+        window.initSetup(config);
+    </script>
 </body>
 </html>

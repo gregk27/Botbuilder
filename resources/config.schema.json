@@ -59,7 +59,8 @@
             "title": "The subsystem package",
             "description": "The path to the folder where subsystems should be placed, rooted at the source folder.\n`{BASE_PACKAGE}` is the package containing Main.java",
             "default": "{BASE_PACKAGE}/subsystems",
-            "examples": []
+            "examples": [],
+            "category": "packages"
         },
         "commandPackage": {
             "$id": "#/properties/commandPackage",
@@ -67,7 +68,8 @@
             "title": "The normal command package",
             "description": "The path to the folder where normal commands should be placed, rooted at the source folder.\n`{BASE_PACKAGE}` is the package containing Main.java",
             "default": "{BASE_PACKAGE}/commands",
-            "examples": []
+            "examples": [],
+            "category": "packages"
         },
         "instantCommandPackage": {
             "$id": "#/properties/instantCommandPackage",
@@ -75,7 +77,8 @@
             "title": "The instant command package",
             "description": "The path to the folder where instant commands should be placed, rooted at the source folder.\n`{BASE_PACKAGE}` is the package containing Main.java",
             "default": "{BASE_PACKAGE}/commands/instant",
-            "examples": []
+            "examples": [],
+            "category": "packages"
         },
         "autoCommandPackage": {
             "$id": "#/properties/autoCommandPackage",
@@ -83,7 +86,8 @@
             "title": "The autonomous command package",
             "description": "The path to the folder where autonomous commands should be placed, rooted at the source folder.\n`{BASE_PACKAGE}` is the package containing Main.java",
             "default": "{BASE_PACKAGE}/commands/autonomous",
-            "examples": []
+            "examples": [],
+            "category": "packages"
         },
         "instantAutoCommandPackage": {
             "$id": "#/properties/instantAutoCommandPackage",
@@ -91,35 +95,40 @@
             "title": "The autonomous and instant command package",
             "description": "The path to the folder where auto and instant commands should be placed, rooted at the source folder.\n`{BASE_PACKAGE}` is the package containing Main.java",
             "default": "{BASE_PACKAGE}/commands/instant",
-            "examples": []
+            "examples": [],
+            "category": "packages"
         },
         "baseClassName": {
             "$id": "#/properties/baseClassName",
             "type": "string",
             "title": "The name of the base class",
             "description": "The name of the class considered to at the base of the code",
-            "default": "Robot"
+            "default": "Robot",
+            "category": "folders"
         },
         "srcFolder": {
             "$id": "#/properties/srcFolder",
             "type": "string",
             "title": "The source folder",
             "description": "The path to the folder containing source code, relative to the workspace root",
-            "default": "src/main/java"
+            "default": "src/main/java",
+            "category": "folders"
         },
         "buildFolder": {
             "$id": "#/properties/buildFolder",
             "type": "string",
             "title": "The build folder",
             "description": "The path to the folder containing built source code, relative to the workspace root",
-            "default": "build/classes/java/main"
+            "default": "build/classes/java/main",
+            "category": "folders"
         },
         "testFolder": {
             "$id": "#/properties/testFolder",
             "type": "string",
             "title": "The test folder",
             "description": "The path to the folder containing test code`, relative to the workspace root",
-            "default": "src/test/java"
+            "default": "src/test/java",
+            "category": "folders"
         },
         "hardware": {
             "$id": "#/properties/hardware",

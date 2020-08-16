@@ -1,6 +1,7 @@
 import { InputLine } from "./inputLine";
 import { ParameterSelector, HardwareParameter } from "./parameterSelector";
 import { webview } from "./common";
+import { initSetup } from "./setup";
 
 declare global {
     interface Window {
@@ -32,6 +33,8 @@ declare global {
         [key:string]: any;
     }
 }
+
+window.initSetup = initSetup;
 
 window.inputs = [];
 window.parameterSelectors = [];

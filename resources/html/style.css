@@ -58,7 +58,7 @@ h1 {
 
 .inputLine .input {
     grid-area:input;
-    align-self: stretch;
+    align-self: center;
     font-size: 1.25em;
 }
 
@@ -81,8 +81,9 @@ h1 {
 .inputLine .reset {
     grid-area: reset;
     font-size:1.5em;
-    padding:0;
+    padding:5px;
     transform: rotate(-90deg);
+    align-self: center;
 }
 
 label {
