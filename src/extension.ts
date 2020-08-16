@@ -53,17 +53,31 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-	let newSubsystemCommand = vscode.commands.registerCommand('ler-botbuilder.newSubsystem', ()=>{
-		new SubsystemCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
-	});
-	let newCommandCommand = vscode.commands.registerCommand('ler-botbuilder.newCommand', ()=>{
-		new CommandCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
-	});
-
+	
 	
 	let setupCommand = vscode.commands.registerCommand('ler-botbuilder.setup', ()=>{
-		new SetupView(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
+		if(getConfig() !== null){
+			vscode.window.showInformationMessage("Botbuilder is already initialized for this workspace");
+		} else {
+			new SetupView(context).show();
+		}
 	});
+
+	let newSubsystemCommand = vscode.commands.registerCommand('ler-botbuilder.newSubsystem', ()=>{
+		if(getConfig() === null){
+			vscode.window.showInformationMessage("Botbuilder is not initialized for this workspace");
+		} else {
+			new SubsystemCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
+		}
+	});
+	let newCommandCommand = vscode.commands.registerCommand('ler-botbuilder.newCommand', ()=>{
+		if(getConfig() === null){
+			vscode.window.showInformationMessage("Botbuilder is not initialized for this workspace");
+		} else {
+			new CommandCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
+		}
+	});
+
 
 	vscode.workspace.onDidSaveTextDocument(()=>{
 		buildCode();

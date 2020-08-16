@@ -2,6 +2,7 @@ import { Subsystem, Command } from "./treeType";
 import { parseFolder } from "../javaParser/javaParser";
 import { JavaClass } from "../javaParser/JavaClasses";
 import getConfig from "../config";
+import * as vscode from "vscode";
 
 export class Loader{
 
@@ -17,9 +18,17 @@ export class Loader{
 
     async load(): Promise<{subsystems: Subsystem[], commands: Command[]}> {
         console.log("Loading");
+        if(getConfig() === null){
+            vscode.window.showInformationMessage("Botbuilder is not initialized for this workspace");
+            this.classes = null;
+            this.subsystems = null;
+            this.commands = null;
+            return null;
+        }
+        
         let subsystems:Subsystem[] = [];
         let commands:Command[] = [];
-    
+
         this.classes = await parseFolder(this.workspaceRoot+"/"+getConfig().buildFolder, this.workspaceRoot+"/"+getConfig().srcFolder, true, (cls:JavaClass)=>{
             if(cls.superClass.full === "edu/wpi/first/wpilibj2/command/SubsystemBase"){
                 subsystems.push(new Subsystem(cls));

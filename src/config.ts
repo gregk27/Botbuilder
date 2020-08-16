@@ -32,10 +32,11 @@ export default getConfig;
  * @param workspaceRoot The root path of the workspace 
  * @param resPath The path to the extension resource folder
  */
-export function loadConfig(workspaceRoot:string, resPath:string){
+export function loadConfig(workspaceRoot:string, resPath:string):boolean{
     let configPath = workspaceRoot + "/" + vscode.workspace.getConfiguration("ler-botbuilder").get("configPath");
     if(!fs.existsSync(configPath)){
-        fs.copyFileSync(resPath+"/defaultConfig.json", configPath);
+        config = null;
+        return false;
     }
     
     config = JSON.parse(fs.readFileSync(configPath).toString());
@@ -48,6 +49,7 @@ export function loadConfig(workspaceRoot:string, resPath:string){
             loadConfig(workspaceRoot, resPath);
         });
     }
+    return true;
 }
 
 /**

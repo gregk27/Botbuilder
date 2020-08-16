@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 
 export class SetupView extends WebviewBase {
 
-    constructor(context:vscode.ExtensionContext, private basepath:string){
+    constructor(context:vscode.ExtensionContext){
         super(context, "setupBotbuilder", "Initialize Botbuilder", "setup.html");
     }
 
