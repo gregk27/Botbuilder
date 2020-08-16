@@ -2,6 +2,8 @@ import { WebviewBase } from "./webView";
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { webview } from "resources/html/scripts/common";
+import { Linkable } from "../treeView/codeElements";
+import { activate } from "../extension";
 
 export class SetupView extends WebviewBase {
 
@@ -11,7 +13,17 @@ export class SetupView extends WebviewBase {
 
     onMessage(message:webview.Message, panel:vscode.WebviewPanel){
         if(message.id === "submit"){
-            this.createConfig(message.payload);
+            let file = this.createConfig(message.payload);
+            panel.dispose();
+            vscode.commands.executeCommand("ler-botbuilder.openFile", <Linkable>{
+                getTarget(){
+                    return {
+                        file, 
+                        line:-1
+                    };
+                }
+            });
+            setTimeout(()=>{vscode.commands.executeCommand("workbench.action.reloadWindow");}, 200);
         }
     }
 
@@ -20,13 +32,16 @@ export class SetupView extends WebviewBase {
         return this.html.replace("${CONFIG_SCHEMA}", configSchema);
     }
 
-    createConfig(payload: {[key:string]: webview.InputState}){
+    createConfig(payload: {[key:string]: webview.InputState}):string{
         let out:{[key:string]: any} = {};
         for(let [key, input] of Object.entries(payload)){
             out[key] = input.data;
         }
-        console.log(JSON.stringify(out, null, 4));
-        fs.writeFileSync(vscode.workspace.rootPath + "/" + vscode.workspace.getConfiguration("ler-botbuilder").get("configPath"), 
-            JSON.stringify(out, null, 4));
+
+        out.hardware = JSON.parse(fs.readFileSync(__dirname+"/../../../resources/defaultHardware.json").toString().replace(/\r?\n|\r/g, "").replace(/\\/g, "\\\\").replace(/'/g, "\\'")).hardware;
+       
+        let file = vscode.workspace.rootPath + "/" + vscode.workspace.getConfiguration("ler-botbuilder").get("configPath");
+        fs.writeFileSync(file, JSON.stringify(out, null, 4));
+        return file;
     }
 }
