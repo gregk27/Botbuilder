@@ -358,9 +358,9 @@ export class HardwareParameter extends ParameterItem {
     constructor(parent:ParameterSelector){
         super(parent, 
             new InputValidator(null, new EmptyTest(".input"))
-            .addTest("namechars", new RegexTest(".input .argName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
-            .addTest("lowercase", new RegexTest(".input .argName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g))
-            .addTest("docescape", new RegexTest(".input .argDoc", "Javadoc cannot contain sequence \"*/\"", 25, /^((?!\*\/).)*$/g)),
+            .addTest("namechars", new RegexTest("namechars", ".input .argName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
+            .addTest("lowercase", new RegexTest("lowercase", ".input .argName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g))
+            .addTest("docescape", new RegexTest("docescape", ".input .argDoc", "Javadoc cannot contain sequence \"*/\"", 25, /^((?!\*\/).)*$/g)),
             window.hardwareTypes);
     }
 
@@ -422,8 +422,8 @@ export class SubsystemParameter extends ParameterItem {
     constructor(parent:ParameterSelector){
         super(parent, 
             new InputValidator(null, new EmptyTest(".input .paramName", ""))
-            .addTest("namechars", new RegexTest(".input .paramName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
-            .addTest("lowercase", new RegexTest(".input .paramName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g)), 
+            .addTest("namechars", new RegexTest("namechars", ".input .paramName", "Variable name can only contain alphanumeric characters", 25, /^[A-Za-z0-9]*$/g))
+            .addTest("lowercase", new RegexTest("lowercase", ".input .paramName", "Variable name should start with a lowercase", 15, /^[a-z]|^$/g)), 
             window.subsystems);
     }
 

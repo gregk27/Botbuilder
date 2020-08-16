@@ -133,6 +133,10 @@ export abstract class InputTest {
      */
     constructor(
         /**
+         * The name of the test
+         */
+        public name:string,
+        /**
          * Selector used to pick test element
          * @remarks `root` will pass the root element 
          */
@@ -164,13 +168,14 @@ export class RegexTest extends InputTest {
     /**
      * Create a new test build around a regular epression
      * 
+     * @param name The name of the test
      * @param selector Selector used to pick test element, `root` will yeild the root element 
      * @param message The error message on fail
      * @param level The error level
      * @param regex The regular expression to check against
      */
-    constructor(selector:string, message:string, level:number, regex:RegExp){
-        super(selector, message, level);
+    constructor(name:string, selector:string, message:string, level:number, regex:RegExp){
+        super(name, selector, message, level);
         this.regex = regex;
     }
 
@@ -192,7 +197,7 @@ export class EmptyTest extends InputTest {
      * @param message The error message on fail
      */
     constructor(selector:string, empty="", message="Cannot be empty"){
-        super(selector, message, 30);
+        super("emptytest", selector, message, 30);
         this.empty = empty;
     }
 
