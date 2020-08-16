@@ -1,13 +1,5 @@
 {
-    "subsystemPackage": "{BASE_PACKAGE}/subsystems",
-    "commandPackage":"{BASE_PACKAGE}/commands",
-    "instantCommandPackage":"{BASE_PACKAGE}/commands/instant",
-    "autoCommandPackage":"{BASE_PACKAGE}/commands/autonomous",
-    "instantAutoCommandPackage":"{BASE_PACKAGE}/commands/instant",
-
-    "srcFolder": "src/main/java",
-    "buildFolder": "build/classes/java/main",
-
+    "$schema":"./hardware.schema.json",
     "hardware":{
         "motorControllers": [
             {
@@ -35,7 +27,7 @@
             {
                 "name": "Solenoid",
                 "prettyName": "Solenoid",
-                "descriptor":"edu/wpi/first/wpilibj/Solenoid"
+                "descriptor": "edu/wpi/first/wpilibj/Solenoid"
             },
             {
                 "name": "DoubleSolenoid",
@@ -50,7 +42,6 @@
                 "descriptor": "edu/wpi/first/wpilibj/ADXRS450_Gyro"
             }
         ],
-        "other": [
-        ]
+        "other": []
     }
 }

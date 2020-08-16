@@ -3,44 +3,6 @@
     "type": "object",
     "title": "Botbuilder config schema",
     "description": "The schema for botbuilder configuration file",
-    "definitions": {
-        "hardwareType": {
-            "$id": "#/definitions/hardwareType",
-            "type":"object",
-            "required": [ "name", "prettyName", "descriptor" ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "The name of the hardware component's class",
-                    "default": "",
-                    "examples": [
-                        "DigitalInput"
-                    ]
-                },
-                "prettyName": {
-                    "type": "string",
-                    "description": "A pretty-print version of the name to be used in creation dialogs",
-                    "default": "",
-                    "examples": [
-                        "Digital Input"
-                    ]
-                },
-                "descriptor": {
-                    "type": "string",
-                    "description": "The descriptor for the component's class",
-                    "default": "",
-                    "examples": [
-                        "edu/wpi/first/wpiblibj/DigitalInput"
-                    ]
-                }
-            },
-            "default": {
-                "name":"",
-                "prettyName":"",
-                "descriptor":""
-            }
-        }
-    },
     "required": [
         "subsystemPackage",
         "commandPackage",
@@ -128,51 +90,10 @@
             "title": "The test folder",
             "description": "The path to the folder containing test code`, relative to the workspace root",
             "default": "src/test/java",
-            "category": "folders"
+            "category": "packfoldersages"
         },
         "hardware": {
-            "$id": "#/properties/hardware",
-            "type": "object",
-            "title": "Hardware types",
-            "description": "The hardware components that will be recognised by the extension",
-            "default": {},
-            "required": [
-                "motorControllers",
-                "pneumatics",
-                "sensors",
-                "other"
-            ],
-            "properties": {
-                "motorControllers": {
-                    "$id": "#/properties/hardware/properties/motorControllers",
-                    "type": "array",
-                    "title": "Motor controller types",
-                    "description": "Types that represent motor controllers",
-                    "items": { "$ref": "#/definitions/hardwareType" }
-                },
-                "pneumatics": {
-                    "$id": "#/properties/hardware/properties/pneumatics",
-                    "type": "array",
-                    "title": "Pneumatic hardware types",
-                    "description": "Types that represent pneumatic hardware",
-                    "items": { "$ref": "#/definitions/hardwareType" }
-                },
-                "sensors": {
-                    "$id": "#/properties/hardware/properties/sensors",
-                    "type": "array",
-                    "title": "Sensor types",
-                    "description": "Types that represent sensors",
-                    "items": { "$ref": "#/definitions/hardwareType" }
-                },
-                "other": {
-                    "$id": "#/properties/hardware/properties/other",
-                    "type": "array",
-                    "title": "Other hardware types",
-                    "description": "Types that represent other hardware",
-                    "items": { "$ref": "#/definitions/hardwareType" }
-                }
-            },
-            "additionalProperties": false
+            "$ref": "./hardware.schema.json#/definitions/hardware"
         }
     },
     "additionalProperties": false
