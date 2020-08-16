@@ -38,6 +38,10 @@
 				"command": "ler-botbuilder.newCommand",
 				"title": "Botbuilder: New Command",
 				"icon": "$(plus)"
+			},
+			{
+				"command": "ler-botbuilder.setup",
+				"title": "Botbuilder: Initialize botbuilder for this workspace"
 			}
 		],
 		"viewsContainers": {
@@ -116,7 +120,13 @@
 				"fileMatch": "botbuilder.json",
 				"url": "./resources/config.schema.json"
 			}
-		]
+		],
+		"viewsWelcome": [
+			{
+			  "view": "subsystems",
+			  "contents": "This project does not appear to use Botbuilder.\n[Initialize Botbuilder](command:ler-botbuilder.setup)"
+			}
+		  ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

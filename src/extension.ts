@@ -11,6 +11,7 @@ import getConfig, { loadConfig, setBasePackage } from './config';
 import * as Path from 'path';
 import * as fs from 'fs';
 import * as cp from 'child_process';
+import { SetupView as SetupView } from './webviews/setupView';
 
 let providers:DataProvider[] = [];
 let loader = new Loader(vscode.workspace.rootPath);
@@ -59,6 +60,11 @@ export function activate(context: vscode.ExtensionContext) {
 		new CommandCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
 	});
 
+	
+	let setupCommand = vscode.commands.registerCommand('ler-botbuilder.setup', ()=>{
+		new SetupView(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
+	});
+
 	vscode.workspace.onDidSaveTextDocument(()=>{
 		buildCode();
 	});
@@ -87,6 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(openCommand);
 	context.subscriptions.push(newSubsystemCommand);
 	context.subscriptions.push(newCommandCommand);
+	context.subscriptions.push(setupCommand);
 }
 
 
