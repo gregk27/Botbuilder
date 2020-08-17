@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "ler-botbuilder" is now active!');
+	console.log('Congratulations, your extension "botbuilder" is now active!');
 
 	loadConfig(vscode.workspace.rootPath, Path.join(__dirname, "..", "..", "resources"));
 	console.log(JSON.stringify(getConfig()));
@@ -30,10 +30,10 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let refreshCommand = vscode.commands.registerCommand('ler-botbuilder.refresh', () => {
+	let refreshCommand = vscode.commands.registerCommand('botbuilder.refresh', () => {
 		buildCode();
 	});
-	let openCommand = vscode.commands.registerCommand('ler-botbuilder.openFile', (file) => {
+	let openCommand = vscode.commands.registerCommand('botbuilder.openFile', (file) => {
 		console.log(file);
 		// if(file instanceof JavaClass){
 		// 	vscode.workspace.openTextDocument((<JavaClass> file).srcFile).then(document => {
@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	
 	
-	let setupCommand = vscode.commands.registerCommand('ler-botbuilder.setup', ()=>{
+	let setupCommand = vscode.commands.registerCommand('botbuilder.setup', ()=>{
 		if(getConfig() !== null){
 			vscode.window.showInformationMessage("Botbuilder is already initialized for this workspace");
 		} else {
@@ -63,14 +63,14 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	let newSubsystemCommand = vscode.commands.registerCommand('ler-botbuilder.newSubsystem', ()=>{
+	let newSubsystemCommand = vscode.commands.registerCommand('botbuilder.newSubsystem', ()=>{
 		if(getConfig() === null){
 			vscode.window.showInformationMessage("Botbuilder is not initialized for this workspace");
 		} else {
 			new SubsystemCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
 		}
 	});
-	let newCommandCommand = vscode.commands.registerCommand('ler-botbuilder.newCommand', ()=>{
+	let newCommandCommand = vscode.commands.registerCommand('botbuilder.newCommand', ()=>{
 		if(getConfig() === null){
 			vscode.window.showInformationMessage("Botbuilder is not initialized for this workspace");
 		} else {

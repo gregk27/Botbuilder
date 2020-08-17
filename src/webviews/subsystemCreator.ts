@@ -24,7 +24,7 @@ export class SubsystemCreator extends WebviewBase {
         if(message.id === "submit"){
             let file = this.buildClass(message.payload);
             panel.dispose();
-            vscode.commands.executeCommand("ler-botbuilder.openFile", <Linkable>{
+            vscode.commands.executeCommand("botbuilder.openFile", <Linkable>{
                 getTarget(){
                     return{
                         file,

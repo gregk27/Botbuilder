@@ -15,7 +15,7 @@ export class SetupView extends WebviewBase {
         if(message.id === "submit"){
             let file = this.createConfig(message.payload);
             panel.dispose();
-            vscode.commands.executeCommand("ler-botbuilder.openFile", <Linkable>{
+            vscode.commands.executeCommand("botbuilder.openFile", <Linkable>{
                 getTarget(){
                     return {
                         file, 
@@ -46,7 +46,7 @@ export class SetupView extends WebviewBase {
         if(payload["addMocks"].data === true){
             this.addMocks();
         }
-        let file = vscode.workspace.rootPath + "/" + vscode.workspace.getConfiguration("ler-botbuilder").get("configPath");
+        let file = vscode.workspace.rootPath + "/" + vscode.workspace.getConfiguration("botbuilder").get("configPath");
         fs.writeFileSync(file, JSON.stringify(out, null, 4));
         return file;
     }

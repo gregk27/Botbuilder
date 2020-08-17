@@ -1,8 +1,9 @@
 {
-	"name": "ler-botbuilder",
-	"displayName": "LER BotBuilder",
-	"description": "An extension to generate code snippets for FRC team 2708",
+	"name": "botbuilder",
+	"displayName": "BotBuilder",
+	"description": "An extension to show FRC robot code components and improve subsystem/command creation",
 	"version": "0.0.1",
+	"publisher": "gregk",
 	"engines": {
 		"vscode": "^1.47.0"
 	},
@@ -16,45 +17,45 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "ler-botbuilder.refresh",
+				"command": "botbuilder.refresh",
 				"title": "Refresh BotBuilder",
 				"icon": "$(refresh)"
 			},
 			{
-				"command": "ler-botbuilder.toggleScope",
+				"command": "botbuilder.toggleScope",
 				"title": "Toggle BotBuilder scope"
 			},
 			{
-				"command": "ler-botbuilder.openFile",
+				"command": "botbuilder.openFile",
 				"title": "Open",
 				"icon": "$(file-symlink-file)"
 			},
 			{
-				"command": "ler-botbuilder.newSubsystem",
+				"command": "botbuilder.newSubsystem",
 				"title": "Botbuilder: New Subsystem",
 				"icon": "$(plus)"
 			},
 			{
-				"command": "ler-botbuilder.newCommand",
+				"command": "botbuilder.newCommand",
 				"title": "Botbuilder: New Command",
 				"icon": "$(plus)"
 			},
 			{
-				"command": "ler-botbuilder.setup",
+				"command": "botbuilder.setup",
 				"title": "Botbuilder: Initialize botbuilder for this workspace"
 			}
 		],
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "ler-botbuilder",
-					"title": "LER BotBuilder",
+					"id": "botbuilder",
+					"title": "BotBuilder",
 					"icon": "resources/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"ler-botbuilder": [
+			"botbuilder": [
 				{
 					"id": "subsystems",
 					"name": "Subsystems",
@@ -72,35 +73,35 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "ler-botbuilder.refresh",
+					"command": "botbuilder.refresh",
 					"when": "view == subsystems || view == commands",
 					"group": "navigation"
 				},
 				{
-					"command": "ler-botbuilder.newSubsystem",
+					"command": "botbuilder.newSubsystem",
 					"when": "view == subsystems",
 					"group": "navigation"
 				},
 				{
-					"command": "ler-botbuilder.newCommand",
+					"command": "botbuilder.newCommand",
 					"when": "view == commands",
 					"group": "navigation"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "ler-botbuilder.openFile",
+					"command": "botbuilder.openFile",
 					"when": "viewItem == subsystem || viewItem == command || viewItem == method",
 					"group": "inline"
 				}
 			],
 			"commandPalette": [
 				{
-					"command": "ler-botbuilder.refresh",
+					"command": "botbuilder.refresh",
 					"when": "never"
 				},
 				{
-					"command": "ler-botbuilder.openFile",
+					"command": "botbuilder.openFile",
 					"when": "never"
 				}
 			]
@@ -108,7 +109,7 @@
 		"configuration": {
 			"title": "Botbuilder",
 			"properties": {
-				"ler-botbuilder.configPath":{
+				"botbuilder.configPath":{
 					"type": "string",
 					"default": "/botbuilder.json",
 					"markdownDescription": "The path to the `botbuilder.json` configuration file, relative to the workspace root"
@@ -124,7 +125,7 @@
 		"viewsWelcome": [
 			{
 			  "view": "subsystems",
-			  "contents": "This project does not appear to use Botbuilder.\n[Initialize Botbuilder](command:ler-botbuilder.setup)"
+			  "contents": "This project does not appear to use Botbuilder.\n[Initialize Botbuilder](command:botbuilder.setup)"
 			}
 		  ]
 	},
