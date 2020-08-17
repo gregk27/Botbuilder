@@ -1,65 +1,86 @@
-# botbuilder README
-
-This is the README for your extension "botbuilder". After writing up a brief description, we recommend including the following sections.
+# Botbuilder
+Botbuilder is a VSCode extension to assist in developing FRC java robots.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Sidebars
+The extension features multiple sidebar treeviews outlining components of the robot.
 
-For example if there is an image subfolder under your extension project workspace:
+#### Subsystem View
+The subsystem view shows a list of subsytem classes in the workspace. Classes are identified as subsystems if they directly extend `edu.wpi.first.wpilibj2.command.SubsystemBase`. Subsystems can be opened directly from this view.
 
-\!\[feature X\]\(images/feature-x.png\)
+For each subsytem, the following is shown:
+ - Hardware components passed in the constructor, from the hardware list in `botbuilder.json` (name & type)
+ - Publicly accessible fields & all constants (name, scope, modifiers, type, value if final)
+ - Publicly accessible functions (name, parameters, return type)
+ - Publicly accessible enums and inner classes (name, fields/values, functions)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+#### Command View
+The command view shows a list of command classes in the workspace. Classes are identified as command if they directly extend `edu.wpi.first.wpilibj2.command.CommandBase` or `edu.wpi.first.wpilibj2.command.InstantCommand`. Commands can be opened directly from this view.
+
+For each command, the following is shown:
+ - Whether the command is normal, instant, or autonomous (auto determined by package)
+ - Subsystems passed in the constructor (name & class)
+ - Publicly accessible fields & all constants (name, scope, modifiers, type, value if final)
+ - Publicly accessible functions (name, parameters, return type)
+ - Publicly accessible enums and inner classes (name, fields/values, functions)
+
+### Wizards
+The extension also adds wizards for creating subsystems and commands
+
+#### Subsystem Wizard
+The subsystem wizard allows for the simplified creation of subsystems. It has the following options:
+ - **Name:** Name of the subystem
+ - **Description:** A description of the subsystem that will be used as javadoc
+ - **Package:** The package where the subsytem will be placed
+ - **Hardware**: A list of hardware components required by the subsystem. These are passed to the constructor then stored in fields.
+   - **Type:** A dropdown list of hardware types defined in `botbuilder.json`
+   - **Name:** The name of the hardware component variable
+   - **Javadoc:** The javadoc describing the hardware component
+
+#### Command Wizard
+The command wizard allows for the simplified creation of commands. It has the following options:
+ - **Name:** Name of the command, a warning will be given if this does not meet the format `*Command`
+ - **Description:** A description of the command that will be used as javadoc
+ - **Package:** The package where the command will be placed
+ - **Auto:** If checked, the command will be placed in the autonomous package
+ - **Instant:** If checked, the command will extend `InstantCommand` and be placed in the instant package
+ - **Subsystems**: A list of subsystems required by the command. These are passed to the constructor then stored in fields.
+   - **Type:** A dropdown list of subsytems found in the workspace
+   - **Name:** The name of the subsytem variable
+   - **Required:** If checked, the `addRequirements` function will be called for this subsystem. 
+   - **Javadoc:** The javadoc describing the subsystem
 
 ## Requirements
+The Botbuilder extension requires that the project be valid FRC Robot code.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Configuration 
+The extension uses it's own JSON configuration file. This file is created automatically when botbuilder is initialized.
 
-## Extension Settings
+The location of this file is set by the VSCode setting `botbuilder.configPath`. The default is a file named `botbuilder.json` at the workspace root.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+#### Package configuration
+There are five configuration entries which are used to configure the packages for code elements. These are:
+ - **subsystemPackage:** The package where subsystems will be placed
+ - **commandPackage:** The package where commands will be placed
+ - **instantCommandPackage:** The package where instant commands will be placed
+ - **autoCommandPackage:** The package where auto commands will be placed. Additionally, commands in this package will be marked as autonomous in the command view
+ - **instantAutoCommandPackage:** The package where commands that are both instant and autonomous will be placed. Additionally, commands in this package will be marked as autonomous in the command view
 
-For example:
 
-This extension contributes the following settings:
+#### Build configuration
+There are four configuration entries which are used to locate source and built files
+ - **baseClassName:** The name of the entry class, this will be used to determine the base package
+ - **srcFolder:** The java source folder
+ - **buildFolder:** The gradle build folder
+ - **testFolder:** The java test folder
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+#### Hardware configuration
+The hardware configuration is the list of hardware components that will be recognised by the extension. Components are broken into four categories: motorControllers, pneumatics, sensors, and other.
 
-## Known Issues
+Each component has the following properties
+ - **name:** The name of component's class
+ - **prettyName:** A pretty-print name to be used on the frontend
+ - **descriptor:** The [java descriptor](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2.1) for the component's class
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**

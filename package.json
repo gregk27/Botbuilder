@@ -1,7 +1,7 @@
 {
 	"name": "botbuilder",
 	"displayName": "BotBuilder",
-	"description": "An extension to show FRC robot code components and improve subsystem/command creation",
+	"description": "Extension to assist in developing FRC java robots",
 	"version": "0.0.1",
 	"publisher": "gregk",
 	"engines": {
