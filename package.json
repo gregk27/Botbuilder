@@ -2,7 +2,7 @@
 	"name": "botbuilder",
 	"displayName": "BotBuilder",
 	"description": "Extension to assist in developing FRC java robots",
-	"version": "0.3.0",
+	"version": "0.3.5",
 	"publisher": "gregk",
 	"repository": {
 		"url": "https://github.com/gregk27/BotBuilder"
