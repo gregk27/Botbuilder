@@ -28,7 +28,7 @@ jobs:
         git config --global user.name 'Publish'
         git config --global user.email '' 
         npm version ${{ env.RELEASE_VERSION }}
-        git push
+        git push origin HEAD:master
     
     - name: Package vsix
       uses: lannonbr/vsce-action@master
