@@ -6,3 +6,6 @@ node_modules
 # Webpacked frontend scripts
 resources/html/bundle.js
 resources/html/bundle.js.map
+
+# PNGs, as they are merely build from SVGs
+resources/**/*.png
