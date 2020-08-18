@@ -27,7 +27,7 @@ jobs:
       run: |
         git config --global user.name 'Publish'
         git config --global user.email '' 
-        npm version ${{ env.RELEASE_VERSION }}
+        npm version ${{ env.RELEASE_VERSION }} -m "Version updated to %s automatically"
         git push origin HEAD:master
     
     - name: Package vsix
