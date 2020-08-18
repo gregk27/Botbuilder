@@ -2,7 +2,7 @@
 	"name": "botbuilder",
 	"displayName": "BotBuilder",
 	"description": "Extension to assist in developing FRC java robots",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"publisher": "gregk",
 	"repository": {
 		"url": "https://github.com/gregk27/BotBuilder"
@@ -112,7 +112,7 @@
 		"configuration": {
 			"title": "Botbuilder",
 			"properties": {
-				"botbuilder.configPath":{
+				"botbuilder.configPath": {
 					"type": "string",
 					"default": "/botbuilder.json",
 					"markdownDescription": "The path to the `botbuilder.json` configuration file, relative to the workspace root"
@@ -127,10 +127,10 @@
 		],
 		"viewsWelcome": [
 			{
-			  "view": "subsystems",
-			  "contents": "This project does not appear to use Botbuilder.\n[Initialize Botbuilder](command:botbuilder.setup)"
+				"view": "subsystems",
+				"contents": "This project does not appear to use Botbuilder.\n[Initialize Botbuilder](command:botbuilder.setup)"
 			}
-		  ]
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
