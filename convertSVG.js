@@ -1,8 +1,20 @@
 // This is a nodejs script that will convert all .svg files to .png files for vscode publishing
 const { convertFile } = require('convert-svg-to-png');
 const fs = require("fs");
+const { exit } = require('process');
 
 let basedir = __dirname+"/resources";
+
+let verbose = process.argv.includes("-v") || process.argv.includes("--verbose");
+
+if(process.argv.includes("--help") || process.argv.includes("-h")){
+    console.log(
+`CLI Options
+    -v --verbose    Enable verbose output
+    -h --help       Display this information
+`);
+    exit(0);
+}
 
 async function parseDir(path){
     let files = fs.readdirSync(path);
@@ -21,7 +33,7 @@ async function parseDir(path){
                     console.warn(e+"\n");
                 }
             } else {
-                console.log("Skipped: "+f.replace(basedir+"/", ""));
+                if(verbose){console.log("Skipped: "+f.replace(basedir+"/", ""));}
             }
         }
     }
