@@ -42,8 +42,8 @@ export abstract class TreeElementBase {
      */
     getIcon(): {dark:string, light:string} {
         return {
-            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.svg`,
-            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.svg`
+            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.png`,
+            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.png`
         };
     }
 }
@@ -93,8 +93,8 @@ export abstract class TreeElement<T extends JavaBase> extends TreeElementBase{
      */
     getIcon(): {dark:string, light:string} {
         return {
-            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.svg`,
-            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.svg`
+            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.png`,
+            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.png`
         };
     }
 }
@@ -111,8 +111,8 @@ export class Field extends TreeElement<JavaField> {
     getIcon(): { dark: string; light: string; } {        
         let icon = this.element.isFinal ? (this.element.scope === Scope.PUBLIC && this.element.isStatic ? "publicStaticConstant" : "constant") : "field";
         return {
-            dark: TreeElement.RES_FOLDER + `/dark/vscode/${icon}.svg`,
-            light: TreeElement.RES_FOLDER + `/light/vscode/${icon}.svg`
+            dark: TreeElement.RES_FOLDER + `/dark/vscode/${icon}.png`,
+            light: TreeElement.RES_FOLDER + `/light/vscode/${icon}.png`
         };
     }
 }

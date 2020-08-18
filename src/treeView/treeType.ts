@@ -61,8 +61,8 @@ export class TreeType extends TreeElement<JavaClass> implements Linkable {
 
     getIcon(): { dark: string; light: string; } {
         return {
-            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.svg`,
-            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.svg`
+            dark: TreeElement.RES_FOLDER + `/dark/${this.iconName}.png`,
+            light: TreeElement.RES_FOLDER + `/light/${this.iconName}.png`
         };
     }
 

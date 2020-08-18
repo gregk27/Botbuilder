@@ -53,7 +53,7 @@
 				{
 					"id": "botbuilder",
 					"title": "BotBuilder",
-					"icon": "resources/icon.svg"
+					"icon": "resources/icon.png"
 				}
 			]
 		},
@@ -63,13 +63,13 @@
 					"id": "subsystems",
 					"name": "Subsystems",
 					"contextualTitle": "BotBuilder",
-					"icon": "resources/subsystem.svg"
+					"icon": "resources/subsystem.png"
 				},
 				{
 					"id": "commands",
 					"name": "commands",
 					"contextualTitle": "BotBuilder",
-					"icon": "resources/command.svg"
+					"icon": "resources/command.png"
 				}
 			]
 		},
