@@ -33,9 +33,7 @@ jobs:
     - name: Package vsix
       uses: lannonbr/vsce-action@master
       with:
-        args: "package -p $VSCE_TOKEN"
-      env:
-        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+        args: "package"
 
     - name: Get release
       id: get_release
