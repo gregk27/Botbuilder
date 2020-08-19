@@ -8,7 +8,7 @@ import { getClassDetail } from "../javaParser/parserFunctions";
 import { Scope } from "../javaParser/common";
 import { InnerClassesAttributeInfo } from "java-class-tools";
 import { Linkable } from "src/treeView/codeElements";
-import { getSubsystemPackage, getCommandPackage, getAutoCommandPackage, getInstantCommandPackage, getInstantAutoCommandPackage } from "../config";
+import getConfig, { getSubsystemPackage, getCommandPackage, getAutoCommandPackage, getInstantCommandPackage, getInstantAutoCommandPackage } from "../config";
 
 export class CommandCreator extends WebviewBase {
     
@@ -35,7 +35,8 @@ export class CommandCreator extends WebviewBase {
             .replace(/\${PACKAGE_AUTO}/g, getAutoCommandPackage())
             .replace(/\${PACKAGE_INSTANT}/g, getInstantCommandPackage())
             .replace(/\${PACKAGE_AUTO_INSTANT}/g, getInstantAutoCommandPackage())
-            .replace(/\${SUBSYSTEMS}/g, JSON.stringify(subsystems));
+            .replace(/\${SUBSYSTEMS}/g, JSON.stringify(subsystems))
+            .replace(/\${MOCKS_WARNING}/g, !getConfig().hasMocks+"");
     }
 
     onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {
