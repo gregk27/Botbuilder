@@ -29,13 +29,6 @@ jobs:
         git config --global user.email '' 
         npm version ${{ env.RELEASE_VERSION }} -m "Version updated to %s automatically"
         git push origin HEAD:master
-    
-    - name: Publish extension
-      uses: lannonbr/vsce-action@master
-      with:
-        args: "publish -p $VSCE_TOKEN"
-      env:
-        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
     - name: Package vsix
       uses: lannonbr/vsce-action@master
@@ -57,3 +50,17 @@ jobs:
         asset_path: ./botbuilder-${{ env.RELEASE_VERSION }}.vsix
         asset_name: botbuilder-${{ env.RELEASE_VERSION }}.vsix
         asset_content_type: application/vsix
+
+    - uses: nanasess/setup-chromedriver@master
+      with:
+    - run: |
+        export DISPLAY=:99
+        chromedriver --url-base=/wd/hub &
+        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
+
+    - name: Publish extension
+      uses: lannonbr/vsce-action@master
+      with:
+        args: "publish -p $VSCE_TOKEN"
+      env:
+        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
