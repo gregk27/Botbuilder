@@ -25,6 +25,7 @@ jobs:
     
     - name: Set version
       run: |
+        git clean -f
         git config --global user.name 'Publish'
         git config --global user.email '' 
         npm version ${{ env.RELEASE_VERSION }} -m "Version updated to %s automatically"
