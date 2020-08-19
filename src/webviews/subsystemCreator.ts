@@ -18,7 +18,7 @@ export class SubsystemCreator extends WebviewBase {
         return this.html
             .replace(/\${PACKAGE}/g, getSubsystemPackage())
             .replace(/\${HARDWARE_TYPES}/g, JSON.stringify(getConfig().hardware))
-            .replace(/\${MOCKS_WARNING}/g, !getConfig().hasMocks+"");
+            .replace(/\${MOCKS_WARNING}/g, (!getConfig().hasMocks && !getConfig().suppressMocksWarning)+"");
     }
 
     onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {

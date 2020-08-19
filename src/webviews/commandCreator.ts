@@ -36,7 +36,7 @@ export class CommandCreator extends WebviewBase {
             .replace(/\${PACKAGE_INSTANT}/g, getInstantCommandPackage())
             .replace(/\${PACKAGE_AUTO_INSTANT}/g, getInstantAutoCommandPackage())
             .replace(/\${SUBSYSTEMS}/g, JSON.stringify(subsystems))
-            .replace(/\${MOCKS_WARNING}/g, !getConfig().hasMocks+"");
+            .replace(/\${MOCKS_WARNING}/g, (!getConfig().hasMocks && !getConfig().suppressMocksWarning)+"");
     }
 
     onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {

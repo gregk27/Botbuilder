@@ -49,6 +49,9 @@ export function loadConfig(workspaceRoot:string, resPath:string):boolean{
 
     // Check if frcMocks is in build and not preceeded by "//"
     config.hasMocks = /^[^\/\n]*ca.gregk:frcmocks/gm.test(fs.readFileSync(workspaceRoot+"/build.gradle").toString());
+    if(config.suppressMocksWarning === undefined){
+        config.suppressMocksWarning = false;
+    }
 
     if(watcher === null){
         //Create watcher to reload on changes

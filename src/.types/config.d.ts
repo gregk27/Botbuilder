@@ -43,9 +43,13 @@ export type TheSourceFolder = string;
  */
 export type TheBuildFolder = string;
 /**
- * The path to the folder containing test code`, relative to the workspace root
+ * The path to the folder containing test code, relative to the workspace root
  */
 export type TheTestFolder = string;
+/**
+ * If true, the missing FRCMocks warning will be hidden from wizards
+ */
+export type SuppressTheWarningAboutMissingFRCMocks = boolean;
 /**
  * Types that represent motor controllers
  */
@@ -76,6 +80,7 @@ export interface BotbuilderConfigSchema {
   srcFolder: TheSourceFolder;
   buildFolder: TheBuildFolder;
   testFolder?: TheTestFolder;
+  suppressMocksWarning?: SuppressTheWarningAboutMissingFRCMocks;
   hardware: HardwareTypes;
 }
 /**
