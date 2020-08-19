@@ -5,7 +5,7 @@ All notable changes to the "botbuilder" extension will be documented in this fil
 ## [Unreleased]
  - 
 
-### [0.4.1-0.4.9]
+### [0.4.1-0.4.10]
  - Various attempts at making png coversion work with actions
 
 ## [0.4.0] - 2020-08-18
