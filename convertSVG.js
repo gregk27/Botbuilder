@@ -1,5 +1,5 @@
 // This is a nodejs script that will convert all .svg files to .png files for vscode publishing
-const { convertFile } = require('convert-svg-to-png');
+const { svg2png } = require('svg-png-converter');
 const fs = require("fs");
 const { exit } = require('process');
 
@@ -28,7 +28,13 @@ async function parseDir(path){
             if(!fs.existsSync(png) || stat.mtime.getTime() > fs.lstatSync(png).mtime.getTime()){
                 console.log("Convert: "+f.replace(basedir+"/", ""));
                 try{
-                    await(convertFile(f));
+                    svg2png({
+                        input:fs.readFileSync(f),
+                        encoding:"buffer",
+                        format:'png'
+                    }).then((buffer)=>{
+                        fs.writeFileSync(png, buffer);
+                    });
                 } catch(e){
                     console.warn(e+"\n");
                 }
