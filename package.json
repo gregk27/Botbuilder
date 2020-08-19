@@ -1,9 +1,10 @@
 {
 	"name": "botbuilder",
-	"displayName": "BotBuilder",
-	"description": "Extension to assist in developing FRC java robots",
+	"displayName": "Botbuilder",
+	"description": "Extension to assist in developing First Robotics Compoetition java robots",
 	"version": "0.4.0",
 	"publisher": "gregk",
+	"icon": "./resources/icon.png",
 	"repository": {
 		"url": "https://github.com/gregk27/BotBuilder"
 	},
@@ -15,6 +16,9 @@
 	],
 	"activationEvents": [
 		"onView:subsystems"
+	],
+	"tags": [
+		"FRC", "java", "FIRST Robotics"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {
