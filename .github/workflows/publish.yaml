@@ -52,7 +52,6 @@ jobs:
         asset_content_type: application/vsix
 
     - uses: nanasess/setup-chromedriver@master
-      with:
     - run: |
         export DISPLAY=:99
         chromedriver --url-base=/wd/hub &
