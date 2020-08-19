@@ -10,6 +10,10 @@ interface ConfigData extends BotbuilderConfigSchema {
      * The package containing the base class as defined in the config file
      */
     basePackage:string;
+    /**
+     * Flag indicating wheter the project has FRCMocks in build.gradle
+     */
+    hasMocks:boolean;
 }
 
 
@@ -42,6 +46,9 @@ export function loadConfig(workspaceRoot:string, resPath:string):boolean{
     config = JSON.parse(fs.readFileSync(configPath).toString());
     config.workspaceRoot = workspaceRoot;
     config.resourcePath = resPath;
+
+    // Check if frcMocks is in build and not preceeded by "//"
+    config.hasMocks = /^[^\/\n]*ca.gregk:frcmocks/gm.test(fs.readFileSync(workspaceRoot+"/build.gradle").toString());
 
     if(watcher === null){
         //Create watcher to reload on changes
