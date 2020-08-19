@@ -18,7 +18,9 @@
 		"onView:subsystems"
 	],
 	"tags": [
-		"FRC", "java", "FIRST Robotics"
+		"FRC",
+		"java",
+		"FIRST Robotics"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {
