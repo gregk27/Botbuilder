@@ -6,6 +6,7 @@ import { buildCode, openFile } from "../extension";
 import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
 import { WebviewBase } from "./webView";
+import { generateSubsytemTest } from "./buildMock";
 
 export class SubsystemCreator extends WebviewBase {
 
@@ -26,7 +27,7 @@ export class SubsystemCreator extends WebviewBase {
             let file = this.buildClass(message.payload);
             openFile(file, -1, vscode.ViewColumn.One);
             if(message.payload.createTest.data){
-                file = this.buildMock(message.payload);
+                file = this.buildTest(message.payload);
                 openFile(file, -1, vscode.ViewColumn.Two);
             }
             panel.dispose();
@@ -53,26 +54,14 @@ export class SubsystemCreator extends WebviewBase {
         return builder.writeFile(this.basepath);
     }
 
-    buildMock(payload: {[key:string]: webview.InputState}){
+    buildTest(payload: {[key:string]: webview.InputState}){
         let className = payload["name"].data;
-        let varName = className.charAt(0).toLowerCase() + className.slice(1);
-        let fields:ClassBuilder.Field[] = [];
         let setup:ClassBuilder.Method;
+        let fields:ClassBuilder.Field[] = [];
         if(getConfig().hasMocks){
-            let setupBody = "// Create mocks for required hardware\n";
-            fields.push(new ClassBuilder.Field({import:null, type:className, isArray:false}, varName, Scope.PRIVATE));
-    
-            let args = "";
-            for(let h of payload["hardware"].data){
-                let mock = getClassDetail(getMockDescriptor(h.type));
-                fields.push(new ClassBuilder.Field({import:mock.full, type:mock.name, isArray:false}, h.name, Scope.PRIVATE, h.doc));
-                setupBody += `${h.name} = new ${mock.name}();\n`;
-                args += h.name+".getMock(), ";
-            }
-            args = args.slice(0, -2);
-    
-            setupBody += "\n// Create subsystem instance for testing\n";
-            setupBody += `${varName} = new ${className}(${args});`;
+            let code = generateSubsytemTest(className, payload["hardware"].data);
+            let setupBody = "// Create mocks for required hardware\n"+code.code;
+            fields = code.fields;
     
             setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, setupBody, ["Before"]);
         } else {

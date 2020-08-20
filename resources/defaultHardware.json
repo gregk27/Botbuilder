@@ -24,7 +24,7 @@
                 "name": "CANSparkMax",
                 "prettyName": "SparkMax (CAN)",
                 "descriptor": "com/revrobotics/CANSparkMax",
-                "mock": "ca/gregk/frcmocks/ctre/MockCANSparkMax"
+                "mock": "ca/gregk/frcmocks/rev/MockCANSparkMax"
             }
         ],
         "pneumatics": [
