@@ -2,7 +2,7 @@
 	"name": "botbuilder",
 	"displayName": "Botbuilder",
 	"description": "Extension to assist in developing First Robotics Compoetition java robots",
-	"version": "0.4.10",
+	"version": "0.5.0",
 	"publisher": "gregk",
 	"icon": "resources/icon.png",
 	"repository": {
