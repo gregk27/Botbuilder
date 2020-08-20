@@ -1,5 +1,5 @@
 // To update the type declaration, run the command "json2ts ./resources/config.schema.json > ./src/.types/config.d.ts" from the project root
-import { BotbuilderConfigSchema } from "src/.types/config";
+import { BotbuilderConfigSchema, HardwareType } from "src/.types/config";
 import * as fs from "fs";
 import * as vscode from "vscode";
 
@@ -99,3 +99,14 @@ export function getInstantAutoCommandPackage():string {
     return getPackage(config.instantAutoCommandPackage);
 }
 
+export function getMockDescriptor(descriptor:string):string {
+    let hardware = getConfig().hardware;
+    for(let c of Object.values(hardware)){
+        for(let h of <HardwareType[]> c){
+            if(descriptor === h.descriptor){
+                return h.mock;
+            }
+        }
+    }
+    return null;
+}
