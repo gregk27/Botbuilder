@@ -6,7 +6,7 @@ import { buildCode, openFile } from "../extension";
 import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
 import { WebviewBase } from "./webView";
-import { generateSubsytemTest } from "./buildMock";
+import { generateSubsytemTest } from "./buildTest";
 
 export class SubsystemCreator extends WebviewBase {
 

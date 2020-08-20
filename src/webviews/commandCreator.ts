@@ -6,7 +6,7 @@ import getConfig, { getAutoCommandPackage, getCommandPackage, getInstantAutoComm
 import { getSubsystems, buildCode, openFile } from "../extension";
 import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
-import { generateSubsytemTest } from "./buildMock";
+import { generateSubsytemTest } from "./buildTest";
 import { WebviewBase } from "./webView";
 import { Linkable } from "../treeView/codeElements";
 
@@ -43,15 +43,15 @@ export class CommandCreator extends WebviewBase {
         if(message.id === "submit"){
             if(message.id === "submit"){
                 console.clear();
-            let file = this.buildClass(message.payload);
+                let file = this.buildClass(message.payload);
                 openFile(file, -1, vscode.ViewColumn.One);
                 if(message.payload.createTest.data){
                     file = this.buildTest(message.payload);
                     openFile(file, -1, vscode.ViewColumn.Two);
                 }
-            panel.dispose();
+                panel.dispose();
                 buildCode();
-                }
+            }
         }
     }
 
