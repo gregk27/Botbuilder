@@ -105,5 +105,9 @@ export interface HardwareType {
    * The descriptor for the component's class
    */
   descriptor: string;
+  /**
+   * The descriptor for the component's mock wrapper
+   */
+  mock:string;
   [k: string]: unknown;
 }
