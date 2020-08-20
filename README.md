@@ -33,6 +33,7 @@ The subsystem wizard allows for the simplified creation of subsystems. It has th
  - **Name:** Name of the subystem
  - **Description:** A description of the subsystem that will be used as javadoc
  - **Package:** The package where the subsytem will be placed
+ - **Create Test:** If checked, a test class will be created in the test folder (as defined in `botbuilder.json`). NOTE: For full functionality, [FRCMocks](https://github.com/gregk27/frcmocks) must be installed.
  - **Hardware**: A list of hardware components required by the subsystem. These are passed to the constructor then stored in fields.
    - **Type:** A dropdown list of hardware types defined in `botbuilder.json`
    - **Name:** The name of the hardware component variable
@@ -45,6 +46,7 @@ The command wizard allows for the simplified creation of commands. It has the fo
  - **Package:** The package where the command will be placed
  - **Auto:** If checked, the command will be placed in the autonomous package
  - **Instant:** If checked, the command will extend `InstantCommand` and be placed in the instant package
+ - **Create Test:** If checked, a test class will be created in the test folder (as defined in `botbuilder.json`). NOTE: For full functionality, [FRCMocks](https://github.com/gregk27/frcmocks) must be installed.
  - **Subsystems**: A list of subsystems required by the command. These are passed to the constructor then stored in fields.
    - **Type:** A dropdown list of subsytems found in the workspace
    - **Name:** The name of the subsytem variable
@@ -53,6 +55,8 @@ The command wizard allows for the simplified creation of commands. It has the fo
 
 ## Requirements
 The Botbuilder extension requires that the project be valid FRC Robot code.
+
+For full test building funcitonality, [FRCMocks](https://github.com/gregk27/frcmocks) is required. It can be automatically installed on initialization.
 
 ## Configuration 
 The extension uses it's own JSON configuration file. This file is created automatically when botbuilder is initialized.

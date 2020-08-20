@@ -5,6 +5,10 @@ All notable changes to the "botbuilder" extension will be documented in this fil
 ## [Unreleased]
  - 
 
+### [0.5.0] - 2020-08-20
+ - Added test class generation to subsystem/command wizard
+   - If installed, this will use [FRCMocks](https://github.com/gregk27/frcmocks)
+
 ### [0.4.1-0.4.10]
  - Various attempts at making png coversion work with actions
 
