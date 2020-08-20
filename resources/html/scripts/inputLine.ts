@@ -206,10 +206,17 @@ export namespace InputLine {
         let override = disabled ? `            
             <div class="enable"><input type="checkbox" id="override${id}"><label
             for="override${id}">Override</label></div>` : "";
+        let input = "";
+        if(type === InputType.TEXT){
+            input = `<input type="text" value="${value}" class="input" id="${id}" hint="${hint}" ${disabled ? "disabled" : ""} />`;
+        } else if(type === InputType.CHECKBOX){
+            input = `<input type="checkbox" class="input" id="${id}" ${value ? "checked" : ""} />`;
+        }
+
         let html = ` 
             <div class="notif">&#9888; <span class="msg">placeholder</span></div>
             <label for="${id}">${label}</label>
-            <input type="text" value="${value}" class="input" id="${id}" hint="${hint}" ${disabled ? "disabled" : ""} />
+            ${input}
             <span class="desc">${desc}</span>
             ${reset}
             ${override}`;

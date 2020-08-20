@@ -14,6 +14,7 @@ export class ClassBuilder {
     public fields: ClassBuilder.Field[],
     public methods: ClassBuilder.Method[],
     public doc: string=null,
+    public otherImports: string[]=[],
     public body:string=null
   ) {
 
@@ -53,7 +54,7 @@ export class ClassBuilder {
   }
 
   getCode(): string {
-    this.imports = [];
+    this.imports = this.otherImports;
 
     // Package declaration + imports
     let out = `package ${this.pckg.replace(/\//g, ".")};\n\n`;

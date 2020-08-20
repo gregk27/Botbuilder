@@ -54,9 +54,16 @@ export class SetupView extends WebviewBase {
     addMocks(){
         console.log("Adding mocks");
         let file = fs.readFileSync(vscode.workspace.rootPath+"/build.gradle").toString();
+        if(!file.includes("junit:junit")){
+            file = file.replace(/dependencies\s*{/g, "dependencies {\n    testImplementation 'junit:junit:4.+'\n");
+        }
+        if(!file.includes("org.mockito:mockito-core")){
+            file = file.replace(/dependencies\s*{/g, "dependencies {\n    testCompile 'org.mockito:mockito-core:2.+'\n");
+        }
         if(!file.includes("ca.gregk:frcmocks")){
             file = file.replace(/dependencies\s*{/g, "dependencies {\n    implementation 'ca.gregk:frcmocks:+'\n");
         }
+
         if(file.includes("repositories")){
             file = file.replace(/repositories\s*{/g, "repositories {\n    maven {\n                    url 'http://gregk.ca/FRCMocks/'\n                }\n");
         } else {

@@ -1,12 +1,12 @@
-import { WebviewBase } from "./webView";
-import * as vscode from "vscode";
-import getConfig, { getSubsystemPackage } from "../config";
 import { webview } from "resources/html/scripts/common";
+import * as vscode from "vscode";
 import { ClassBuilder } from "../classBuilder/classBuilder";
+import getConfig, { getMockDescriptor, getSubsystemPackage } from "../config";
+import { buildCode, openFile } from "../extension";
 import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
-import { Linkable } from "../treeView/codeElements";
-import { buildCode } from "../extension";
+import { WebviewBase } from "./webView";
+import { generateSubsytemTest } from "./buildTest";
 
 export class SubsystemCreator extends WebviewBase {
 
@@ -17,21 +17,20 @@ export class SubsystemCreator extends WebviewBase {
     public getHTML():string{
         return this.html
             .replace(/\${PACKAGE}/g, getSubsystemPackage())
-            .replace(/\${HARDWARE_TYPES}/g, JSON.stringify(getConfig().hardware));
+            .replace(/\${HARDWARE_TYPES}/g, JSON.stringify(getConfig().hardware))
+            .replace(/\${MOCKS_WARNING}/g, (!getConfig().hasMocks && !getConfig().suppressMocksWarning)+"");
     }
 
     onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {
         if(message.id === "submit"){
+            console.clear();
             let file = this.buildClass(message.payload);
+            openFile(file, -1, vscode.ViewColumn.One);
+            if(message.payload.createTest.data){
+                file = this.buildTest(message.payload);
+                openFile(file, -1, vscode.ViewColumn.Two);
+            }
             panel.dispose();
-            vscode.commands.executeCommand("botbuilder.openFile", <Linkable>{
-                getTarget(){
-                    return{
-                        file,
-                        line:-1
-                    };
-                }
-            });
             buildCode();
         }
     }
@@ -55,5 +54,21 @@ export class SubsystemCreator extends WebviewBase {
         return builder.writeFile(this.basepath);
     }
 
+    buildTest(payload: {[key:string]: webview.InputState}){
+        let className = payload["name"].data;
+        let setup:ClassBuilder.Method;
+        let fields:ClassBuilder.Field[] = [];
+        if(getConfig().hasMocks){
+            let code = generateSubsytemTest(className, payload["hardware"].data);
+            let setupBody = "// Create mocks for required hardware\n"+code.code;
+            fields = code.fields;
     
+            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, setupBody, ["Before"]);
+        } else {
+            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, null, ["Before"]);
+        }
+        let sampleTest = new ClassBuilder.Method(null, "sampleTest", [], Scope.PUBLIC, "Sample test method", false, false, "// Arrange\n\n// Act\n\n// Assert\n", ["Test"]);
+        let builder = new ClassBuilder(payload["package"].data, className+"Test", Scope.PUBLIC, null, [], fields, [setup, sampleTest], `Test class for ${className}`, ["org.junit.Before", "org.junit.Test"]);
+        return builder.writeFile(getConfig().workspaceRoot + "/" + getConfig().testFolder);
+    }
 }

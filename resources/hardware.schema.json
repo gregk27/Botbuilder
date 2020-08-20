@@ -7,7 +7,7 @@
         "hardwareType": {
             "$id": "#/definitions/hardwareType",
             "type":"object",
-            "required": [ "name", "prettyName", "descriptor" ],
+            "required": [ "name", "prettyName", "descriptor", "mock" ],
             "properties": {
                 "name": {
                     "type": "string",
@@ -31,6 +31,14 @@
                     "default": "",
                     "examples": [
                         "edu/wpi/first/wpiblibj/DigitalInput"
+                    ]
+                },
+                "mock": {
+                    "type": "string",
+                    "description": "The descriptor for the component's mock wrapper",
+                    "default": "",
+                    "examples": [
+                        "ca/gregk/frcmocks/wpiblib/MockDigitalInput"
                     ]
                 }
             },

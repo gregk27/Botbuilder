@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="parameterSelector.css"> 
     <script>
         var subsystems = JSON.parse('${SUBSYSTEMS}');
+        var mocksWarning = '${MOCKS_WARNING}' === 'true';
     </script>
     <script src="bundle.js"></script>
     <script>
@@ -117,12 +118,20 @@
             </div>
         </div>
 
-        <!-- <div class="inputLine">
+        <div class="inputLine" id="testCheckbox">
             <div class="notif err">&#9888; <span class="msg">placeholder</span></div>
             <label for="createTest">Create Test:</label>
             <input type="checkbox" class="input" id="createTest" style="margin-top: 0.3em;" checked/>
             <span class="desc">If checked, a test class will be created automatically</span>
-        </div> -->
+        </div>
+        <script>
+            if(mocksWarning){
+                let notif = document.querySelector("#testCheckbox .notif");
+                notif.querySelector(".msg").innerHTML = "This will only create an empty template, for full functionality please install FRCMocks";
+                notif.classList.remove("err");
+                notif.style.display = "block";                
+            }
+        </script>
 
     </div>
     
