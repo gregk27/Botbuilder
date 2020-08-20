@@ -5,7 +5,10 @@ All notable changes to the "botbuilder" extension will be documented in this fil
 ## [Unreleased]
  - 
 
-### [0.5.0] - 2020-08-20
+### [0.5.1]
+ - Changed markeplace banner to `#4a2a7c` with dark theme
+
+## [0.5.0] - 2020-08-20
  - Added test class generation to subsystem/command wizard
    - If installed, this will use [FRCMocks](https://github.com/gregk27/frcmocks)
 
