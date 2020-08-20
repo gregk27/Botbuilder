@@ -1,14 +1,14 @@
-import { WebviewBase } from "./webView";
-import * as vscode from 'vscode';
 import { ParameterItem } from "resources/html/scripts/parameterSelector";
-import { getSubsystems, buildCode } from "../extension";
+import * as vscode from 'vscode';
 import { webview } from "../../resources/html/scripts/common";
 import { ClassBuilder } from "../classBuilder/classBuilder";
-import { getClassDetail } from "../javaParser/parserFunctions";
+import getConfig, { getAutoCommandPackage, getCommandPackage, getInstantAutoCommandPackage, getInstantCommandPackage, getSubsystemPackage } from "../config";
+import { getSubsystems, buildCode, openFile } from "../extension";
 import { Scope } from "../javaParser/common";
-import { InnerClassesAttributeInfo } from "java-class-tools";
-import { Linkable } from "src/treeView/codeElements";
-import getConfig, { getSubsystemPackage, getCommandPackage, getAutoCommandPackage, getInstantCommandPackage, getInstantAutoCommandPackage } from "../config";
+import { getClassDetail } from "../javaParser/parserFunctions";
+import { generateSubsytemTest } from "./buildMock";
+import { WebviewBase } from "./webView";
+import { Linkable } from "../treeView/codeElements";
 
 export class CommandCreator extends WebviewBase {
     
@@ -41,17 +41,17 @@ export class CommandCreator extends WebviewBase {
 
     onMessage(message:webview.Message, panel:vscode.WebviewPanel):void {
         if(message.id === "submit"){
+            if(message.id === "submit"){
+                console.clear();
             let file = this.buildClass(message.payload);
-            panel.dispose();
-            vscode.commands.executeCommand("botbuilder.openFile", <Linkable>{
-                getTarget(){
-                    return{
-                        file,
-                        line:-1
-                    };
+                openFile(file, -1, vscode.ViewColumn.One);
+                if(message.payload.createTest.data){
+                    file = this.buildTest(message.payload);
+                    openFile(file, -1, vscode.ViewColumn.Two);
                 }
-            });
-            buildCode();
+            panel.dispose();
+                buildCode();
+                }
         }
     }
 
@@ -92,6 +92,55 @@ export class CommandCreator extends WebviewBase {
 
         let builder = new ClassBuilder(payload["package"].data, payload["name"].data, Scope.PUBLIC, superclass, [], fields, methods, payload["doc"].data);
         return builder.writeFile(this.basepath);
+    }
+
+    buildTest(payload: {[key:string]: webview.InputState}):string {    
+        let className = payload["name"].data;
+        let setup:ClassBuilder.Method;
+        let fields:ClassBuilder.Field[] = [];
+        let varName = className.charAt(0).toLowerCase() + className.slice(1);
+        let imports:string[] = [];
+        if(getConfig().hasMocks){
+            let setupBody = "// Create mocks for subsytems hardware\n";
+            let args = "";
+            for(let h of payload["hardware"].data){
+                for(let subsystem of getSubsystems()){
+                    // If the subsytem is the one required
+                    if(subsystem.element.descriptor === h.type){
+                        let subsystems:{name:string, type:string, doc:string}[] = [];
+                        // Get the init method's parameters
+                        for(let m of subsystem.element.methods){
+                            if(m.name === "<init>"){
+                                for(let p of m.params){
+                                    subsystems.push({name:p.name, type:p.type.fullClass, doc:""});
+                                }
+                                break;
+                            }
+                        }
+                        let code = generateSubsytemTest(subsystem.element.name, subsystems);
+                        fields = [...fields, ...code.fields];
+                        setupBody += code.code.replace("\n\n", "\n")+"\n\n";
+                        imports.push(subsystem.element.descriptor);
+                        args += code.varName+", ";
+                        break;
+                    }
+                }
+            }
+            args = args.slice(0, -2);
+
+            setupBody += "// Create command instance\n";
+            setupBody += `${varName} = new ${className}(${args});`;
+
+            fields.push(new ClassBuilder.Field({import:null, type:className, isArray:false}, varName, Scope.PRIVATE));
+
+            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, setupBody, ["Before"]);
+        } else {
+            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, null, ["Before"]);
+        }
+        let sampleTest = new ClassBuilder.Method(null, "sampleTest", [], Scope.PUBLIC, "Sample test method", false, false, "// Arrange\n\n// Act\n\n// Assert\n", ["Test"]);
+        let builder = new ClassBuilder(payload["package"].data, className+"Test", Scope.PUBLIC, null, [], fields, [setup, sampleTest], `Test class for ${className}`, ["org.junit.Before", "org.junit.Test", ...imports]);
+
+        return builder.writeFile(getConfig().workspaceRoot + "/" + getConfig().testFolder);
     }
 
 }
