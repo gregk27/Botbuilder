@@ -5,6 +5,10 @@
 	"version": "0.5.0",
 	"publisher": "gregk",
 	"icon": "resources/icon.png",
+	"galleryBanner": {
+		"color": "#4a2a7c",
+		"theme": "dark"
+	},
 	"repository": {
 		"url": "https://github.com/gregk27/BotBuilder"
 	},
