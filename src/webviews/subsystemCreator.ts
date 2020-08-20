@@ -2,11 +2,10 @@ import { webview } from "resources/html/scripts/common";
 import * as vscode from "vscode";
 import { ClassBuilder } from "../classBuilder/classBuilder";
 import getConfig, { getMockDescriptor, getSubsystemPackage } from "../config";
+import { buildCode, openFile } from "../extension";
 import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
 import { WebviewBase } from "./webView";
-import { Linkable } from "../treeView/codeElements";
-import { buildCode, openFile } from "../extension";
 
 export class SubsystemCreator extends WebviewBase {
 
@@ -55,28 +54,32 @@ export class SubsystemCreator extends WebviewBase {
     }
 
     buildMock(payload: {[key:string]: webview.InputState}){
-        let fields:ClassBuilder.Field[] = [];
-        let setupBody = "// Create mocks for required hardware\n";
-
         let className = payload["name"].data;
         let varName = className.charAt(0).toLowerCase() + className.slice(1);
-        fields.push(new ClassBuilder.Field({import:null, type:className, isArray:false}, varName, Scope.PRIVATE));
-
-        let args = "";
-        for(let h of payload["hardware"].data){
-            let mock = getClassDetail(getMockDescriptor(h.type));
-            fields.push(new ClassBuilder.Field({import:mock.full, type:mock.name, isArray:false}, h.name, Scope.PRIVATE, h.doc));
-            setupBody += `${h.name} = new ${mock.name}();\n`;
-            args += h.name+".getMock(), ";
+        let fields:ClassBuilder.Field[] = [];
+        let setup:ClassBuilder.Method;
+        if(getConfig().hasMocks){
+            let setupBody = "// Create mocks for required hardware\n";
+            fields.push(new ClassBuilder.Field({import:null, type:className, isArray:false}, varName, Scope.PRIVATE));
+    
+            let args = "";
+            for(let h of payload["hardware"].data){
+                let mock = getClassDetail(getMockDescriptor(h.type));
+                fields.push(new ClassBuilder.Field({import:mock.full, type:mock.name, isArray:false}, h.name, Scope.PRIVATE, h.doc));
+                setupBody += `${h.name} = new ${mock.name}();\n`;
+                args += h.name+".getMock(), ";
+            }
+            args = args.slice(0, -2);
+    
+            setupBody += "\n// Create subsystem instance for testing\n";
+            setupBody += `${varName} = new ${className}(${args});`;
+    
+            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, setupBody, ["Before"]);
+        } else {
+            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, null, ["Before"]);
         }
-        args = args.slice(0, -2);
-
-        setupBody += "\n// Create subsystem instance for testing\n";
-        setupBody += `${varName} = new ${className}(${args});`;
-
-        let setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, setupBody, ["Before"]);
-
-        let builder = new ClassBuilder(payload["package"].data, className+"Test", Scope.PUBLIC, null, [], fields, [setup], `Test class for ${className}`, ["org.junit.Before"]);
+        let sampleTest = new ClassBuilder.Method(null, "sampleTest", [], Scope.PUBLIC, "Sample test method", false, false, "// Arrange\n\n// Act\n\n// Assert\n", ["Test"]);
+        let builder = new ClassBuilder(payload["package"].data, className+"Test", Scope.PUBLIC, null, [], fields, [setup, sampleTest], `Test class for ${className}`, ["org.junit.Before", "org.junit.Test"]);
         return builder.writeFile(getConfig().workspaceRoot + "/" + getConfig().testFolder);
     }
 }
