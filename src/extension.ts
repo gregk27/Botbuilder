@@ -41,16 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// 	});
 		if (file !== null && 'getTarget' in file){ // Check if file implements linkable
 			let target = (<Linkable> file).getTarget();
-			console.log(`Opening ${target.file}:${target.line}`);
-			vscode.workspace.openTextDocument(target.file).then(document => {
-				vscode.window.showTextDocument(document).then(editor => {
-					if(target.line > 0){
-						let pos = new vscode.Position(target.line-1, 0);
-						editor.revealRange(new vscode.Range(pos, pos));
-						editor.selection = new vscode.Selection(pos, pos);
-					}
-				});
-			});
+			openFile(target.file, target.line, target.column);
 		}
 	});
 	
@@ -169,5 +160,17 @@ export function buildCode(ref:boolean = true){
 				}
 			});
 		}
+	});
+}
+
+export function openFile(file:string, line:number=-1, col:vscode.ViewColumn=vscode.ViewColumn.Active){
+	vscode.workspace.openTextDocument(file).then(document => {
+		vscode.window.showTextDocument(document, col || vscode.ViewColumn.Active).then(editor => {
+			if(line > 0){
+				let pos = new vscode.Position(line-1, 0);
+				editor.revealRange(new vscode.Range(pos, pos));
+				editor.selection = new vscode.Selection(pos, pos);
+			}
+		});
 	});
 }

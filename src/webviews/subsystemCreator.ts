@@ -6,7 +6,7 @@ import { Scope } from "../javaParser/common";
 import { getClassDetail } from "../javaParser/parserFunctions";
 import { WebviewBase } from "./webView";
 import { Linkable } from "../treeView/codeElements";
-import { buildCode } from "../extension";
+import { buildCode, openFile } from "../extension";
 
 export class SubsystemCreator extends WebviewBase {
 
@@ -25,18 +25,12 @@ export class SubsystemCreator extends WebviewBase {
         if(message.id === "submit"){
             console.clear();
             let file = this.buildClass(message.payload);
-            panel.dispose();
-            vscode.commands.executeCommand("botbuilder.openFile", <Linkable>{
-                getTarget(){
-                    return{
-                        file,
-                        line:-1
-                    };
-                }
-            });
+            openFile(file, -1, vscode.ViewColumn.One);
             if(message.payload.createTest.data){
-                this.buildMock(message.payload);
+                file = this.buildMock(message.payload);
+                openFile(file, -1, vscode.ViewColumn.Two);
             }
+            panel.dispose();
             buildCode();
         }
     }
@@ -68,8 +62,7 @@ export class SubsystemCreator extends WebviewBase {
         let varName = className.charAt(0).toLowerCase() + className.slice(1);
         fields.push(new ClassBuilder.Field({import:null, type:className, isArray:false}, varName, Scope.PRIVATE));
 
-        let args = "(";
-
+        let args = "";
         for(let h of payload["hardware"].data){
             let mock = getClassDetail(getMockDescriptor(h.type));
             fields.push(new ClassBuilder.Field({import:mock.full, type:mock.name, isArray:false}, h.name, Scope.PRIVATE, h.doc));
@@ -77,14 +70,13 @@ export class SubsystemCreator extends WebviewBase {
             args += h.name+".getMock(), ";
         }
         args = args.slice(0, -2);
-        args += ")";
 
         setupBody += "\n// Create subsystem instance for testing\n";
-        setupBody += `${varName} = new ${className}${args};`;
+        setupBody += `${varName} = new ${className}(${args});`;
 
         let setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, setupBody, ["Before"]);
 
         let builder = new ClassBuilder(payload["package"].data, className+"Test", Scope.PUBLIC, null, [], fields, [setup], `Test class for ${className}`, ["org.junit.Before"]);
-        builder.writeFile(getConfig().workspaceRoot + "/" + getConfig().testFolder);
+        return builder.writeFile(getConfig().workspaceRoot + "/" + getConfig().testFolder);
     }
 }

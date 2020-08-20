@@ -5,9 +5,10 @@ import { JavaClass } from "../javaParser/JavaClasses";
 import { JavaField, JavaMethod } from "../javaParser/JavaElements";
 import { Subsystem } from "./treeType";
 import { HardwareType } from "../.types/config";
+import * as vscode from "vscode";
 
 export interface Linkable{
-    getTarget():{file:string, line:number};
+    getTarget():{file:string, line:number, column?:vscode.ViewColumn};
 }
 
 export abstract class TreeElementBase {
