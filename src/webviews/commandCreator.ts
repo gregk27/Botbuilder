@@ -96,11 +96,12 @@ export class CommandCreator extends WebviewBase {
 
     buildTest(payload: {[key:string]: webview.InputState}):string {    
         let className = payload["name"].data;
-        let setup:ClassBuilder.Method;
+        let methods:ClassBuilder.Method[] = [];
         let fields:ClassBuilder.Field[] = [];
         let varName = className.charAt(0).toLowerCase() + className.slice(1);
         let imports:string[] = [];
         if(getConfig().hasMocks){
+            // Create subsystems
             let setupBody = "// Create mocks for subsytems hardware\n";
             let args = "";
             for(let h of payload["hardware"].data){
@@ -129,16 +130,23 @@ export class CommandCreator extends WebviewBase {
             args = args.slice(0, -2);
 
             setupBody += "// Create command instance\n";
-            setupBody += `${varName} = new ${className}(${args});`;
+            setupBody += `${varName} = new ${className}(${args});\n`;
 
             fields.push(new ClassBuilder.Field({import:null, type:className, isArray:false}, varName, Scope.PRIVATE));
 
-            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, setupBody, ["Before"]);
+            // Add code to setup scheduler
+            setupBody += "\n// Setup scheduler system\nTestWithScheduler.schedulerStart();\nTestWithScheduler.schedulerClear();\nMockHardwareExtension.beforeAll();";
+            imports.push("ca.gregk.frcmocks.scheduler.MockHardwareExtension");
+            imports.push("ca.gregk.frcmocks.scheduler.TestWithScheduler");
+
+            methods.push(new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup scheduler and subsystems before each test.", false, false, setupBody, ["Before"]));
+            methods.push(new ClassBuilder.Method(null, "after", [], Scope.PUBLIC, "Release scheduler and HAL", false, false, "TestWithScheduler.schedulerDestroy();\nMockHardwareExtension.afterAll();", ["After"]));
         } else {
-            setup = new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, null, ["Before"]);
+            methods.push(new ClassBuilder.Method(null, "setup", [], Scope.PUBLIC, "Setup hardware before each test.", false, false, null, ["Before"]));
         }
-        let sampleTest = new ClassBuilder.Method(null, "sampleTest", [], Scope.PUBLIC, "Sample test method", false, false, "// Arrange\n\n// Act\n\n// Assert\n", ["Test"]);
-        let builder = new ClassBuilder(payload["package"].data, className+"Test", Scope.PUBLIC, null, [], fields, [setup, sampleTest], `Test class for ${className}`, ["org.junit.Before", "org.junit.Test", ...imports]);
+        //Splice in demo method after setup method, but before any other methods
+        methods.splice(1,0,new ClassBuilder.Method(null, "sampleTest", [], Scope.PUBLIC, "Sample test method", false, false, "// Arrange\n\n// Act\n\n// Assert\n", ["Test"]));
+        let builder = new ClassBuilder(payload["package"].data, className+"Test", Scope.PUBLIC, null, [], fields, methods, `Test class for ${className}`, ["org.junit.Before", "org.junit.After", "org.junit.Test", ...imports]);
 
         return builder.writeFile(getConfig().workspaceRoot + "/" + getConfig().testFolder);
     }
