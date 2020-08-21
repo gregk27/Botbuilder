@@ -15,6 +15,8 @@ For each subsytem, the following is shown:
  - Publicly accessible functions (name, parameters, return type)
  - Publicly accessible enums and inner classes (name, fields/values, functions)
 
+![Subsytem View](https://github.com/gregk27/Botbuilder/blob/master/readme-res/subsystemView.png?raw=true)
+
 #### Command View
 The command view shows a list of command classes in the workspace. Classes are identified as command if they directly extend `edu.wpi.first.wpilibj2.command.CommandBase` or `edu.wpi.first.wpilibj2.command.InstantCommand`. Commands can be opened directly from this view.
 
@@ -24,6 +26,8 @@ For each command, the following is shown:
  - Publicly accessible fields & all constants (name, scope, modifiers, type, value if final)
  - Publicly accessible functions (name, parameters, return type)
  - Publicly accessible enums and inner classes (name, fields/values, functions)
+
+![Command View](https://raw.githubusercontent.com/gregk27/Botbuilder/master/readme-res/commandView.png?raw=true)
 
 ### Wizards
 The extension also adds wizards for creating subsystems and commands
@@ -39,6 +43,8 @@ The subsystem wizard allows for the simplified creation of subsystems. It has th
    - **Name:** The name of the hardware component variable
    - **Javadoc:** The javadoc describing the hardware component
 
+![Subsystem Wizard](https://raw.githubusercontent.com/gregk27/Botbuilder/master/readme-res/subsystemWizard.gif?raw=true)
+
 #### Command Wizard
 The command wizard allows for the simplified creation of commands. It has the following options:
  - **Name:** Name of the command, a warning will be given if this does not meet the format `*Command`
@@ -52,6 +58,8 @@ The command wizard allows for the simplified creation of commands. It has the fo
    - **Name:** The name of the subsytem variable
    - **Required:** If checked, the `addRequirements` function will be called for this subsystem. 
    - **Javadoc:** The javadoc describing the subsystem
+
+![Command Wizard](https://raw.githubusercontent.com/gregk27/Botbuilder/master/readme-res/commandWizard.gif?raw=true)
 
 ## Requirements
 The Botbuilder extension requires that the project be valid FRC Robot code.
