@@ -9,3 +9,5 @@ resources/html/bundle.js.map
 
 # PNGs, as they are merely build from SVGs
 resources/**/*.png
+# Keep readme PNGs
+!readme-res/**/*.png
