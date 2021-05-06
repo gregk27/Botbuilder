@@ -17,7 +17,7 @@ jobs:
     - name: Setup nodejs
       uses: actions/setup-node@v1
       with:
-        node-version: '10'
+        node-version: '14'
     - run: npm ci
 
     - name: Get version
