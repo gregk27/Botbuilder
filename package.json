@@ -1,8 +1,8 @@
 {
 	"name": "botbuilder",
 	"displayName": "Botbuilder",
-	"description": "Extension to assist in developing First Robotics Compoetition java robots",
-	"version": "0.5.1",
+	"description": "Extension to assist in developing First Robotics Competition java robots",
+	"version": "0.4.9",
 	"publisher": "gregk",
 	"icon": "resources/icon.png",
 	"galleryBanner": {
@@ -56,6 +56,11 @@
 			{
 				"command": "botbuilder.setup",
 				"title": "Botbuilder: Initialize botbuilder for this workspace"
+			},
+			{
+				"command": "botbuilder.runTests",
+				"title": "Botbuilder: Run tests for this class",
+				"icon": "$(beaker)"
 			}
 		],
 		"viewsContainers": {
@@ -105,6 +110,11 @@
 				{
 					"command": "botbuilder.openFile",
 					"when": "viewItem == subsystem || viewItem == command || viewItem == method",
+					"group": "inline"
+				},
+				{
+					"command": "botbuilder.runTests",
+					"when": "viewItem == subsystem || viewItem == command",
 					"group": "inline"
 				}
 			],
