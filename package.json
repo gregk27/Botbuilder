@@ -61,6 +61,16 @@
 				"command": "botbuilder.runTests",
 				"title": "Botbuilder: Run tests for this class",
 				"icon": "$(beaker)"
+			},
+			{
+				"command": "botbuilder.testSubsystems",
+				"title": "Botbuilder: Test all subsystems",
+				"icon": "$(beaker)"
+			},
+			{
+				"command": "botbuilder.testCommands",
+				"title": "Botbuilder: Test all commands",
+				"icon": "$(beaker)"
 			}
 		],
 		"viewsContainers": {
@@ -102,6 +112,16 @@
 				},
 				{
 					"command": "botbuilder.newCommand",
+					"when": "view == commands",
+					"group": "navigation"
+				},
+				{
+					"command": "botbuilder.testSubsystems",
+					"when": "view == subsystems",
+					"group": "navigation"
+				},
+				{
+					"command": "botbuilder.testCommands",
 					"when": "view == commands",
 					"group": "navigation"
 				}

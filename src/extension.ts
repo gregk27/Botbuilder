@@ -93,6 +93,17 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 	});
+	let testSubsystemsCommand = vscode.commands.registerCommand("botbuilder.testSubsystems", async ()=>{
+		for(let subsystem of getSubsystems()){
+			await runTests(subsystem.getTarget().file, subsystem.element.getName(false), subsystem.element.descriptor);
+		}
+	});
+	let testCommandsCommand = vscode.commands.registerCommand("botbuilder.testCommands", async ()=>{
+		for(let command of getCommands()){
+			console.log("Running tests for "+command.element.descriptor);
+			await runTests(command.getTarget().file, command.element.getName(false), command.element.descriptor);
+		}
+	});
 
 
 	vscode.workspace.onDidSaveTextDocument(()=>{
@@ -125,6 +136,8 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(newCommandCommand);
 	context.subscriptions.push(setupCommand);
 	context.subscriptions.push(runTestsCommand);
+	context.subscriptions.push(testSubsystemsCommand);
+	context.subscriptions.push(testCommandsCommand);
 }
 
 
@@ -226,7 +239,16 @@ async function runTests(path:string, name:string, descriptor:string): Promise<bo
 		let task = new vscode.Task({type: "runtests"}, vscode.workspace.workspaceFolders[0], "Run Tests", 'botbuilder', shell);
 		task.presentationOptions.echo = false;
 		task.presentationOptions.showReuseMessage = false;
-		vscode.tasks.executeTask(task);
+		// Await execution completion
+		let exec = await vscode.tasks.executeTask(task);
+		await new Promise<void>(resolve => {
+			let disposable = vscode.tasks.onDidEndTask(e => {
+				if(e.execution === exec){
+					disposable.dispose();
+					resolve();
+				}
+			});
+		});
 		return true;
 	} else {
 		vscode.window.showErrorMessage("File not found: "+path.replace(vscode.workspace.rootPath+"/", ""));
