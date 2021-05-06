@@ -19,7 +19,10 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:subsystems"
+		"onView:subsystems",
+		"workspaceContains:botbuilder.json",
+		"onCommand:botbuilder.setup",
+		"onCommand:botbuilder.runTests"
 	],
 	"tags": [
 		"FRC",
