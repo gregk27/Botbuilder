@@ -33,7 +33,11 @@ jobs:
         git config --global user.name 'Publish'
         git config --global user.email '' 
         npm version ${{ env.RELEASE_VERSION }} -m "Version updated to %s automatically"
-        git push "https://github.com/gregk27/Botbuilder.git" master
+    - name: Push new version
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: refs/head/master
 
     - name: Package vsix
       uses: lannonbr/vsce-action@master
