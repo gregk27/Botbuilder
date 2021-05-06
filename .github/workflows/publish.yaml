@@ -33,7 +33,7 @@ jobs:
         git config --global user.name 'Publish'
         git config --global user.email '' 
         npm version ${{ env.RELEASE_VERSION }} -m "Version updated to %s automatically"
-        git push origin HEAD:master
+        git push "https://github.com/gregk27/Botbuilder.git" master
 
     - name: Package vsix
       uses: lannonbr/vsce-action@master
@@ -56,9 +56,9 @@ jobs:
         asset_name: botbuilder-${{ env.RELEASE_VERSION }}.vsix
         asset_content_type: application/vsix
 
-    - name: Publish extension
-      uses: lannonbr/vsce-action@master
-      with:
-        args: "publish -p $VSCE_TOKEN"
-      env:
-        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+    # - name: Publish extension
+    #   uses: lannonbr/vsce-action@master
+    #   with:
+    #     args: "publish -p $VSCE_TOKEN"
+    #   env:
+    #     VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
