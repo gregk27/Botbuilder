@@ -10,6 +10,9 @@ All notable changes to the "botbuilder" extension will be documented in this fil
    - If installed, this will use [FRCMocks](https://github.com/gregk27/frcmocks)
 
 ### [0.5.2]
+ - Added commands and buttons to run unit tests for subsystems/commands
+
+### [0.5.2]
  - Added images and gifs to readme
 
 ### [0.5.1]

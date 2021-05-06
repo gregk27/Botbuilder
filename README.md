@@ -7,7 +7,7 @@ Botbuilder is a VSCode extension to assist in developing FRC java robots.
 The extension features multiple sidebar treeviews outlining components of the robot.
 
 #### Subsystem View
-The subsystem view shows a list of subsytem classes in the workspace. Classes are identified as subsystems if they directly extend `edu.wpi.first.wpilibj2.command.SubsystemBase`. Subsystems can be opened directly from this view.
+The subsystem view shows a list of subsytem classes in the workspace. Classes are identified as subsystems if they directly extend `edu.wpi.first.wpilibj2.command.SubsystemBase`. Subsystems can be opened directly from this view, and their test classes can be executed.
 
 For each subsytem, the following is shown:
  - Hardware components passed in the constructor, from the hardware list in `botbuilder.json` (name & type)
@@ -18,7 +18,7 @@ For each subsytem, the following is shown:
 ![Subsytem View](https://github.com/gregk27/Botbuilder/blob/master/readme-res/subsystemView.png?raw=true)
 
 #### Command View
-The command view shows a list of command classes in the workspace. Classes are identified as command if they directly extend `edu.wpi.first.wpilibj2.command.CommandBase` or `edu.wpi.first.wpilibj2.command.InstantCommand`. Commands can be opened directly from this view.
+The command view shows a list of command classes in the workspace. Classes are identified as command if they directly extend `edu.wpi.first.wpilibj2.command.CommandBase` or `edu.wpi.first.wpilibj2.command.InstantCommand`. Commands can be opened directly from this view, and their test classes can be executed.
 
 For each command, the following is shown:
  - Whether the command is normal, instant, or autonomous (auto determined by package)

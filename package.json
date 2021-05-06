@@ -1,8 +1,8 @@
 {
 	"name": "botbuilder",
 	"displayName": "Botbuilder",
-	"description": "Extension to assist in developing First Robotics Compoetition java robots",
-	"version": "0.5.2",
+	"description": "Extension to assist in developing First Robotics Competition java robots",
+	"version": "0.5.3",
 	"publisher": "gregk",
 	"icon": "resources/icon.png",
 	"galleryBanner": {
@@ -19,7 +19,10 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:subsystems"
+		"onView:subsystems",
+		"workspaceContains:botbuilder.json",
+		"onCommand:botbuilder.setup",
+		"onCommand:botbuilder.runTests"
 	],
 	"tags": [
 		"FRC",
@@ -56,6 +59,21 @@
 			{
 				"command": "botbuilder.setup",
 				"title": "Botbuilder: Initialize botbuilder for this workspace"
+			},
+			{
+				"command": "botbuilder.runTests",
+				"title": "Botbuilder: Run tests for this class",
+				"icon": "$(beaker)"
+			},
+			{
+				"command": "botbuilder.testSubsystems",
+				"title": "Botbuilder: Test all subsystems",
+				"icon": "$(beaker)"
+			},
+			{
+				"command": "botbuilder.testCommands",
+				"title": "Botbuilder: Test all commands",
+				"icon": "$(beaker)"
 			}
 		],
 		"viewsContainers": {
@@ -99,12 +117,27 @@
 					"command": "botbuilder.newCommand",
 					"when": "view == commands",
 					"group": "navigation"
+				},
+				{
+					"command": "botbuilder.testSubsystems",
+					"when": "view == subsystems",
+					"group": "navigation"
+				},
+				{
+					"command": "botbuilder.testCommands",
+					"when": "view == commands",
+					"group": "navigation"
 				}
 			],
 			"view/item/context": [
 				{
 					"command": "botbuilder.openFile",
 					"when": "viewItem == subsystem || viewItem == command || viewItem == method",
+					"group": "inline"
+				},
+				{
+					"command": "botbuilder.runTests",
+					"when": "viewItem == subsystem || viewItem == command",
 					"group": "inline"
 				}
 			],

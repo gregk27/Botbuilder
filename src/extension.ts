@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { Linkable } from './treeView/codeElements';
+import { Linkable, TreeElement } from './treeView/codeElements';
 import { DataProvider } from './treeView/dataProvider';
 import { Loader } from './treeView/loader';
 import { Command, Subsystem } from './treeView/treeType';
@@ -12,6 +12,9 @@ import * as Path from 'path';
 import * as fs from 'fs';
 import * as cp from 'child_process';
 import { SetupView as SetupView } from './webviews/setupView';
+import { JavaBase } from './javaParser/common';
+import { JavaClass } from './javaParser/JavaClasses';
+import { promisify } from 'util';
 
 let providers:DataProvider[] = [];
 let loader = new Loader(vscode.workspace.rootPath);
@@ -68,6 +71,39 @@ export function activate(context: vscode.ExtensionContext) {
 			new CommandCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
 		}
 	});
+	let runTestsCommand = vscode.commands.registerCommand("botbuilder.runTests", (file) => {
+		if(file === undefined){ // If no file passed then use currently open
+			let f = vscode.window.activeTextEditor.document;
+			let path = f.uri.fsPath.replace(/\\/g, "/");
+			let idx:number;
+			let descriptor:string;
+			if(!path.endsWith(".java")){
+				vscode.window.showWarningMessage("Current file is not a java file.");
+				return;
+			}
+			if((idx = path.indexOf(getConfig().srcFolder)) !== -1){
+				descriptor = path.substr(idx+getConfig().srcFolder.length+1).slice(0, -5);
+			} else if ('testFolder' in getConfig() && (idx = path.indexOf(getConfig().testFolder)) !== -1){
+				descriptor = path.substr(idx+getConfig().testFolder.length+1).slice(0, -5);
+			}
+			runTests(path, path.substring(path.lastIndexOf("/")+1).replace(".java", ""), descriptor);
+		} else {
+			if (file !== null && 'getTarget' in file && 'element' in file){ // Check if file implements linkable
+				runTests((<Linkable> file).getTarget().file, file.element.getName(false), file.element.descriptor);
+			}
+		}
+	});
+	let testSubsystemsCommand = vscode.commands.registerCommand("botbuilder.testSubsystems", async ()=>{
+		for(let subsystem of getSubsystems()){
+			await runTests(subsystem.getTarget().file, subsystem.element.getName(false), subsystem.element.descriptor);
+		}
+	});
+	let testCommandsCommand = vscode.commands.registerCommand("botbuilder.testCommands", async ()=>{
+		for(let command of getCommands()){
+			console.log("Running tests for "+command.element.descriptor);
+			await runTests(command.getTarget().file, command.element.getName(false), command.element.descriptor);
+		}
+	});
 
 
 	vscode.workspace.onDidSaveTextDocument(()=>{
@@ -99,6 +135,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(newSubsystemCommand);
 	context.subscriptions.push(newCommandCommand);
 	context.subscriptions.push(setupCommand);
+	context.subscriptions.push(runTestsCommand);
+	context.subscriptions.push(testSubsystemsCommand);
+	context.subscriptions.push(testCommandsCommand);
 }
 
 
@@ -173,4 +212,46 @@ export function openFile(file:string, line:number=-1, col:vscode.ViewColumn=vsco
 			}
 		});
 	});
+}
+
+/**
+ * Run all tests in a test class
+ * @param path Path to the java file
+ * @param name Name of class test are for (echoed back to user)
+ * @param descriptor Java class descriptor (src/ca/example/MyClass)
+ * @returns True if tasks are executed, otherwise false
+ */
+async function runTests(path:string, name:string, descriptor:string): Promise<boolean>{
+	if(('testFolder' in getConfig())){ // If tests are configured, update path if not in tests folder
+		if(!path.includes(getConfig().testFolder)){
+			path = path.replace(getConfig().srcFolder, getConfig().testFolder).replace(".java", "Test.java");
+			descriptor += "Test";
+		}
+	} else if(fs.existsSync(path) && (await promisify(fs.readFile)(path)).includes("@Test")) { // If tests aren't included, check if test annotations are included in the specified file
+		
+	} else { // Otherwise, error and exit
+		vscode.window.showErrorMessage("Tests are not configured with Botbuilder, and file not recognised as a test. Add testFolder to botbuilder.json");
+		return false;
+	}
+	if(fs.existsSync(path)){ // If the file exists, make a new shell and run the command
+		let shell = new vscode.ShellExecution(
+			`echo 'Running tests for ${name}' && ./gradlew test --tests ${(descriptor).split("/").join(".")} --warning-mode none --build-cache`);
+		let task = new vscode.Task({type: "runtests"}, vscode.workspace.workspaceFolders[0], "Run Tests", 'botbuilder', shell);
+		task.presentationOptions.echo = false;
+		task.presentationOptions.showReuseMessage = false;
+		// Await execution completion
+		let exec = await vscode.tasks.executeTask(task);
+		await new Promise<void>(resolve => {
+			let disposable = vscode.tasks.onDidEndTask(e => {
+				if(e.execution === exec){
+					disposable.dispose();
+					resolve();
+				}
+			});
+		});
+		return true;
+	} else {
+		vscode.window.showErrorMessage("File not found: "+path.replace(vscode.workspace.rootPath+"/", ""));
+		return false;
+	}
 }
