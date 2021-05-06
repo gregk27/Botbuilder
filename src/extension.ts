@@ -71,10 +71,24 @@ export function activate(context: vscode.ExtensionContext) {
 			new CommandCreator(context, vscode.workspace.rootPath+"/"+getConfig().srcFolder).show();
 		}
 	});
-	let runTestsCommand = vscode.commands.registerCommand("botbuilder.runTests", (file: TreeElement<JavaBase>) => {
-		let element = file.element;
-		if (file !== null && 'getTarget' in file){ // Check if file implements linkable
-			runTests((<Linkable> file).getTarget().file, element.getName(false), element.descriptor);
+	let runTestsCommand = vscode.commands.registerCommand("botbuilder.runTests", (file) => {
+		if(file === undefined){ // If no file passed then use currently open
+			let f = vscode.window.activeTextEditor.document;
+			let path = f.uri.fsPath.replace(/\\/g, "/");
+			let idx:number;
+			let descriptor:string;
+			console.log(getConfig().srcFolder);
+			if((idx = path.indexOf(getConfig().srcFolder)) !== -1){
+				descriptor = path.substr(idx+getConfig().srcFolder.length+1).slice(0, -5);
+			} else if ('testFolder' in getConfig() && (idx = path.indexOf(getConfig().testFolder)) !== -1){
+				descriptor = path.substr(idx+getConfig().testFolder.length+1).slice(0, -5);
+			}
+			console.log(descriptor);
+			runTests(path, path.substring(path.lastIndexOf("/")+1).replace(".java", ""), descriptor);
+		} else {
+			if (file !== null && 'getTarget' in file && 'element' in file){ // Check if file implements linkable
+				runTests((<Linkable> file).getTarget().file, file.element.getName(false), file.element.descriptor);
+			}
 		}
 	});
 
@@ -196,6 +210,7 @@ async function runTests(path:string, name:string, descriptor:string): Promise<bo
 	if(('testFolder' in getConfig())){ // If tests are configured, update path if not in tests folder
 		if(!path.includes(getConfig().testFolder)){
 			path = path.replace(getConfig().srcFolder, getConfig().testFolder).replace(".java", "Test.java");
+			descriptor += "Test";
 		}
 	} else if(fs.existsSync(path) && (await promisify(fs.readFile)(path)).includes("@Test")) { // If tests aren't included, check if test annotations are included in the specified file
 		
@@ -205,7 +220,7 @@ async function runTests(path:string, name:string, descriptor:string): Promise<bo
 	}
 	if(fs.existsSync(path)){ // If the file exists, make a new shell and run the command
 		let shell = new vscode.ShellExecution(
-			`echo 'Running tests for ${name}' && ./gradlew test --tests ${(descriptor+"Test").split("/").join(".")} --warning-mode none --build-cache`);
+			`echo 'Running tests for ${name}' && ./gradlew test --tests ${(descriptor).split("/").join(".")} --warning-mode none --build-cache`);
 		let task = new vscode.Task({type: "runtests"}, vscode.workspace.workspaceFolders[0], "Run Tests", 'botbuilder', shell);
 		task.presentationOptions.echo = false;
 		task.presentationOptions.showReuseMessage = false;
