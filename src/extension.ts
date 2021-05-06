@@ -77,13 +77,15 @@ export function activate(context: vscode.ExtensionContext) {
 			let path = f.uri.fsPath.replace(/\\/g, "/");
 			let idx:number;
 			let descriptor:string;
-			console.log(getConfig().srcFolder);
+			if(!path.endsWith(".java")){
+				vscode.window.showWarningMessage("Current file is not a java file.");
+				return;
+			}
 			if((idx = path.indexOf(getConfig().srcFolder)) !== -1){
 				descriptor = path.substr(idx+getConfig().srcFolder.length+1).slice(0, -5);
 			} else if ('testFolder' in getConfig() && (idx = path.indexOf(getConfig().testFolder)) !== -1){
 				descriptor = path.substr(idx+getConfig().testFolder.length+1).slice(0, -5);
 			}
-			console.log(descriptor);
 			runTests(path, path.substring(path.lastIndexOf("/")+1).replace(".java", ""), descriptor);
 		} else {
 			if (file !== null && 'getTarget' in file && 'element' in file){ // Check if file implements linkable
