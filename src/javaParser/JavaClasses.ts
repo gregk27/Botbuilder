@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { InnerClassesAttributeInfo, JavaClassFile, JavaClassFileReader, Modifier, SourceFileAttributeInfo, ConstantType } from "java-class-tools";
 import { ClassDetail, ClassType, JavaBase, Scope } from "./common";
 import { JavaField, JavaMethod } from "./JavaElements";
-import { getClassDetail, getClassType, getScope, getStringFromPool, parseAttributes } from "./parserFunctions";
+import { getClassDetail, getClassType, getScope, getStringFromPool, parseAttributes, getJavadoc } from "./parserFunctions";
 
 /** Reader used to read subclasses */
 const reader = new JavaClassFileReader();
@@ -32,9 +32,13 @@ export class JavaClass extends JavaBase{
      */
     public readonly classFile: JavaClassFile;
     /**
-     * The `.java` source file, extracted from the `.class` file
+     * Path to the `.java` source file, extracted from the `.class` file
      */
     public srcFile: string;
+    /**
+     * Text content of source file
+     */
+    public srcText:Promise<string>;
     
     /**
      * Array containing the {@link JavaField | Fields} of the class
@@ -94,8 +98,19 @@ export class JavaClass extends JavaBase{
 
         this.srcFile = "";
         parseAttributes(file, file.attributes, {
-            "SourceFile": (attr) => 
-                this.srcFile = srcPath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index),
+            "SourceFile": (attr) => {
+                this.srcFile = srcPath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
+                this.srcText = new Promise<string>((resolve, reject) => {
+                    fs.readFile(this.srcFile, (err, res)=>{
+                        console.log("Parsed");
+                        if(err === null){
+                            resolve(res.toString());
+                        } else {
+                            reject(err);
+                        }
+                    });
+                });
+            },
             "InnerClasses": (attr) => {
                 for(let cls of (<InnerClassesAttributeInfo> attr).classes){
                     if(file.this_class !==  cls.inner_class_info_index){ // If the inner class is also the outer class
