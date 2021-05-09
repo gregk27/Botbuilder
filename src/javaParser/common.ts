@@ -3,6 +3,8 @@
  */
 export abstract class JavaBase{
 
+    public javadoc:string = "";
+
     constructor(
         /**Name of the element */
         public readonly name: string,

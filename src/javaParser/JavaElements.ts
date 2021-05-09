@@ -1,7 +1,7 @@
 import { CodeAttributeInfo, ConstantValueAttributeInfo, FieldInfo, LineNumberTableAttributeInfo, LocalVariableTableAttributeInfo, MethodInfo, Modifier } from "java-class-tools";
 import { ClassDetail, DescriptorTypes, JavaBase, MethodParam, Scope, Type } from "./common";
 import { JavaClass } from "./JavaClasses";
-import { getClassDetail, getScope, getStringFromPool, getValueFromPool, parseAttributes } from "./parserFunctions";
+import { getClassDetail, getJavadoc, getScope, getStringFromPool, getValueFromPool, parseAttributes } from "./parserFunctions";
 import { DebugConsoleMode } from "vscode";
 
 /**
@@ -80,7 +80,7 @@ export abstract class JavaElement extends JavaBase{
         if(this.isStatic && this.isFinal){return "S/F ";}
         else if(this.isStatic){return "S ";}
         else if(this.isFinal){return "F ";}
-        else {return ""};
+        else {return "";}
     }
 
     /**
@@ -124,6 +124,7 @@ export class JavaField extends JavaElement{
                     this.constVal = getValueFromPool(parent.classFile, (<ConstantValueAttributeInfo> attr).constantvalue_index),
             }
         );
+        getJavadoc(parent, this.getDeclaration().replace(/ /g, "\\s*").replace(/=/g, "\\s*=\\s*")).then((doc) => this.javadoc = doc);
     }
 
     /**
@@ -286,6 +287,7 @@ export class JavaMethod extends JavaElement{
         this.paramString += ")";
         this.paramNameString += ")";
         this.paramCombinedString += ")";
+        getJavadoc(parent, this.getDeclaration().replace(/ /g, "\\s*")).then((doc) => this.javadoc = doc);
     }
 
     /**

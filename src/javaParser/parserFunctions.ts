@@ -126,8 +126,9 @@ export function getClassDetail(fullName: string):ClassDetail {
 const JAVADOC_REGEX = "(\\/\\*\\*[^;]*?)\\s*";
 
 export async function getJavadoc(cls:JavaClass, line:string):Promise<string>{
-    let result = new RegExp(JAVADOC_REGEX+line, 'gs').exec(await cls.srcText);
-    if(result.length > 1){
+    let txt = await cls.srcText;
+    let result = new RegExp(JAVADOC_REGEX+line, 'gs').exec(txt);
+    if(result !== null && result.length > 1){
         return result[1].replace(/^\s*\/?\*+\/?\s*/gm, "");
     }
     return "";

@@ -38,7 +38,7 @@ export class JavaClass extends JavaBase{
     /**
      * Text content of source file
      */
-    public srcText:Promise<string>;
+    public srcText:any;//:Promise<string>;
     
     /**
      * Array containing the {@link JavaField | Fields} of the class
@@ -125,6 +125,7 @@ export class JavaClass extends JavaBase{
                 }
             }
         });
+        getJavadoc(this, this.getDeclaration().replace(/ /g, "\\s*")).then((doc) => this.javadoc = doc);
         console.log();
     }
 
