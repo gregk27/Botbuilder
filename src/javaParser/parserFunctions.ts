@@ -1,6 +1,7 @@
 import { AttributeInfo, ClassInfo, ConstantType, JavaClassFile, Modifier, StringInfo, Utf8Info } from "java-class-tools";
 import { TextDecoder } from "util";
 import { ClassDetail, ClassType, Scope } from "./common";
+import { JavaClass } from "./JavaClasses";
 
 
 const textDecoder = new TextDecoder();
@@ -120,4 +121,14 @@ export function getClassDetail(fullName: string):ClassDetail {
         outer,
         full:fullName
     };
+}
+
+const JAVADOC_REGEX = "(\\/\\*\\*[^;]*?)\\s*";
+
+export async function getJavadoc(cls:JavaClass, line:string):Promise<string>{
+    let result = new RegExp(JAVADOC_REGEX+line, 'gs').exec(await cls.srcText);
+    if(result.length > 1){
+        return result[1].replace(/^\s*\/?\*+\/?\s*/gm, "");
+    }
+    return "";
 }
