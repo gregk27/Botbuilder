@@ -38,7 +38,8 @@ export class JavaClass extends JavaBase{
     /**
      * Text content of source file
      */
-    public srcText:any;//:Promise<string>;
+    public readonly srcText:Promise<string>;
+    private srcTextCallback:(text:string) => void;
     
     /**
      * Array containing the {@link JavaField | Fields} of the class
@@ -81,6 +82,13 @@ export class JavaClass extends JavaBase{
             this.interfaces.push(getClassDetail(getStringFromPool(file, i)));
         }
 
+        this.srcText = new Promise<string>((resolve, reject) => {
+            this.srcTextCallback = (text:string) =>{
+                if(text === null) { reject(); }
+                resolve(text);
+            };
+        });
+
         this.fields = [];
         // Get fields
         for(let f of file.fields){
@@ -100,15 +108,9 @@ export class JavaClass extends JavaBase{
         parseAttributes(file, file.attributes, {
             "SourceFile": (attr) => {
                 this.srcFile = srcPath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
-                this.srcText = new Promise<string>((resolve, reject) => {
-                    fs.readFile(this.srcFile, (err, res)=>{
-                        console.log("Parsed");
-                        if(err === null){
-                            resolve(res.toString());
-                        } else {
-                            reject(err);
-                        }
-                    });
+                fs.readFile(this.srcFile, (err, res) => {
+                    if(err) { this.srcTextCallback(null); }
+                    this.srcTextCallback(res.toString());
                 });
             },
             "InnerClasses": (attr) => {
@@ -125,7 +127,7 @@ export class JavaClass extends JavaBase{
                 }
             }
         });
-        getJavadoc(this, this.getDeclaration().replace(/ /g, "\\s*")).then((doc) => this.javadoc = doc);
+        getJavadoc(this, this.getDeclaration()).then((doc) => this.javadoc = doc);
         console.log();
     }
 
@@ -202,7 +204,6 @@ export class JavaClass extends JavaBase{
         out += " "+this.name+this.getSuperPretty(false);
         return out.trim();    
     }
-
 
 }
 

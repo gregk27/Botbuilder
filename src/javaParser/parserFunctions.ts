@@ -123,13 +123,20 @@ export function getClassDetail(fullName: string):ClassDetail {
     };
 }
 
-const JAVADOC_REGEX = "(\\/\\*\\*[^;]*?)\\s*";
+// Regex pattern to match javadoc string
+const JAVADOC_REGEX = "(\\/\\*\\*[^;{}]*?)^\\s*";
+// Regex to remove /** */ from regex
+const JAVADOC_COMMENT_REGEX = /[^\S\r\n]*\/?\*+\/?[^\S\r\n]*/gm;
 
 export async function getJavadoc(cls:JavaClass, line:string):Promise<string>{
     let txt = await cls.srcText;
-    let result = new RegExp(JAVADOC_REGEX+line, 'gs').exec(txt);
+    let rgx = JAVADOC_REGEX+toRegex(line)+'\W\\s*[;{]?';
+    console.log(rgx);
+    let result = new RegExp(rgx, 'gm').exec(txt);
     if(result !== null && result.length > 1){
-        return result[1].replace(/^\s*\/?\*+\/?\s*/gm, "");
+        console.log(result[1]);
+        console.log(result[1].replace(JAVADOC_COMMENT_REGEX, ""));
+        return result[1].replace(JAVADOC_COMMENT_REGEX, "");
     }
     return "";
 }
