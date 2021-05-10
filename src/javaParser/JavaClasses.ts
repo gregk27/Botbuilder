@@ -38,8 +38,7 @@ export class JavaClass extends JavaBase{
     /**
      * Text content of source file
      */
-    public readonly srcText:Promise<string>;
-    private srcTextCallback:(text:string) => void;
+    public srcText:string;
     
     /**
      * Array containing the {@link JavaField | Fields} of the class
@@ -75,32 +74,6 @@ export class JavaClass extends JavaBase{
 
         // Get superclass and interfaces
         this.superClass = getClassDetail(getStringFromPool(file, file.super_class));
-        // TODO: Add code to get interfaces
-        this.interfaces = [];
-        //Get interfaces
-        for(let i of file.interfaces){
-            this.interfaces.push(getClassDetail(getStringFromPool(file, i)));
-        }
-
-        this.srcText = new Promise<string>((resolve, reject) => {
-            this.srcTextCallback = (text:string) =>{
-                if(text === null) { reject(); }
-                resolve(text);
-            };
-        });
-
-        this.fields = [];
-        // Get fields
-        for(let f of file.fields){
-            this.fields.push(new JavaField(this, f));
-        }
-
-        this.methods = [];
-        // Get methods
-        for(let m of file.methods){
-            this.methods.push(new JavaMethod(this, m));
-        }
-
         
         this.innerClasses = [];
 
@@ -108,10 +81,8 @@ export class JavaClass extends JavaBase{
         parseAttributes(file, file.attributes, {
             "SourceFile": (attr) => {
                 this.srcFile = srcPath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
-                fs.readFile(this.srcFile, (err, res) => {
-                    if(err) { this.srcTextCallback(null); }
-                    this.srcTextCallback(res.toString());
-                });
+                this.srcText = fs.readFileSync(this.srcFile).toString();
+                this.javadoc = getJavadoc(this, this.getDeclaration());
             },
             "InnerClasses": (attr) => {
                 for(let cls of (<InnerClassesAttributeInfo> attr).classes){
@@ -127,7 +98,28 @@ export class JavaClass extends JavaBase{
                 }
             }
         });
-        getJavadoc(this, this.getDeclaration()).then((doc) => this.javadoc = doc);
+
+        console.log(this.srcText);
+
+        // TODO: Add code to get interfaces
+        this.interfaces = [];
+        //Get interfaces
+        for(let i of file.interfaces){
+            this.interfaces.push(getClassDetail(getStringFromPool(file, i)));
+        }
+
+        this.fields = [];
+        // Get fields
+        for(let f of file.fields){
+            this.fields.push(new JavaField(this, f));
+        }
+
+        this.methods = [];
+        // Get methods
+        for(let m of file.methods){
+            this.methods.push(new JavaMethod(this, m));
+        }
+
         console.log();
     }
 

@@ -124,7 +124,7 @@ export class JavaField extends JavaElement{
                     this.constVal = getValueFromPool(parent.classFile, (<ConstantValueAttributeInfo> attr).constantvalue_index),
             }
         );
-        getJavadoc(parent, this.getDeclaration()).then((doc) => this.javadoc = doc);
+        this.javadoc = getJavadoc(parent, this.getDeclaration());
     }
 
     /**
@@ -287,7 +287,7 @@ export class JavaMethod extends JavaElement{
         this.paramString += ")";
         this.paramNameString += ")";
         this.paramCombinedString += ")";
-        getJavadoc(parent, this.getDeclaration()).then((doc) => this.javadoc = doc);
+        this.javadoc = getJavadoc(parent, this.getDeclaration());
     }
 
     /**

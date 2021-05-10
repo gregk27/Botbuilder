@@ -128,9 +128,9 @@ const JAVADOC_REGEX = "(\\/\\*\\*[^;{}]*?)^\\s*";
 // Regex to remove /** */ from regex
 const JAVADOC_COMMENT_REGEX = /[^\S\r\n]*\/?\*+\/?[^\S\r\n]*/gm;
 
-export async function getJavadoc(cls:JavaClass, line:string):Promise<string>{
-    let txt = await cls.srcText;
-    let rgx = JAVADOC_REGEX+toRegex(line)+'\W\\s*[;{]?';
+export function getJavadoc(cls:JavaClass, line:string):string{
+    let txt = cls.srcText;
+    let rgx = JAVADOC_REGEX+toRegex(line)+'\\W\\s*[;{]?';
     console.log(rgx);
     let result = new RegExp(rgx, 'gm').exec(txt);
     if(result !== null && result.length > 1){
