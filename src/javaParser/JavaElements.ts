@@ -369,6 +369,9 @@ export class JavaMethod extends JavaElement{
         return this.paramString+"=>"+this.returnType.pretty;
     }
     public getDeclaration(): string {
+        if(this.name === "<init>"){
+            return this.getModifiers(false) + (this.isAbstract ? "abstract " : "") + this.parentClass.name + this.paramCombinedString;
+        }
         return this.getModifiers(false) + (this.isAbstract ? "abstract " : "") + this.returnType.pretty + " " + this.name + this.paramCombinedString;
     }
 }

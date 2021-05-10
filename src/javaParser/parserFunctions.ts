@@ -133,3 +133,10 @@ export async function getJavadoc(cls:JavaClass, line:string):Promise<string>{
     }
     return "";
 }
+
+export function toRegex(str:string):string{
+    str = str.replace(/[.*-+?^${}()|[\]\\]/g, '\\$&') // Escape special characters
+        .replace(/\\?[-!$%^&*()+|~=`{}\[\]:";'<>?,.\/]/g, "\\s*$&\\s*") // Add whitespace around symbols
+        .replace(/\s/g, "\\s+"); // Replace spaces with whitespace
+    return str;
+}
