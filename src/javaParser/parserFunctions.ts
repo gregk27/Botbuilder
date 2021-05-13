@@ -136,7 +136,7 @@ export function getJavadoc(cls:JavaClass, line:string):string{
     if(result !== null && result.length > 1){
         console.log(result[1]);
         console.log(result[1].replace(JAVADOC_COMMENT_REGEX, ""));
-        return result[1].replace(JAVADOC_COMMENT_REGEX, "").trim();
+        return result[1].replace(JAVADOC_COMMENT_REGEX, "").replace(/@Override\s*(\/\/.*)?\s*$/gi, "").trim();
     }
     return "";
 }
