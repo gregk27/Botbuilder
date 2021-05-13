@@ -88,7 +88,7 @@ export abstract class TreeElement<T extends JavaBase> extends TreeElementBase{
      */
     getTooltip(): string{
         if(this.element.javadoc !== ""){
-            return this.element.getDeclaration() + this.element.javadoc;
+            return this.element.getDeclaration() + "\n" + this.element.javadoc;
         }
         return this.element.getDeclaration();
     };
@@ -183,7 +183,7 @@ export class ReferencedSubsystem extends BasicTreeElement implements Linkable{
 
     constructor(subsystem:Subsystem, name:string, required:boolean)  {
         super(required ? "requiredSubsystem" : "subsystem", "subsystem", 
-            name, subsystem.element.getSignature(), subsystem.element.getPrettyName(true)+subsystem.element.javadoc);
+            name, subsystem.element.getSignature(), subsystem.element.getPrettyName(true)+"\n"+subsystem.element.javadoc);
             this.subsystem = subsystem;
     }
 
