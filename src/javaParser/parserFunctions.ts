@@ -144,6 +144,7 @@ export function getJavadoc(cls:JavaClass, line:string):string{
 export function toRegex(str:string):string{
     str = str.replace(/[.*-+?^${}()|[\]\\]/g, '\\$&') // Escape special characters
         .replace(/\\?[-!$%^&*()+|~=`{}\[\]:";'<>?,.\/]/g, "\\s*$&\\s*") // Add whitespace around symbols
+        .replace(/(\w+\\s\*)\\\$(\\s\*\w+)/g, "($1\\.)?$2") // Replace inner classes (Outer$Inner) with ((Outer\.)?Inner)
         .replace(/\s/g, "\\s+"); // Replace spaces with whitespace
     return str;
 }
