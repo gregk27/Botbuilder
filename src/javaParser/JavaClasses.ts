@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { InnerClassesAttributeInfo, JavaClassFile, JavaClassFileReader, Modifier, SourceFileAttributeInfo, ConstantType } from "java-class-tools";
 import { ClassDetail, ClassType, JavaBase, Scope } from "./common";
 import { JavaField, JavaMethod } from "./JavaElements";
-import { getClassDetail, getClassType, getScope, getStringFromPool, parseAttributes } from "./parserFunctions";
+import { getClassDetail, getClassType, getScope, getStringFromPool, parseAttributes, getJavadoc } from "./parserFunctions";
 
 /** Reader used to read subclasses */
 const reader = new JavaClassFileReader();
@@ -32,9 +32,13 @@ export class JavaClass extends JavaBase{
      */
     public readonly classFile: JavaClassFile;
     /**
-     * The `.java` source file, extracted from the `.class` file
+     * Path to the `.java` source file, extracted from the `.class` file
      */
     public srcFile: string;
+    /**
+     * Text content of source file
+     */
+    public srcText:string;
     
     /**
      * Array containing the {@link JavaField | Fields} of the class
@@ -70,6 +74,33 @@ export class JavaClass extends JavaBase{
 
         // Get superclass and interfaces
         this.superClass = getClassDetail(getStringFromPool(file, file.super_class));
+        
+        this.innerClasses = [];
+
+        this.srcFile = "";
+        parseAttributes(file, file.attributes, {
+            "SourceFile": (attr) => {
+                this.srcFile = srcPath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index);
+                this.srcText = fs.readFileSync(this.srcFile).toString();
+                this.javadoc = getJavadoc(this, this.getDeclaration());
+            },
+            "InnerClasses": (attr) => {
+                for(let cls of (<InnerClassesAttributeInfo> attr).classes){
+                    if(file.this_class !==  cls.inner_class_info_index){ // If the inner class is also the outer class
+                        let path = buildPath+getStringFromPool(file, cls.inner_class_info_index)+".class";
+                        if(!fs.existsSync(path)){ // Catch files that are from external libraries
+                            console.warn(`File does not exist ${path}`);
+                        } else {
+                            let newCls = new JavaInnerClass(reader.read(path), srcPath, buildPath);
+                            this.innerClasses.push(newCls);
+                        }
+                    }
+                }
+            }
+        });
+
+        console.log(this.srcText);
+
         // TODO: Add code to get interfaces
         this.interfaces = [];
         //Get interfaces
@@ -89,27 +120,6 @@ export class JavaClass extends JavaBase{
             this.methods.push(new JavaMethod(this, m));
         }
 
-        
-        this.innerClasses = [];
-
-        this.srcFile = "";
-        parseAttributes(file, file.attributes, {
-            "SourceFile": (attr) => 
-                this.srcFile = srcPath+"/"+this.pckg+"/"+getStringFromPool(file, (<SourceFileAttributeInfo> attr).sourcefile_index),
-            "InnerClasses": (attr) => {
-                for(let cls of (<InnerClassesAttributeInfo> attr).classes){
-                    if(file.this_class !==  cls.inner_class_info_index){ // If the inner class is also the outer class
-                        let path = buildPath+getStringFromPool(file, cls.inner_class_info_index)+".class";
-                        if(!fs.existsSync(path)){ // Catch files that are from external libraries
-                            console.warn(`File does not exist ${path}`);
-                        } else {
-                            let newCls = new JavaInnerClass(reader.read(path), srcPath, buildPath);
-                            this.innerClasses.push(newCls);
-                        }
-                    }
-                }
-            }
-        });
         console.log();
     }
 
@@ -186,7 +196,6 @@ export class JavaClass extends JavaBase{
         out += " "+this.name+this.getSuperPretty(false);
         return out.trim();    
     }
-
 
 }
 

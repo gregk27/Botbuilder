@@ -36,7 +36,7 @@ export abstract class TreeElementBase {
     /**
      * Get the tooltip to show on hover
      */
-    abstract getTooltip(): string;
+    abstract getTooltip(): string | vscode.MarkdownString;
 
     /**
      * Get the paths to the dark and light icons (preferably .csv)
@@ -55,6 +55,7 @@ export namespace TreeElementBase {
         let item = new TreeItem(e.getLabel(), e.collapsibleState);
         item.iconPath = e.getIcon();
         item.description = e.getDescription();
+        // @ts-ignore: Typings for VSCode API don't have MarkdownString listed, while it is supported
         item.tooltip = e.getTooltip();
         item.contextValue = e.contextValue;
         return item;
@@ -86,8 +87,12 @@ export abstract class TreeElement<T extends JavaBase> extends TreeElementBase{
     /**
      * Get the tooltip to show on hover
      */
-    getTooltip(): string{
-        return this.element.getDeclaration();
+    getTooltip(): string | vscode.MarkdownString{
+        if(this.element.javadoc !== ""){
+            // TODO: Create a function to generate markdown from javadoc
+            return new vscode.MarkdownString(`**${this.element.getDeclaration()}**\n\n${this.element.getMarkdownJavadoc()}`);
+        }
+        return new vscode.MarkdownString(`**${this.element.getDeclaration()}**`);
     };
     /**
      * Get the paths to the dark and light icons (preferably .csv)
@@ -180,7 +185,7 @@ export class ReferencedSubsystem extends BasicTreeElement implements Linkable{
 
     constructor(subsystem:Subsystem, name:string, required:boolean)  {
         super(required ? "requiredSubsystem" : "subsystem", "subsystem", 
-            name, subsystem.element.getSignature(), subsystem.element.getPrettyName(true));
+            name, subsystem.element.getSignature(), `**${subsystem.element.getPrettyName(true)}**\n\n${subsystem.element.getMarkdownJavadoc()}`);
             this.subsystem = subsystem;
     }
 

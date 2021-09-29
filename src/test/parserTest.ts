@@ -1,6 +1,7 @@
 import { JavaClassFileReader, ConstantPoolInfo } from "java-class-tools";
 import { JavaClass } from "../javaParser/JavaClasses";
 import { parseFile, parseFolder } from "../javaParser/javaParser";
+import * as fs from 'fs';
 
 console.log("Running!");
 
@@ -12,6 +13,7 @@ async function test(){
     let cls = parseFile("C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/build/classes/java/main/ler/robot/subsystems/Drivetrain.class", "C:/Users/Greg/Documents/Workspaces/Robocode/LER2020_Testing/LER2020_ConveyorBot/src/main/java/", false);
 
     console.log(JSON.stringify(cls));
+    await cls.srcText;
     console.log(`Parsed in: ${new Date().getUTCMilliseconds() - startTime.getUTCMilliseconds()}ms`);
 }
 test();

@@ -3,6 +3,8 @@
  */
 export abstract class JavaBase{
 
+    public javadoc:string = "";
+
     constructor(
         /**Name of the element */
         public readonly name: string,
@@ -55,6 +57,13 @@ export abstract class JavaBase{
      * Get a string representing the java delcaration
      */
     public abstract getDeclaration(): string;
+
+    /**
+     * Get a markdown representation of the javadoc
+     */
+    public getMarkdownJavadoc(): string{
+        return this.javadoc.replace(/(\r)?\n/gs, "\n\n").replace(/@param\s+(.*?)\s+/gsi, "**- $1** ").replace(/@Returns?/gsi, "**Returns:** ");
+    }
 }
 
 /**
