@@ -124,19 +124,19 @@ export function getClassDetail(fullName: string):ClassDetail {
 }
 
 // Regex pattern to match javadoc string
-const JAVADOC_REGEX = "(\\/\\*\\*[^;{}]*?)^\\s*";
+const JAVADOC_REGEX = /\/\*\*([\s\S]*?)\*\/\s*([\s\S]*?)[;{}]/gm;
 // Regex to remove /** */ from regex
 const JAVADOC_COMMENT_REGEX = /[^\S\r\n]*\/?\*+\/?[^\S\r\n]*/gm;
 
 export function getJavadoc(cls:JavaClass, line:string):string{
-    let txt = cls.srcText;
-    let rgx = JAVADOC_REGEX+toRegex(line)+'\\W\\s*[;{]?';
-    console.log(rgx);
-    let result = new RegExp(rgx, 'gm').exec(txt);
-    if(result !== null && result.length > 1){
-        console.log(result[1]);
-        console.log(result[1].replace(JAVADOC_COMMENT_REGEX, ""));
-        return result[1].replace(JAVADOC_COMMENT_REGEX, "").replace(/@Override\s*(\/\/.*)?\s*$/gi, "").trim();
+    let result;
+    JAVADOC_REGEX.lastIndex = 0;
+    while(result = JAVADOC_REGEX.exec(cls.srcText)) {
+        if(result.length > 1 && result[2].match(toRegex(line))){
+            console.log(result[1]);
+            console.log(result[1].replace(JAVADOC_COMMENT_REGEX, ""));
+            return result[1].replace(JAVADOC_COMMENT_REGEX, "").replace(/@Override\s*(\/\/.*)?\s*$/gi, "").trim();
+        }
     }
     return "";
 }
