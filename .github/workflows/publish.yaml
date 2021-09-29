@@ -22,9 +22,8 @@ jobs:
     - name: Setup nodejs
       uses: actions/setup-node@v1
       with:
-        node-version: '14'
+        node-version: '10'
     - run: npm ci
-    - run: npm rebuild
 
     - name: Get version
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
